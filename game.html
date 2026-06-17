@@ -114,6 +114,56 @@
     @media (min-width: 700px) {
       #touch-controls { display: none; }
     }
+
+    /* ===== Mode select menu ===== */
+    #menu {
+      position: absolute;
+      inset: 0;
+      background: rgba(5,5,5,0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      z-index: 10;
+      backdrop-filter: blur(2px);
+    }
+    #menu.hidden { display: none; }
+    #menu h2 {
+      font-family: 'Bangers', cursive;
+      font-size: clamp(26px, 5vw, 44px);
+      color: #fff;
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 18px rgba(255,61,0,0.5);
+    }
+    .mode-btn {
+      background: rgba(255,61,0,0.06);
+      border: 2px solid #FF3D00;
+      color: #FF3D00;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(20px, 3.5vw, 30px);
+      letter-spacing: 0.05em;
+      padding: 16px 34px;
+      border-radius: 14px;
+      cursor: pointer;
+      min-width: 320px;
+      box-shadow: 0 0 20px rgba(255,61,0,0.25);
+      transition: transform 0.12s, background 0.12s, box-shadow 0.12s;
+    }
+    .mode-btn:hover {
+      transform: scale(1.04);
+      background: rgba(255,61,0,0.16);
+      box-shadow: 0 0 36px rgba(255,61,0,0.5);
+    }
+    .mode-btn span {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.55);
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -122,6 +172,17 @@
 
   <div id="canvas-wrapper">
     <canvas id="game" width="900" height="500"></canvas>
+    <div id="menu">
+      <h2>WÄHLE DEINEN MODUS</h2>
+      <button class="mode-btn" id="mode-ai">
+        1 SPIELER VS KI
+        <span>Spieler 1: A / D — Bewegen &nbsp;·&nbsp; LEERTASTE — Angriff</span>
+      </button>
+      <button class="mode-btn" id="mode-pvp">
+        2 SPIELER (PVP)
+        <span>S1: A/D + LEERTASTE &nbsp;·&nbsp; S2: K/Ö + O</span>
+      </button>
+    </div>
   </div>
 
   <div id="touch-controls">
@@ -169,6 +230,19 @@
 
     let player, ai, gameOver, gameOverTimer, winner;
     let particles = [];
+    let mode = null;       // 'ai' or 'pvp'
+    let started = false;
+
+    // Menu mode selection
+    const menuEl = document.getElementById('menu');
+    function startGame(selectedMode) {
+      mode = selectedMode;
+      started = true;
+      menuEl.classList.add('hidden');
+      init();
+    }
+    document.getElementById('mode-ai').addEventListener('click', () => startGame('ai'));
+    document.getElementById('mode-pvp').addEventListener('click', () => startGame('pvp'));
 
     function createStickman(x, isPlayer) {
       return {
@@ -502,11 +576,11 @@
     }
 
     function drawUI() {
-      // Player health bar (left)
-      drawHealthBar(18, 20, player.hp, '#FF2200', 'PLAYER');
+      // Player 1 health bar (left)
+      drawHealthBar(18, 20, player.hp, '#FF2200', 'SPIELER 1');
 
-      // AI health bar (right-aligned)
-      drawHealthBar(W - 218, 20, ai.hp, '#0088FF', 'KI');
+      // Opponent health bar (right-aligned)
+      drawHealthBar(W - 218, 20, ai.hp, '#0088FF', mode === 'pvp' ? 'SPIELER 2' : 'KI');
 
       // Controls hint
       ctx.save();
@@ -514,7 +588,10 @@
       ctx.fillStyle = 'rgba(255,255,255,0.28)';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.fillText('A / D — Bewegen   |   LEERTASTE — Angriff', W / 2, H - 8);
+      const hint = mode === 'pvp'
+        ? 'S1: A / D + LEERTASTE   |   S2: K / Ö + O'
+        : 'A / D — Bewegen   |   LEERTASTE — Angriff';
+      ctx.fillText(hint, W / 2, H - 8);
       ctx.restore();
     }
 
@@ -525,7 +602,12 @@
       ctx.fillRect(0, 0, W, H);
 
       // Win text
-      const mainText = winner === 'player' ? 'DU HAST GEWONNEN! 🏆' : 'KI GEWINNT! 💀';
+      let mainText;
+      if (mode === 'pvp') {
+        mainText = winner === 'player' ? 'SPIELER 1 GEWINNT! 🏆' : 'SPIELER 2 GEWINNT! 🏆';
+      } else {
+        mainText = winner === 'player' ? 'DU HAST GEWONNEN! 🏆' : 'KI GEWINNT! 💀';
+      }
       ctx.font = 'bold 58px Bangers, cursive';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -642,6 +724,42 @@
       if (ai.hitFlash > 0) ai.hitFlash--;
     }
 
+    function updatePlayer2() {
+      // Player 2 controls the blue stickman: k=left, ö=right, o=attack
+      if (keys['k'] || keys['K']) ai.x -= PLAYER_SPEED;
+      if (keys['ö'] || keys['Ö']) ai.x += PLAYER_SPEED;
+
+      ai.x = Math.max(30, Math.min(W - 30, ai.x));
+
+      // Face player 1
+      ai.dir = player.x < ai.x ? -1 : 1;
+
+      // Attack
+      if ((keys['o'] || keys['O']) && !ai.attacking && ai.cooldown === 0) {
+        ai.attacking = true;
+        ai.attackFrame = 0;
+      }
+
+      if (ai.attacking) {
+        ai.attackFrame++;
+        if (ai.attackFrame >= ATTACK_FRAMES) {
+          ai.attacking = false;
+          ai.attackFrame = 0;
+          ai.cooldown = PLAYER_COOLDOWN;
+        }
+      }
+
+      if (ai.cooldown > 0) ai.cooldown--;
+      if (ai.hitFlash > 0) ai.hitFlash--;
+
+      // Knockback
+      if (ai.knockback > 0) {
+        ai.x += ai.knockbackDir * 3;
+        ai.knockback--;
+        ai.x = Math.max(30, Math.min(W - 30, ai.x));
+      }
+    }
+
     function resolveHits() {
       // Player hits AI
       if (checkHit(player, ai)) {
@@ -674,7 +792,8 @@
       }
 
       updatePlayer();
-      updateAI();
+      if (mode === 'pvp') updatePlayer2();
+      else updateAI();
       resolveHits();
       updateParticles();
 
@@ -697,12 +816,16 @@
     }
 
     function gameLoop() {
-      update();
-      draw();
+      if (started) {
+        update();
+        draw();
+      } else {
+        // Idle background behind the menu
+        drawBackground();
+      }
       requestAnimationFrame(gameLoop);
     }
 
-    init();
     gameLoop();
   })();
   </script>
