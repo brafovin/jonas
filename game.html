@@ -278,6 +278,10 @@
         2 SPIELER (PVP)
         <span>S1: A/D + LEERTASTE &nbsp;·&nbsp; S2: ← / → + ENTER</span>
       </button>
+      <button class="mode-btn" id="mode-soccer">
+        ⚽ FUSSBALL (2 SPIELER)
+        <span>Schieß den Ball ins gegnerische Tor — Angriff = Schuss!</span>
+      </button>
     </div>
   </div>
 
@@ -328,7 +332,15 @@
     const AI_COOLDOWN = 80;
     const ATTACK_FRAMES = 20;
 
+    // Soccer
+    const GOAL_DEPTH = 26;     // how far the goal sticks into the field
+    const GOAL_HEIGHT = 150;   // goal mouth height
+    const GOALS_TO_WIN = 5;
+
     let shake = 0;          // screen-shake intensity
+    let ball = null;
+    let score = { p1: 0, p2: 0 };
+    let goalFlash = 0;      // celebration timer after a goal
 
     const keys = {};
     const blockScroll = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' '];
@@ -393,8 +405,9 @@
       mapSelEl.classList.remove('visible');
       started = true;
       snow = [];
-      // Show Player 2 touch controls only in PvP
-      document.getElementById('touch-p2').style.display = (mode === 'pvp') ? 'flex' : 'none';
+      // Show Player 2 touch controls in PvP and Soccer (both are 2-player)
+      document.getElementById('touch-p2').style.display =
+        (mode === 'pvp' || mode === 'soccer') ? 'flex' : 'none';
       init();
     }
 
@@ -408,6 +421,7 @@
 
     document.getElementById('mode-ai').addEventListener('click', () => { mode = 'ai'; showMapSelect(); });
     document.getElementById('mode-pvp').addEventListener('click', () => { mode = 'pvp'; showMapSelect(); });
+    document.getElementById('mode-soccer').addEventListener('click', () => { mode = 'soccer'; showMapSelect(); });
     document.getElementById('map-desert').addEventListener('click', () => startGame('desert'));
     document.getElementById('map-ice').addEventListener('click', () => startGame('ice'));
     document.getElementById('map-grass').addEventListener('click', () => startGame('grass'));
@@ -454,6 +468,22 @@
       gameOverTimer = 0;
       winner = null;
       particles = [];
+      if (mode === 'soccer') {
+        score = { p1: 0, p2: 0 };
+        goalFlash = 0;
+        resetBall(0);
+      }
+    }
+
+    function resetBall(dir) {
+      ball = {
+        x: W / 2, y: GROUND - 200, r: 16,
+        vx: dir ? dir * 3 : (Math.random() < 0.5 ? -3 : 3),
+        vy: 0,
+        rot: 0,
+      };
+      // Put players back to their halves
+      player.x = 150; ai.x = 750;
     }
 
     // Particle system for hit effects
@@ -1234,6 +1264,46 @@
     }
 
     function drawUI() {
+      if (mode === 'soccer') {
+        // Scoreboard
+        ctx.save();
+        ctx.textBaseline = 'top';
+        // P1 (red)
+        ctx.font = '600 14px Inter, sans-serif';
+        ctx.fillStyle = '#FF6644';
+        ctx.textAlign = 'left';
+        ctx.fillText('SPIELER 1', 24, 16);
+        // P2 (blue)
+        ctx.fillStyle = '#5BA8FF';
+        ctx.textAlign = 'right';
+        ctx.fillText('SPIELER 2', W - 24, 16);
+        // Scores
+        ctx.font = 'bold 46px Bangers, cursive';
+        ctx.shadowColor = '#FF3D00'; ctx.shadowBlur = 14;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'left';
+        ctx.fillText(score.p1, 24, 32);
+        ctx.textAlign = 'right';
+        ctx.fillText(score.p2, W - 24, 32);
+        // Target
+        ctx.shadowBlur = 0;
+        ctx.font = '600 13px Inter, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.textAlign = 'center';
+        ctx.fillText('ERSTER ZU ' + GOALS_TO_WIN + ' TOREN GEWINNT', W / 2, 22);
+        ctx.restore();
+
+        // Controls hint
+        ctx.save();
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.28)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('S1: A/D + LEERTASTE-Schuss   |   S2: ←/→ + ENTER-Schuss   |   Z = Menü', W / 2, H - 8);
+        ctx.restore();
+        return;
+      }
+
       // Player 1 health bar (left)
       drawHealthBar(18, 20, player.hp, '#FF2200', 'SPIELER 1');
 
@@ -1261,7 +1331,7 @@
 
       // Win text
       let mainText;
-      if (mode === 'pvp') {
+      if (mode === 'pvp' || mode === 'soccer') {
         mainText = winner === 'player' ? 'SPIELER 1 GEWINNT! 🏆' : 'SPIELER 2 GEWINNT! 🏆';
       } else {
         mainText = winner === 'player' ? 'DU HAST GEWONNEN! 🏆' : 'KI GEWINNT! 💀';
@@ -1274,10 +1344,19 @@
       ctx.fillStyle = '#FF3D00';
       ctx.fillText(mainText, W / 2, H / 2 - 30);
 
+      let subY = H / 2 + 28;
+      if (mode === 'soccer') {
+        ctx.font = '32px Bangers, cursive';
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = '#FFD23D';
+        ctx.fillText('⚽ ' + score.p1 + ' : ' + score.p2 + ' ⚽', W / 2, H / 2 + 20);
+        subY = H / 2 + 58;
+      }
+
       ctx.font = '22px Bangers, cursive';
       ctx.shadowBlur = 10;
       ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.fillText('Neue Runde startet...', W / 2, H / 2 + 28);
+      ctx.fillText('Neue Runde startet...', W / 2, subY);
 
       ctx.restore();
     }
@@ -1479,12 +1558,101 @@
       }
     }
 
+    // ===== Soccer logic =====
+    function updateBall() {
+      ball.vy += 0.45;                 // gravity
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      ball.rot += ball.vx * 0.05;
+      ball.vx *= 0.995;                // air drag
+
+      // Ground bounce
+      if (ball.y + ball.r > GROUND) {
+        ball.y = GROUND - ball.r;
+        ball.vy *= -0.55;
+        ball.vx *= 0.9;                // rolling friction
+        if (Math.abs(ball.vy) < 1) ball.vy = 0;
+      }
+      // Ceiling
+      if (ball.y - ball.r < 0) { ball.y = ball.r; ball.vy *= -0.5; }
+
+      // Side walls — only bounce ABOVE the goal mouth; goal-height balls fly in
+      const inGoalH = ball.y > GROUND - GOAL_HEIGHT;
+      if (!inGoalH) {
+        if (ball.x - ball.r < 0)  { ball.x = ball.r; ball.vx = Math.abs(ball.vx) * 0.7; }
+        if (ball.x + ball.r > W)  { ball.x = W - ball.r; ball.vx = -Math.abs(ball.vx) * 0.7; }
+      }
+    }
+
+    function kickBall(s) {
+      const dx = ball.x - s.x;
+      const bodyTop = GROUND - 175;
+      if (Math.abs(dx) < ball.r + 20 && ball.y > bodyTop && ball.y < GROUND + 6) {
+        const dir = dx >= 0 ? 1 : -1;
+        let power = 4 + Math.abs(s.moveDir || 0) * 2;
+        let lift = 2.5;
+        if (s.attacking) {
+          const t = s.attackFrame / ATTACK_FRAMES;
+          if (t > 0.25 && t < 0.6) {                 // during the swing strike
+            power = s.isUltra ? 17 : 11;
+            lift  = s.isUltra ? 10 : 6;
+            spawnParticles(ball.x, ball.y, s.isUltra ? '#FFD23D' : (s.isPlayer ? '#FF6633' : '#33AAFF'), s.isUltra ? 18 : 10);
+          }
+        }
+        ball.vx = dir * power + (s.moveDir || 0) * 1.5;
+        ball.vy = -lift;
+        ball.x = s.x + dir * (ball.r + 21);           // unstick
+      }
+    }
+
+    function checkGoal() {
+      const inH = ball.y > GROUND - GOAL_HEIGHT;
+      if (!inH) return;
+      if (ball.x - ball.r <= GOAL_DEPTH) { onGoal(2); }            // left goal → P2 scores
+      else if (ball.x + ball.r >= W - GOAL_DEPTH) { onGoal(1); }   // right goal → P1 scores
+    }
+
+    function onGoal(scorer) {
+      if (scorer === 1) score.p1++; else score.p2++;
+      goalFlash = 90;
+      shake = 16;
+      spawnParticles(ball.x, ball.y, '#FFD23D', 44);
+      spawnParticles(ball.x, ball.y, '#FFFFFF', 22);
+      if (score.p1 >= GOALS_TO_WIN || score.p2 >= GOALS_TO_WIN) {
+        gameOver = true;
+        gameOverTimer = 180;
+        winner = score.p1 > score.p2 ? 'player' : 'ai';
+      } else {
+        resetBall(scorer === 1 ? -1 : 1);             // kickoff toward the side that conceded
+      }
+    }
+
+    function updateSoccer() {
+      updatePlayer();
+      updatePlayer2();
+      stepWalk(player);
+      stepWalk(ai);
+      updateBall();
+      kickBall(player);
+      kickBall(ai);
+      checkGoal();
+      if (goalFlash > 0) goalFlash--;
+    }
+
     function update() {
       if (gameOver) {
         gameOverTimer--;
         if (gameOverTimer <= 0) {
           init();
         }
+        return;
+      }
+
+      if (mode === 'soccer') {
+        updateSoccer();
+        updateParticles();
+        if (shake > 0) shake *= 0.85;
+        if (shake < 0.3) shake = 0;
         return;
       }
 
@@ -1506,6 +1674,65 @@
       }
     }
 
+    function drawGoal(side) {
+      const x = side < 0 ? 0 : W - GOAL_DEPTH;
+      const topY = GROUND - GOAL_HEIGHT;
+      ctx.save();
+      // Glowing frame
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.shadowColor = side < 0 ? '#FF2200' : '#0088FF';
+      ctx.shadowBlur = 16;
+      ctx.lineWidth = 5;
+      ctx.strokeRect(x, topY, GOAL_DEPTH, GOAL_HEIGHT);
+      // Net mesh
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth = 1;
+      for (let gx = x; gx <= x + GOAL_DEPTH; gx += 7) {
+        ctx.beginPath(); ctx.moveTo(gx, topY); ctx.lineTo(gx, GROUND); ctx.stroke();
+      }
+      for (let gy = topY; gy <= GROUND; gy += 7) {
+        ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x + GOAL_DEPTH, gy); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawBall() {
+      if (!ball) return;
+      // Ground shadow
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      const sc = Math.max(0.3, 1 - (GROUND - ball.y) / 400);
+      ctx.beginPath();
+      ctx.ellipse(ball.x, GROUND - 2, ball.r * sc, 5 * sc, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(ball.x, ball.y);
+      ctx.rotate(ball.rot);
+      ctx.shadowColor = '#FFD23D';
+      ctx.shadowBlur = 14;
+      // White ball
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
+      ctx.fill();
+      // Classic black pentagons
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#141414';
+      ctx.beginPath();
+      ctx.arc(0, 0, ball.r * 0.42, 0, Math.PI * 2);
+      ctx.fill();
+      for (let i = 0; i < 5; i++) {
+        const a = i / 5 * Math.PI * 2;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * ball.r * 0.72, Math.sin(a) * ball.r * 0.72, ball.r * 0.16, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
     function draw() {
       ctx.clearRect(0, 0, W, H);
       ctx.save();
@@ -1513,14 +1740,31 @@
         ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
       }
       drawBackground();
+      if (mode === 'soccer') { drawGoal(-1); drawGoal(1); }
       drawParticles();
       drawStickman(player);
       drawStickman(ai);
+      if (mode === 'soccer') drawBall();
       ctx.restore();
       drawUI();
       drawUltraBanner(player);
       drawUltraBanner(ai);
+      if (mode === 'soccer' && goalFlash > 0 && !gameOver) drawGoalBanner();
       if (gameOver) drawGameOver();
+    }
+
+    function drawGoalBanner() {
+      const alpha = Math.min(1, goalFlash / 30);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.font = 'bold 70px Bangers, cursive';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#FFD23D';
+      ctx.shadowColor = '#FF3D00';
+      ctx.shadowBlur = 40;
+      ctx.fillText('⚽ TOOOR! ⚽', W / 2, H / 2 - 30);
+      ctx.restore();
     }
 
     function drawUltraBanner(s) {
