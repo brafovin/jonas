@@ -264,13 +264,20 @@
       position: absolute;
       left: 20px;
       bottom: 32px;
-      animation: fighter1-idle 0.6s ease-in-out infinite alternate;
-      filter: drop-shadow(0 0 8px var(--orange));
+      filter: drop-shadow(0 0 8px #FF2200) drop-shadow(0 0 22px #FF0000);
+      width: 160px;
+      height: auto;
     }
 
-    @keyframes fighter1-idle {
-      0% { transform: translateY(0) scaleX(1); }
-      100% { transform: translateY(-5px) scaleX(1); }
+    /* Only sword arm swings — pivot at left shoulder (68, 88) */
+    .sword-arm-group {
+      transform-origin: 68px 88px;
+      animation: sword-swing 0.85s ease-in-out infinite alternate;
+    }
+
+    @keyframes sword-swing {
+      0%   { transform: rotate(-30deg); }
+      100% { transform: rotate(20deg); }
     }
 
     /* Stickman 2 — hammer fighter */
@@ -815,39 +822,6 @@
 
     /* ===== STICKMAN SVG ANIMATIONS ===== */
 
-    /* Sword fighter arm swing */
-    .sword-arm {
-      transform-origin: 68px 105px;
-      animation: sword-swing 0.8s ease-in-out infinite alternate;
-    }
-    @keyframes sword-swing {
-      0% { transform: rotate(-30deg); }
-      100% { transform: rotate(30deg); }
-    }
-
-    /* Sword itself rotates with arm */
-    .sword-weapon {
-      transform-origin: 68px 105px;
-      animation: sword-swing 0.8s ease-in-out infinite alternate;
-    }
-
-    /* Hammer arm */
-    .hammer-arm {
-      transform-origin: 72px 105px;
-      animation: hammer-swing 0.9s ease-in-out infinite alternate;
-      animation-delay: -0.4s;
-    }
-    @keyframes hammer-swing {
-      0% { transform: rotate(40deg); }
-      100% { transform: rotate(-20deg); }
-    }
-
-    .hammer-weapon {
-      transform-origin: 72px 105px;
-      animation: hammer-swing 0.9s ease-in-out infinite alternate;
-      animation-delay: -0.4s;
-    }
-
     /* Legs */
     .sword-leg-l {
       transform-origin: 60px 155px;
@@ -936,34 +910,45 @@
       <div class="hero-visual">
         <div class="fight-arena">
 
-          <!-- Stickman 1: Sword Fighter -->
-          <svg class="stickman-sword" width="140" height="200" viewBox="0 0 140 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Head -->
-            <circle cx="60" cy="30" r="18" stroke="white" stroke-width="3"/>
-            <!-- Face angry -->
-            <line x1="52" y1="26" x2="58" y2="29" stroke="white" stroke-width="2"/>
-            <line x1="62" y1="29" x2="68" y2="26" stroke="white" stroke-width="2"/>
-            <line x1="54" y1="36" x2="66" y2="36" stroke="white" stroke-width="2"/>
-            <!-- Body -->
-            <line x1="60" y1="48" x2="60" y2="110" stroke="white" stroke-width="3"/>
-            <!-- Right arm (sword arm) — animated -->
-            <g class="sword-arm">
-              <line x1="60" y1="70" x2="100" y2="95" stroke="white" stroke-width="3"/>
-              <!-- Sword -->
-              <line x1="100" y1="95" x2="135" y2="60" stroke="white" stroke-width="4"/>
-              <line x1="108" y1="87" x2="122" y2="92" stroke="white" stroke-width="3"/>
-            </g>
-            <!-- Left arm (guard) -->
-            <line x1="60" y1="70" x2="28" y2="88" stroke="white" stroke-width="3"/>
-            <!-- Left leg -->
-            <g class="sword-leg-l">
-              <line x1="60" y1="110" x2="40" y2="155" stroke="white" stroke-width="3"/>
-              <line x1="40" y1="155" x2="30" y2="165" stroke="white" stroke-width="2"/>
-            </g>
-            <!-- Right leg -->
-            <g class="sword-leg-r">
-              <line x1="60" y1="110" x2="75" y2="155" stroke="white" stroke-width="3"/>
-              <line x1="75" y1="155" x2="82" y2="165" stroke="white" stroke-width="2"/>
+          <!-- Stickman 1: Sword Fighter (red neon) -->
+          <svg class="stickman-sword" width="160" height="225" viewBox="0 0 160 225" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="redGlow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="3" result="blur1"/>
+                <feGaussianBlur stdDeviation="9" result="blur2"/>
+                <feMerge><feMergeNode in="blur2"/><feMergeNode in="blur1"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <g filter="url(#redGlow)" stroke="#FF2200" stroke-linecap="round" stroke-linejoin="round">
+
+              <!-- === STATIC BODY === -->
+              <!-- Head (filled red like image) -->
+              <circle cx="68" cy="48" r="22" stroke="#FF2200" stroke-width="5" fill="#CC1100"/>
+              <!-- Torso -->
+              <line x1="68" y1="70" x2="68" y2="145" stroke="#FF2200" stroke-width="9"/>
+              <!-- Right arm (guard, static) -->
+              <line x1="68" y1="90" x2="30" y2="112" stroke="#FF2200" stroke-width="8"/>
+              <!-- Left leg — forward, bent knee -->
+              <line x1="68" y1="145" x2="42" y2="183" stroke="#FF2200" stroke-width="9"/>
+              <line x1="42" y1="183" x2="22" y2="210" stroke="#FF2200" stroke-width="8"/>
+              <!-- Right leg — wide back stance -->
+              <line x1="68" y1="145" x2="110" y2="185" stroke="#FF2200" stroke-width="9"/>
+              <line x1="110" y1="185" x2="145" y2="215" stroke="#FF2200" stroke-width="8"/>
+
+              <!-- === ANIMATED SWORD ARM (pivot at left shoulder 68,88) === -->
+              <g class="sword-arm-group">
+                <!-- Arm raised up-left -->
+                <line x1="68" y1="88" x2="42" y2="60" stroke="#FF2200" stroke-width="8"/>
+                <!-- Sword handle grip -->
+                <rect x="30" y="48" width="16" height="10" rx="3" stroke="#FF2200" stroke-width="4" fill="#CC1100"/>
+                <!-- Crossguard -->
+                <line x1="24" y1="46" x2="52" y2="34" stroke="#FF2200" stroke-width="6"/>
+                <!-- Blade — long diagonal -->
+                <line x1="38" y1="44" x2="118" y2="4" stroke="#FF2200" stroke-width="8"/>
+                <!-- Blade tip (pointed) -->
+                <polygon points="118,4 108,8 122,14" fill="#FF2200" stroke="#FF2200" stroke-width="2"/>
+              </g>
+
             </g>
           </svg>
 
