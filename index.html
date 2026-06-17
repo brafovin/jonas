@@ -278,16 +278,21 @@
       position: absolute;
       right: 20px;
       bottom: 32px;
-      animation: fighter2-idle 0.7s ease-in-out infinite alternate;
-      filter: drop-shadow(0 0 6px #0088FF) drop-shadow(0 0 18px #0055DD);
-      animation-delay: -0.3s;
-      width: 150px;
+      filter: drop-shadow(0 0 6px #0088FF) drop-shadow(0 0 20px #0055DD);
+      width: 160px;
       height: auto;
+      transform-origin: center bottom;
+      animation: hammer-fight 1.4s ease-in-out infinite;
     }
 
-    @keyframes fighter2-idle {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-6px); }
+    @keyframes hammer-fight {
+      0%   { transform: translateY(0px) rotate(0deg); }
+      20%  { transform: translateY(-8px) rotate(-6deg); }
+      40%  { transform: translateY(-14px) rotate(-12deg); }
+      55%  { transform: translateY(-4px) rotate(4deg); }
+      70%  { transform: translateY(2px) rotate(2deg); }
+      85%  { transform: translateY(-6px) rotate(-4deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
     }
 
     /* Clash spark in the middle */
@@ -964,38 +969,44 @@
           </svg>
 
           <!-- Stickman 2: Hammer Fighter (blue neon SVG) -->
-          <svg class="stickman-hammer" width="150" height="210" viewBox="0 0 150 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="stickman-hammer" width="160" height="220" viewBox="0 0 160 220" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <filter id="blueGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="4" result="blur1"/>
-                <feGaussianBlur stdDeviation="10" result="blur2"/>
+              <filter id="blueGlow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="3" result="blur1"/>
+                <feGaussianBlur stdDeviation="8" result="blur2"/>
                 <feMerge><feMergeNode in="blur2"/><feMergeNode in="blur1"/><feMergeNode in="SourceGraphic"/></feMerge>
               </filter>
             </defs>
-            <g filter="url(#blueGlow)" stroke="#4DAAFF" stroke-linecap="round" stroke-linejoin="round">
+            <g filter="url(#blueGlow)" stroke="#55BBFF" stroke-linecap="round" stroke-linejoin="round">
+              <!-- === HAMMER (raised above head) === -->
+              <!-- Handle -->
+              <line x1="62" y1="55" x2="42" y2="95" stroke="#55BBFF" stroke-width="5"/>
+              <!-- Mjolnir head — big block -->
+              <rect x="18" y="22" width="52" height="36" rx="5" stroke="#55BBFF" stroke-width="5" fill="none"/>
+              <!-- Rivet top center -->
+              <rect x="41" y="16" width="8" height="8" rx="2" stroke="#55BBFF" stroke-width="3" fill="none"/>
+
+              <!-- === BODY === -->
               <!-- Head -->
-              <circle cx="95" cy="38" r="20" stroke="#4DAAFF" stroke-width="3.5" fill="none"/>
-              <!-- Angry eyes -->
-              <line x1="86" y1="33" x2="91" y2="36" stroke="#4DAAFF" stroke-width="2.5"/>
-              <line x1="99" y1="36" x2="104" y2="33" stroke="#4DAAFF" stroke-width="2.5"/>
-              <!-- Mouth -->
-              <line x1="88" y1="46" x2="102" y2="46" stroke="#4DAAFF" stroke-width="2"/>
-              <!-- Body -->
-              <line x1="95" y1="58" x2="95" y2="125" stroke="#4DAAFF" stroke-width="4"/>
-              <!-- Left arm — hammer arm raised up-left -->
-              <line x1="95" y1="78" x2="55" y2="55" stroke="#4DAAFF" stroke-width="4"/>
-              <!-- Hammer handle -->
-              <line x1="55" y1="55" x2="22" y2="22" stroke="#4DAAFF" stroke-width="4.5"/>
-              <!-- Hammer head (horizontal block) -->
-              <rect x="2" y="4" width="34" height="24" rx="4" stroke="#4DAAFF" stroke-width="4" fill="none"/>
-              <!-- Right arm (guard/brace) -->
-              <line x1="95" y1="78" x2="125" y2="98" stroke="#4DAAFF" stroke-width="4"/>
-              <!-- Left leg (wide stance) -->
-              <line x1="95" y1="125" x2="68" y2="172" stroke="#4DAAFF" stroke-width="4"/>
-              <line x1="68" y1="172" x2="52" y2="185" stroke="#4DAAFF" stroke-width="3.5"/>
-              <!-- Right leg (back leg extended) -->
-              <line x1="95" y1="125" x2="130" y2="168" stroke="#4DAAFF" stroke-width="4"/>
-              <line x1="130" y1="168" x2="148" y2="180" stroke="#4DAAFF" stroke-width="3.5"/>
+              <circle cx="95" cy="62" r="20" stroke="#55BBFF" stroke-width="4" fill="none"/>
+              <!-- Angry left eyebrow -->
+              <line x1="84" y1="55" x2="91" y2="59" stroke="#55BBFF" stroke-width="3"/>
+              <!-- Angry right eyebrow -->
+              <line x1="99" y1="59" x2="106" y2="55" stroke="#55BBFF" stroke-width="3"/>
+              <!-- Mouth grimace -->
+              <path d="M87 72 Q95 68 103 72" stroke="#55BBFF" stroke-width="2.5" fill="none"/>
+              <!-- Torso -->
+              <line x1="95" y1="82" x2="95" y2="148" stroke="#55BBFF" stroke-width="5"/>
+              <!-- Left arm — raised to grip hammer -->
+              <line x1="95" y1="100" x2="62" y2="78" stroke="#55BBFF" stroke-width="4.5"/>
+              <!-- Right arm — extended outward -->
+              <line x1="95" y1="100" x2="132" y2="118" stroke="#55BBFF" stroke-width="4.5"/>
+              <!-- Left leg — forward -->
+              <line x1="95" y1="148" x2="72" y2="192" stroke="#55BBFF" stroke-width="4.5"/>
+              <line x1="72" y1="192" x2="56" y2="207" stroke="#55BBFF" stroke-width="4"/>
+              <!-- Right leg — back/wide -->
+              <line x1="95" y1="148" x2="128" y2="188" stroke="#55BBFF" stroke-width="4.5"/>
+              <line x1="128" y1="188" x2="148" y2="200" stroke="#55BBFF" stroke-width="4"/>
             </g>
           </svg>
 
