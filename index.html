@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stickman Fight Legacy — Kein Grind. Kein Pay-to-Win.</title>
+  <meta name="description" content="Stickman Fight Legacy — Das ultimative Stickman-Game. Echte Duelle. Echter Skill. Offline spielbar. Kostenlos." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #FF3D00;
+      --orange-light: #FF6B00;
+      --bg: #0A0A0A;
+      --bg2: #111111;
+      --card: #1A1A1A;
+      --white: #FFFFFF;
+      --glow: 0 0 20px #FF3D00, 0 0 40px rgba(255,61,0,0.4);
+      --glow-sm: 0 0 10px #FF3D00, 0 0 20px rgba(255,61,0,0.3);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
+    ::selection { background: var(--orange); color: var(--white); }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Bangers', cursive;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .label {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .orange { color: var(--orange); }
+
+    /* ===== NAVBAR ===== */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background: rgba(10,10,10,0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,61,0,0.15);
+      transition: background 0.3s;
+    }
+
+    #navbar.scrolled { background: rgba(10,10,10,0.92); }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo-text {
+      font-family: 'Bangers', cursive;
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: var(--orange);
+      text-shadow: 0 0 10px rgba(255,61,0,0.5);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--orange); }
+
+    .btn-nav {
+      background: var(--orange);
+      color: var(--white);
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: var(--glow-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .btn-nav:hover { transform: scale(1.05); box-shadow: var(--glow); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-logo-text { font-size: 16px; }
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--orange);
+      color: var(--white);
+      border: none;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-family: 'Bangers', cursive;
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: var(--glow);
+      animation: pulse-glow 2s ease-in-out infinite;
+      transition: transform 0.2s;
+    }
+    .btn-primary:hover { transform: scale(1.04); }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 15px #FF3D00, 0 0 30px rgba(255,61,0,0.4); }
+      50% { box-shadow: 0 0 30px #FF3D00, 0 0 60px rgba(255,61,0,0.6), 0 0 80px rgba(255,61,0,0.2); }
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
+
+    /* ===== SECTION STYLES ===== */
+    section { position: relative; overflow: hidden; }
+
+    .section-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 80px;
+      background: var(--bg);
+      position: relative;
+    }
+
+    .hero-bg-stickmen {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .bg-stick {
+      position: absolute;
+      opacity: 0.06;
+      animation: floatUp linear infinite;
+      filter: drop-shadow(0 0 4px var(--orange));
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.06; }
+      90% { opacity: 0.06; }
+      100% { transform: translateY(-10vh) rotate(20deg); opacity: 0; }
+    }
+
+    .hero-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 60px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .hero-visual { order: -1; }
+    }
+
+    /* Stickman arena */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .fight-arena {
+      position: relative;
+      width: 340px;
+      height: 380px;
+    }
+
+    @media (max-width: 768px) {
+      .fight-arena { width: 280px; height: 300px; }
+    }
+
+    /* Ground line */
+    .fight-arena::after {
+      content: '';
+      position: absolute;
+      bottom: 30px;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--orange), transparent);
+      box-shadow: 0 0 8px var(--orange);
+    }
+
+    /* Stickman 1 — sword fighter */
+    .stickman-sword {
+      position: absolute;
+      left: 20px;
+      bottom: 32px;
+      animation: fighter1-idle 0.6s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 8px var(--orange));
+    }
+
+    @keyframes fighter1-idle {
+      0% { transform: translateY(0) scaleX(1); }
+      100% { transform: translateY(-5px) scaleX(1); }
+    }
+
+    /* Stickman 2 — hammer fighter */
+    .stickman-hammer {
+      position: absolute;
+      right: 20px;
+      bottom: 32px;
+      animation: fighter2-idle 0.7s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 8px var(--orange));
+      animation-delay: -0.3s;
+    }
+
+    @keyframes fighter2-idle {
+      0% { transform: translateY(0) scaleX(-1); }
+      100% { transform: translateY(-6px) scaleX(-1); }
+    }
+
+    /* Clash spark in the middle */
+    .clash-spark {
+      position: absolute;
+      left: 50%;
+      bottom: 120px;
+      transform: translateX(-50%);
+      animation: spark-pulse 0.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes spark-pulse {
+      0% { transform: translateX(-50%) scale(0.8) rotate(0deg); opacity: 0.7; }
+      100% { transform: translateX(-50%) scale(1.2) rotate(15deg); opacity: 1; }
+    }
+
+    /* ===== HERO TEXT ===== */
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      color: var(--orange);
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeInUp 0.6s 0.3s forwards;
+    }
+
+    .hero-h1 {
+      font-size: clamp(42px, 6vw, 72px);
+      color: var(--white);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeInUp 0.6s 0.5s forwards;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .hero-h1 span { color: var(--orange); }
+
+    .hero-sub {
+      font-size: 17px;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 32px;
+      max-width: 480px;
+      opacity: 0;
+      animation: fadeInUp 0.6s 0.7s forwards;
+    }
+
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeInUp 0.6s 0.9s forwards;
+    }
+
+    .hero-social-proof {
+      font-size: 15px;
+      color: rgba(255,255,255,0.65);
+      opacity: 0;
+      animation: fadeInUp 0.6s 1.1s forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== PAIN POINTS ===== */
+    #pain {
+      background: var(--bg2);
+      padding: 100px 0 60px;
+    }
+
+    #pain .section-headline {
+      text-align: center;
+      font-size: clamp(36px, 5vw, 56px);
+      margin-bottom: 48px;
+    }
+
+    .pain-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    @media (max-width: 768px) {
+      .pain-cards { grid-template-columns: 1fr; }
+    }
+
+    .pain-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 28px 24px;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+    .pain-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--orange);
+      box-shadow: 0 0 20px rgba(255,61,0,0.2);
+    }
+
+    .pain-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .pain-card.shake .pain-icon { animation: shake-anim 0.5s ease-in-out; }
+
+    @keyframes shake-anim {
+      0%, 100% { transform: rotate(0); }
+      20% { transform: rotate(-10deg); }
+      40% { transform: rotate(10deg); }
+      60% { transform: rotate(-8deg); }
+      80% { transform: rotate(8deg); }
+    }
+
+    .pain-card h3 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: var(--white);
+    }
+
+    .pain-card p { color: rgba(255,255,255,0.65); font-size: 15px; }
+
+    .pain-transition {
+      text-align: center;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(20px, 3vw, 28px);
+      letter-spacing: 2px;
+      color: var(--orange);
+      margin-top: 20px;
+      padding: 24px;
+      border-top: 1px solid rgba(255,61,0,0.2);
+    }
+
+    /* ===== FEATURES ===== */
+    #features {
+      background: var(--bg);
+      padding: 100px 0;
+    }
+
+    .features-headline {
+      text-align: center;
+      font-size: clamp(32px, 4vw, 48px);
+      margin-bottom: 72px;
+    }
+
+    .feature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-bottom: 80px;
+    }
+
+    .feature-row.reverse { direction: rtl; }
+    .feature-row.reverse > * { direction: ltr; }
+
+    @media (max-width: 768px) {
+      .feature-row, .feature-row.reverse { grid-template-columns: 1fr; direction: ltr; }
+      .feature-row.reverse > * { direction: ltr; }
+    }
+
+    .feature-emoji { font-size: 48px; margin-bottom: 16px; }
+
+    .feature-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--orange);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .feature-title {
+      font-size: clamp(28px, 3.5vw, 42px);
+      margin-bottom: 16px;
+    }
+
+    .feature-desc { color: rgba(255,255,255,0.7); font-size: 16px; max-width: 400px; }
+
+    .feature-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid rgba(255,61,0,0.15);
+      border-radius: 16px;
+      padding: 40px;
+      min-height: 220px;
+    }
+
+    /* ===== SOCIAL PROOF ===== */
+    #reviews {
+      background: #0D0D0D;
+      padding: 100px 0;
+      border-top: 3px solid var(--orange);
+      box-shadow: 0 -10px 40px rgba(255,61,0,0.15);
+    }
+
+    .reviews-headline {
+      text-align: center;
+      font-size: clamp(32px, 4vw, 48px);
+      margin-bottom: 48px;
+    }
+
+    .review-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 56px;
+    }
+
+    @media (max-width: 768px) {
+      .review-cards { grid-template-columns: 1fr; }
+    }
+
+    .review-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 24px;
+      transition: transform 0.25s, border-color 0.25s;
+    }
+    .review-card:hover { transform: translateY(-4px); border-color: rgba(255,61,0,0.4); }
+
+    .review-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .review-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .review-meta { flex: 1; }
+    .review-name { font-weight: 700; font-size: 15px; }
+    .review-source {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .review-stars { color: #FFD700; font-size: 16px; margin-bottom: 10px; }
+    .review-text { color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.6; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+
+    .stat-item {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 28px 20px;
+      border: 1px solid rgba(255,61,0,0.2);
+    }
+
+    .stat-number {
+      font-family: 'Bangers', cursive;
+      font-size: 42px;
+      letter-spacing: 2px;
+      color: var(--orange);
+      text-shadow: 0 0 20px rgba(255,61,0,0.4);
+      display: block;
+    }
+
+    .stat-label { color: rgba(255,255,255,0.6); font-size: 14px; }
+
+    /* ===== HOW IT WORKS ===== */
+    #howto {
+      background: var(--bg2);
+      padding: 100px 0;
+    }
+
+    .howto-headline {
+      text-align: center;
+      font-size: clamp(32px, 4vw, 48px);
+      margin-bottom: 64px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      .steps { grid-template-columns: 1fr; }
+    }
+
+    /* Connector line on desktop */
+    @media (min-width: 769px) {
+      .steps::before {
+        content: '';
+        position: absolute;
+        top: 52px;
+        left: calc(16.5% + 24px);
+        right: calc(16.5% + 24px);
+        height: 2px;
+        background: linear-gradient(90deg, var(--orange), rgba(255,61,0,0.3), var(--orange));
+        z-index: 0;
+      }
+    }
+
+    .step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-number {
+      font-family: 'Bangers', cursive;
+      font-size: 72px;
+      color: var(--orange);
+      opacity: 0.2;
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .step-icon-wrap {
+      width: 96px;
+      height: 96px;
+      background: var(--card);
+      border: 2px solid rgba(255,61,0,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 40px;
+      position: relative;
+      z-index: 2;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .step:hover .step-icon-wrap {
+      border-color: var(--orange);
+      box-shadow: 0 0 20px rgba(255,61,0,0.3);
+    }
+
+    .step h3 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .step p { color: rgba(255,255,255,0.65); font-size: 15px; }
+
+    /* ===== FINAL CTA ===== */
+    #cta-final {
+      background: linear-gradient(135deg, #FF3D00 0%, #FF6B00 50%, #FF3D00 100%);
+      background-size: 200% 200%;
+      animation: gradient-shift 4s ease-in-out infinite;
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .cta-headline {
+      font-size: clamp(52px, 8vw, 100px);
+      color: var(--white);
+      text-shadow: 0 4px 30px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+    }
+
+    .cta-sub {
+      font-size: 18px;
+      color: rgba(255,255,255,0.9);
+      max-width: 540px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    .btn-cta-big {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #000;
+      color: var(--white);
+      border: none;
+      padding: 20px 40px;
+      border-radius: 10px;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(18px, 2.5vw, 24px);
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: center;
+    }
+    .btn-cta-big:hover { transform: scale(1.04); box-shadow: 0 12px 50px rgba(0,0,0,0.5); }
+
+    .cta-disclaimer {
+      margin-top: 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: #050505;
+      padding: 56px 0 32px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .footer-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .footer-top { grid-template-columns: 1fr; }
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .footer-logo-text {
+      font-family: 'Bangers', cursive;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--orange);
+    }
+
+    .footer-tagline { color: rgba(255,255,255,0.5); font-size: 15px; margin-top: 6px; }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--orange); }
+
+    .social-icons {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .social-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .social-icon:hover { border-color: var(--orange); background: rgba(255,61,0,0.1); }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 24px;
+      color: rgba(255,255,255,0.35);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* ===== STICKMAN SVG ANIMATIONS ===== */
+
+    /* Sword fighter arm swing */
+    .sword-arm {
+      transform-origin: 68px 105px;
+      animation: sword-swing 0.8s ease-in-out infinite alternate;
+    }
+    @keyframes sword-swing {
+      0% { transform: rotate(-30deg); }
+      100% { transform: rotate(30deg); }
+    }
+
+    /* Sword itself rotates with arm */
+    .sword-weapon {
+      transform-origin: 68px 105px;
+      animation: sword-swing 0.8s ease-in-out infinite alternate;
+    }
+
+    /* Hammer arm */
+    .hammer-arm {
+      transform-origin: 72px 105px;
+      animation: hammer-swing 0.9s ease-in-out infinite alternate;
+      animation-delay: -0.4s;
+    }
+    @keyframes hammer-swing {
+      0% { transform: rotate(40deg); }
+      100% { transform: rotate(-20deg); }
+    }
+
+    .hammer-weapon {
+      transform-origin: 72px 105px;
+      animation: hammer-swing 0.9s ease-in-out infinite alternate;
+      animation-delay: -0.4s;
+    }
+
+    /* Legs */
+    .sword-leg-l {
+      transform-origin: 60px 155px;
+      animation: leg-l 0.8s ease-in-out infinite alternate;
+    }
+    .sword-leg-r {
+      transform-origin: 60px 155px;
+      animation: leg-r 0.8s ease-in-out infinite alternate;
+    }
+    .hammer-leg-l {
+      transform-origin: 80px 155px;
+      animation: leg-r 0.9s ease-in-out infinite alternate;
+    }
+    .hammer-leg-r {
+      transform-origin: 80px 155px;
+      animation: leg-l 0.9s ease-in-out infinite alternate;
+    }
+
+    @keyframes leg-l {
+      0% { transform: rotate(-15deg); }
+      100% { transform: rotate(10deg); }
+    }
+    @keyframes leg-r {
+      0% { transform: rotate(10deg); }
+      100% { transform: rotate(-15deg); }
+    }
+
+    /* Feature stickmen gentle animation */
+    .feature-stick { animation: feature-idle 1s ease-in-out infinite alternate; }
+    @keyframes feature-idle {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-6px); }
+    }
+
+    /* ===== DIVIDER ===== */
+    .section-divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,61,0,0.3), transparent);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      <!-- Logo stickman SVG -->
+      <svg width="32" height="36" viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="6" r="5" stroke="#FF3D00" stroke-width="2"/>
+        <line x1="16" y1="11" x2="16" y2="24" stroke="#FF3D00" stroke-width="2"/>
+        <line x1="16" y1="15" x2="8" y2="20" stroke="#FF3D00" stroke-width="2"/>
+        <line x1="16" y1="15" x2="24" y2="19" stroke="#FF3D00" stroke-width="2"/>
+        <line x1="16" y1="24" x2="10" y2="34" stroke="#FF3D00" stroke-width="2"/>
+        <line x1="16" y1="24" x2="22" y2="34" stroke="#FF3D00" stroke-width="2"/>
+      </svg>
+      <span class="nav-logo-text">STICKMAN FIGHT LEGACY</span>
+    </a>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#cta-final">Download</a></li>
+      </ul>
+      <a href="#cta-final" class="btn-nav">🎮 Spielen</a>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <!-- Floating background stickmen -->
+    <div class="hero-bg-stickmen" aria-hidden="true">
+      <!-- 8 floating tiny stickmen -->
+      <svg class="bg-stick" style="left:5%;width:40px;animation-duration:18s;animation-delay:0s;" viewBox="0 0 40 50"><circle cx="20" cy="6" r="4" fill="white"/><line x1="20" y1="10" x2="20" y2="28" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="10" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="30" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="13" y2="42" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="27" y2="42" stroke="white" stroke-width="2"/></svg>
+      <svg class="bg-stick" style="left:15%;width:30px;animation-duration:22s;animation-delay:-5s;" viewBox="0 0 40 50"><circle cx="20" cy="6" r="4" fill="white"/><line x1="20" y1="10" x2="20" y2="28" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="10" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="30" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="13" y2="42" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="27" y2="42" stroke="white" stroke-width="2"/></svg>
+      <svg class="bg-stick" style="left:28%;width:50px;animation-duration:15s;animation-delay:-9s;" viewBox="0 0 40 50"><circle cx="20" cy="6" r="4" fill="white"/><line x1="20" y1="10" x2="20" y2="28" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="10" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="30" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="13" y2="42" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="27" y2="42" stroke="white" stroke-width="2"/></svg>
+      <svg class="bg-stick" style="left:42%;width:35px;animation-duration:20s;animation-delay:-3s;" viewBox="0 0 40 50"><circle cx="20" cy="6" r="4" fill="white"/><line x1="20" y1="10" x2="20" y2="28" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="10" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="30" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="13" y2="42" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="27" y2="42" stroke="white" stroke-width="2"/></svg>
+      <svg class="bg-stick" style="left:58%;width:45px;animation-duration:17s;animation-delay:-12s;" viewBox="0 0 40 50"><circle cx="20" cy="6" r="4" fill="white"/><line x1="20" y1="10" x2="20" y2="28" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="10" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="30" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="13" y2="42" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="27" y2="42" stroke="white" stroke-width="2"/></svg>
+      <svg class="bg-stick" style="left:70%;width:38px;animation-duration:25s;animation-delay:-7s;" viewBox="0 0 40 50"><circle cx="20" cy="6" r="4" fill="white"/><line x1="20" y1="10" x2="20" y2="28" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="10" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="30" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="13" y2="42" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="27" y2="42" stroke="white" stroke-width="2"/></svg>
+      <svg class="bg-stick" style="left:82%;width:28px;animation-duration:19s;animation-delay:-2s;" viewBox="0 0 40 50"><circle cx="20" cy="6" r="4" fill="white"/><line x1="20" y1="10" x2="20" y2="28" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="10" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="30" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="13" y2="42" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="27" y2="42" stroke="white" stroke-width="2"/></svg>
+      <svg class="bg-stick" style="left:92%;width:42px;animation-duration:21s;animation-delay:-15s;" viewBox="0 0 40 50"><circle cx="20" cy="6" r="4" fill="white"/><line x1="20" y1="10" x2="20" y2="28" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="10" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="16" x2="30" y2="22" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="13" y2="42" stroke="white" stroke-width="2"/><line x1="20" y1="28" x2="27" y2="42" stroke="white" stroke-width="2"/></svg>
+    </div>
+
+    <div class="hero-inner">
+      <!-- Fighting stickmen -->
+      <div class="hero-visual">
+        <div class="fight-arena">
+
+          <!-- Stickman 1: Sword Fighter -->
+          <svg class="stickman-sword" width="140" height="200" viewBox="0 0 140 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Head -->
+            <circle cx="60" cy="30" r="18" stroke="white" stroke-width="3"/>
+            <!-- Face angry -->
+            <line x1="52" y1="26" x2="58" y2="29" stroke="white" stroke-width="2"/>
+            <line x1="62" y1="29" x2="68" y2="26" stroke="white" stroke-width="2"/>
+            <line x1="54" y1="36" x2="66" y2="36" stroke="white" stroke-width="2"/>
+            <!-- Body -->
+            <line x1="60" y1="48" x2="60" y2="110" stroke="white" stroke-width="3"/>
+            <!-- Right arm (sword arm) — animated -->
+            <g class="sword-arm">
+              <line x1="60" y1="70" x2="100" y2="95" stroke="white" stroke-width="3"/>
+              <!-- Sword -->
+              <line x1="100" y1="95" x2="135" y2="60" stroke="white" stroke-width="4"/>
+              <line x1="108" y1="87" x2="122" y2="92" stroke="white" stroke-width="3"/>
+            </g>
+            <!-- Left arm (guard) -->
+            <line x1="60" y1="70" x2="28" y2="88" stroke="white" stroke-width="3"/>
+            <!-- Left leg -->
+            <g class="sword-leg-l">
+              <line x1="60" y1="110" x2="40" y2="155" stroke="white" stroke-width="3"/>
+              <line x1="40" y1="155" x2="30" y2="165" stroke="white" stroke-width="2"/>
+            </g>
+            <!-- Right leg -->
+            <g class="sword-leg-r">
+              <line x1="60" y1="110" x2="75" y2="155" stroke="white" stroke-width="3"/>
+              <line x1="75" y1="155" x2="82" y2="165" stroke="white" stroke-width="2"/>
+            </g>
+          </svg>
+
+          <!-- Stickman 2: Hammer Fighter (mirrored via scaleX) -->
+          <svg class="stickman-hammer" width="140" height="200" viewBox="0 0 140 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Head -->
+            <circle cx="80" cy="30" r="18" stroke="white" stroke-width="3"/>
+            <!-- Face angry -->
+            <line x1="72" y1="26" x2="78" y2="29" stroke="white" stroke-width="2"/>
+            <line x1="82" y1="29" x2="88" y2="26" stroke="white" stroke-width="2"/>
+            <line x1="74" y1="36" x2="86" y2="36" stroke="white" stroke-width="2"/>
+            <!-- Body -->
+            <line x1="80" y1="48" x2="80" y2="110" stroke="white" stroke-width="3"/>
+            <!-- Left arm (hammer arm) — animated -->
+            <g class="hammer-arm">
+              <line x1="80" y1="68" x2="40" y2="88" stroke="white" stroke-width="3"/>
+              <!-- Hammer handle -->
+              <line x1="40" y1="88" x2="10" y2="58" stroke="white" stroke-width="4"/>
+              <!-- Hammer head -->
+              <rect x="2" y="40" width="22" height="28" rx="3" fill="white"/>
+            </g>
+            <!-- Right arm (guard) -->
+            <line x1="80" y1="68" x2="108" y2="88" stroke="white" stroke-width="3"/>
+            <!-- Left leg -->
+            <g class="hammer-leg-l">
+              <line x1="80" y1="110" x2="60" y2="155" stroke="white" stroke-width="3"/>
+              <line x1="60" y1="155" x2="52" y2="165" stroke="white" stroke-width="2"/>
+            </g>
+            <!-- Right leg -->
+            <g class="hammer-leg-r">
+              <line x1="80" y1="110" x2="98" y2="155" stroke="white" stroke-width="3"/>
+              <line x1="98" y1="155" x2="108" y2="165" stroke="white" stroke-width="2"/>
+            </g>
+          </svg>
+
+          <!-- Clash Spark in the middle -->
+          <div class="clash-spark">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="30" y1="5" x2="30" y2="55" stroke="#FF3D00" stroke-width="2.5"/>
+              <line x1="5" y1="30" x2="55" y2="30" stroke="#FF3D00" stroke-width="2.5"/>
+              <line x1="12" y1="12" x2="48" y2="48" stroke="#FF3D00" stroke-width="2"/>
+              <line x1="48" y1="12" x2="12" y2="48" stroke="#FF3D00" stroke-width="2"/>
+              <circle cx="30" cy="30" r="6" fill="#FF3D00" opacity="0.8"/>
+            </svg>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Hero text -->
+      <div class="hero-text">
+        <p class="hero-eyebrow">⚔️ KOSTENLOSES MOBILE GAME</p>
+        <h1 class="hero-h1">KEIN&nbsp;GRIND.<br><span>KEIN PAY-TO-WIN.</span><br>NUR STICKMAN-WAHNSINN.</h1>
+        <p class="hero-sub">Stickman Fight Legacy — Das ultimative Stickman-Game. Echte Duelle. Echter Skill. Offline spielbar.</p>
+        <div class="hero-ctas">
+          <a href="#cta-final" class="btn-primary">🎮 JETZT KOSTENLOS SPIELEN</a>
+          <a href="#features" class="btn-ghost">Mehr erfahren ↓</a>
+        </div>
+        <p class="hero-social-proof">⭐⭐⭐⭐⭐ Bereits von <strong>10.000+ Spielern</strong> geliebt</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ===== PAIN POINTS ===== -->
+  <section id="pain">
+    <div class="section-inner">
+      <h2 class="section-headline reveal">Kennst du das?</h2>
+      <div class="pain-cards">
+        <div class="pain-card reveal reveal-delay-1">
+          <span class="pain-icon">❌</span>
+          <h3>Werbung alle 5 Minuten</h3>
+          <p>Du bist mitten im besten Kampf — und dann: 30-Sekunden-Ad. Skippable? Natürlich nicht.</p>
+        </div>
+        <div class="pain-card reveal reveal-delay-2">
+          <span class="pain-icon">❌</span>
+          <h3>Grind ohne Ende</h3>
+          <p>Eine Woche spielen nur um eine Waffe freizuschalten, die dein Gegner einfach gekauft hat.</p>
+        </div>
+        <div class="pain-card reveal reveal-delay-3">
+          <span class="pain-icon">❌</span>
+          <h3>Pay-to-Win ruiniert alles</h3>
+          <p>Skill zählt nichts mehr, wenn der Gegner einfach die OP-Waffe für 9,99&euro; kauft.</p>
+        </div>
+      </div>
+      <p class="pain-transition reveal">STICKMAN FIGHT LEGACY MACHT DAS ANDERS. ↓</p>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ===== FEATURES ===== -->
+  <section id="features">
+    <div class="section-inner">
+      <h2 class="features-headline reveal">Was dich bei Stickman Fight Legacy erwartet ⚔️</h2>
+
+      <!-- Feature 1 -->
+      <div class="feature-row reveal">
+        <div>
+          <div class="feature-emoji">⚡</div>
+          <p class="feature-label">Gameplay</p>
+          <h3 class="feature-title">Echte Physik. Echter Spaß.</h3>
+          <p class="feature-desc">Ragdoll-Physik trifft auf präzises Kampfsystem. Jeder Treffer fühlt sich anders an — kein Kampf ist wie der andere. Du entwickelst echten Skill, nicht nur Grind-Level.</p>
+        </div>
+        <div class="feature-visual">
+          <!-- Ragdoll stickman -->
+          <svg class="feature-stick" width="140" height="160" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 10px #FF3D00)">
+            <circle cx="70" cy="20" r="16" stroke="white" stroke-width="2.5"/>
+            <line x1="70" y1="36" x2="70" y2="90" stroke="white" stroke-width="2.5"/>
+            <line x1="70" y1="55" x2="35" y2="75" stroke="white" stroke-width="2.5"/>
+            <line x1="70" y1="55" x2="108" y2="40" stroke="white" stroke-width="2.5"/>
+            <line x1="70" y1="90" x2="45" y2="130" stroke="white" stroke-width="2.5"/>
+            <line x1="70" y1="90" x2="92" y2="135" stroke="white" stroke-width="2.5"/>
+            <!-- impact lines -->
+            <line x1="100" y1="50" x2="120" y2="38" stroke="#FF3D00" stroke-width="2"/>
+            <line x1="105" y1="42" x2="118" y2="30" stroke="#FF3D00" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="feature-row reverse reveal">
+        <div>
+          <div class="feature-emoji">🎨</div>
+          <p class="feature-label">Customization</p>
+          <h3 class="feature-title">Dein Style. Deine Waffen.</h3>
+          <p class="feature-desc">Wähle aus Dutzenden Waffen-Loadouts — Schwerter, Hämmer, Speere. Schalte Skins durch echtes Gameplay frei, nicht durch dein Portemonnaie. Dein Stickman, deine Regeln.</p>
+        </div>
+        <div class="feature-visual">
+          <!-- Stickman with multiple weapons -->
+          <svg class="feature-stick" width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.5s">
+            <circle cx="80" cy="20" r="16" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="36" x2="80" y2="95" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="55" x2="40" y2="70" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="55" x2="118" y2="70" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="95" x2="58" y2="140" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="95" x2="100" y2="140" stroke="white" stroke-width="2.5"/>
+            <!-- Sword in right hand -->
+            <line x1="118" y1="70" x2="150" y2="40" stroke="white" stroke-width="4"/>
+            <line x1="126" y1="62" x2="138" y2="68" stroke="white" stroke-width="3"/>
+            <!-- Shield left -->
+            <rect x="20" y="60" width="20" height="28" rx="4" fill="none" stroke="#FF3D00" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feature-row reveal">
+        <div>
+          <div class="feature-emoji">📵</div>
+          <p class="feature-label">Offline First</p>
+          <h3 class="feature-title">Offline. Immer. Überall.</h3>
+          <p class="feature-desc">Kein WLAN? Kein Problem. Stickman Fight Legacy läuft komplett offline. In der Bahn, im Urlaub, im Keller — du brauchst kein Internet für epische Kämpfe.</p>
+        </div>
+        <div class="feature-visual">
+          <!-- Stickman with wifi crossed -->
+          <div style="position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+            <svg class="feature-stick" width="100" height="130" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.8s">
+              <circle cx="50" cy="18" r="14" stroke="white" stroke-width="2.5"/>
+              <line x1="50" y1="32" x2="50" y2="82" stroke="white" stroke-width="2.5"/>
+              <line x1="50" y1="48" x2="22" y2="64" stroke="white" stroke-width="2.5"/>
+              <line x1="50" y1="48" x2="78" y2="64" stroke="white" stroke-width="2.5"/>
+              <line x1="50" y1="82" x2="34" y2="118" stroke="white" stroke-width="2.5"/>
+              <line x1="50" y1="82" x2="66" y2="118" stroke="white" stroke-width="2.5"/>
+            </svg>
+            <div style="color:#FF3D00;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:1px;">NO WIFI NEEDED ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="feature-row reverse reveal">
+        <div>
+          <div class="feature-emoji">🏆</div>
+          <p class="feature-label">Fair Play</p>
+          <h3 class="feature-title">Skill &gt; Wallet</h3>
+          <p class="feature-desc">Zero Pay-to-Win. Jeder Spieler startet gleich. Wer gewinnt, gewinnt weil er besser ist — nicht weil er mehr Geld ausgegeben hat. So muss Gaming sein.</p>
+        </div>
+        <div class="feature-visual">
+          <!-- Balance/trophy visual -->
+          <svg class="feature-stick" width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.3s">
+            <circle cx="80" cy="22" r="16" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="38" x2="80" y2="92" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="58" x2="45" y2="72" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="58" x2="115" y2="72" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="92" x2="60" y2="138" stroke="white" stroke-width="2.5"/>
+            <line x1="80" y1="92" x2="100" y2="138" stroke="white" stroke-width="2.5"/>
+            <!-- Trophy (held up) -->
+            <path d="M115 55 Q115 45 125 45 Q135 45 135 55 L130 72 L120 72 Z" fill="none" stroke="#FF3D00" stroke-width="2"/>
+            <line x1="125" y1="72" x2="125" y2="82" stroke="#FF3D00" stroke-width="2"/>
+            <line x1="118" y1="82" x2="132" y2="82" stroke="#FF3D00" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ===== SOCIAL PROOF ===== -->
+  <section id="reviews">
+    <div class="section-inner">
+      <h2 class="reviews-headline reveal">Was die Community sagt 🔥</h2>
+
+      <div class="review-cards">
+
+        <!-- Review 1 -->
+        <div class="review-card reveal reveal-delay-1">
+          <div class="review-header">
+            <div class="review-avatar" style="background:#1a3a6e;border:2px solid #4a7fd4;">
+              <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
+                <circle cx="14" cy="8" r="6" fill="#4a7fd4"/>
+                <line x1="14" y1="14" x2="14" y2="26" stroke="#4a7fd4" stroke-width="2"/>
+                <line x1="14" y1="18" x2="6" y2="23" stroke="#4a7fd4" stroke-width="2"/>
+                <line x1="14" y1="18" x2="22" y2="23" stroke="#4a7fd4" stroke-width="2"/>
+                <line x1="14" y1="26" x2="8" y2="35" stroke="#4a7fd4" stroke-width="2"/>
+                <line x1="14" y1="26" x2="20" y2="35" stroke="#4a7fd4" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="review-meta">
+              <div class="review-name">ShadowBlade_99</div>
+              <div class="review-source">Google Play</div>
+            </div>
+          </div>
+          <div class="review-stars">⭐⭐⭐⭐⭐</div>
+          <p class="review-text">"Endlich mal ein Stickman-Game ohne Pay-to-Win Mist. Habe schon 50+ Stunden drauf. Absolut fair!"</p>
+        </div>
+
+        <!-- Review 2 -->
+        <div class="review-card reveal reveal-delay-2">
+          <div class="review-header">
+            <div class="review-avatar" style="background:#6e1a1a;border:2px solid #d44a4a;">
+              <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
+                <circle cx="14" cy="8" r="6" fill="#d44a4a"/>
+                <line x1="14" y1="14" x2="14" y2="26" stroke="#d44a4a" stroke-width="2"/>
+                <line x1="14" y1="18" x2="6" y2="23" stroke="#d44a4a" stroke-width="2"/>
+                <line x1="14" y1="18" x2="22" y2="23" stroke="#d44a4a" stroke-width="2"/>
+                <line x1="14" y1="26" x2="8" y2="35" stroke="#d44a4a" stroke-width="2"/>
+                <line x1="14" y1="26" x2="20" y2="35" stroke="#d44a4a" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="review-meta">
+              <div class="review-name">LegendStick_X</div>
+              <div class="review-source">App Store</div>
+            </div>
+          </div>
+          <div class="review-stars">⭐⭐⭐⭐⭐</div>
+          <p class="review-text">"Die Physik ist der Hammer. Jeder Kampf fühlt sich anders an. Meine Freunde und ich spielen es täglich offline."</p>
+        </div>
+
+        <!-- Review 3 -->
+        <div class="review-card reveal reveal-delay-3">
+          <div class="review-header">
+            <div class="review-avatar" style="background:#1a4a2a;border:2px solid #4ad46a;">
+              <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
+                <circle cx="14" cy="8" r="6" fill="#4ad46a"/>
+                <line x1="14" y1="14" x2="14" y2="26" stroke="#4ad46a" stroke-width="2"/>
+                <line x1="14" y1="18" x2="6" y2="23" stroke="#4ad46a" stroke-width="2"/>
+                <line x1="14" y1="18" x2="22" y2="23" stroke="#4ad46a" stroke-width="2"/>
+                <line x1="14" y1="26" x2="8" y2="35" stroke="#4ad46a" stroke-width="2"/>
+                <line x1="14" y1="26" x2="20" y2="35" stroke="#4ad46a" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="review-meta">
+              <div class="review-name">PhilippinesGamer</div>
+              <div class="review-source">Google Play</div>
+            </div>
+          </div>
+          <div class="review-stars">⭐⭐⭐⭐⭐</div>
+          <p class="review-text">"Keine Werbung die unterbricht. Kein Grind. Nur pure Action. Das ist das Game das ich immer gesucht habe!"</p>
+        </div>
+
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row reveal">
+        <div class="stat-item">
+          <span class="stat-number">10.000+</span>
+          <span class="stat-label">Downloads</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">4.8★</span>
+          <span class="stat-label">Durchschnittsbewertung</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">#1</span>
+          <span class="stat-label">Stickman Fight Legacy</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section id="howto">
+    <div class="section-inner">
+      <h2 class="howto-headline reveal">In 3 Schritten zum ersten Duell</h2>
+      <div class="steps">
+
+        <div class="step reveal reveal-delay-1">
+          <span class="step-number">1</span>
+          <div class="step-icon-wrap">📲</div>
+          <h3>Kostenlos downloaden</h3>
+          <p>Kein Account notwendig. Kein Registrierungsformular. Einfach runterladen und loslegen.</p>
+        </div>
+
+        <div class="step reveal reveal-delay-2">
+          <span class="step-number">2</span>
+          <div class="step-icon-wrap">⚔️</div>
+          <h3>Direkt loslegen</h3>
+          <p>Tutorial überspringbar. Erster Kampf in unter 60 Sekunden. Keine langen Ladezeiten.</p>
+        </div>
+
+        <div class="step reveal reveal-delay-3">
+          <span class="step-number">3</span>
+          <div class="step-icon-wrap">🏆</div>
+          <h3>Freunde besiegen</h3>
+          <p>Lokaler Multiplayer — kein Internet nötig. Zwei Spieler, ein Gerät, echter Spaß.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FINAL CTA ===== -->
+  <section id="cta-final">
+    <div class="section-inner" style="text-align:center;padding:100px 24px;">
+      <h2 class="cta-headline">WORAUF WARTEST<br>DU NOCH?</h2>
+      <p class="cta-sub">Kostenlos. Offline. Fair. Das Stickman-Game das du verdient hast — Stickman Fight Legacy.</p>
+      <a href="#" class="btn-cta-big">🎮 STICKMAN FIGHT LEGACY — JETZT HERUNTERLADEN — 0€</a>
+      <p class="cta-disclaimer">Keine In-App-Käufe die den Spielspaß ruinieren. Versprochen.</p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div>
+          <div class="footer-logo">
+            <svg width="28" height="32" viewBox="0 0 28 32" fill="none">
+              <circle cx="14" cy="6" r="5" stroke="#FF3D00" stroke-width="2"/>
+              <line x1="14" y1="11" x2="14" y2="22" stroke="#FF3D00" stroke-width="2"/>
+              <line x1="14" y1="15" x2="6" y2="20" stroke="#FF3D00" stroke-width="2"/>
+              <line x1="14" y1="15" x2="22" y2="19" stroke="#FF3D00" stroke-width="2"/>
+              <line x1="14" y1="22" x2="8" y2="31" stroke="#FF3D00" stroke-width="2"/>
+              <line x1="14" y1="22" x2="20" y2="31" stroke="#FF3D00" stroke-width="2"/>
+            </svg>
+            <span class="footer-logo-text">STICKMAN FIGHT LEGACY</span>
+          </div>
+          <p class="footer-tagline">Das Legacy lebt weiter. ⚔️</p>
+          <div class="social-icons" style="margin-top:16px;">
+            <!-- YouTube -->
+            <div class="social-icon" title="YouTube">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="6" width="20" height="12" rx="3" stroke="#FF3D00" stroke-width="1.5"/>
+                <polygon points="10,9 10,15 16,12" fill="#FF3D00"/>
+              </svg>
+            </div>
+            <!-- TikTok -->
+            <div class="social-icon" title="TikTok">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M9 12 C9 9.8 10.8 8 13 8 L13 5 C9.1 5 6 8.1 6 12 C6 15.9 9.1 19 13 19 C13 19 13 16 13 16 C10.8 16 9 14.2 9 12Z" fill="#FF3D00"/>
+                <path d="M13 5 L13 12 C13 12 15 12 17 10" stroke="#FF3D00" stroke-width="1.5" fill="none"/>
+                <line x1="17" y1="5" x2="17" y2="10" stroke="#FF3D00" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <!-- Discord -->
+            <div class="social-icon" title="Discord">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6 C18 6 16 4 12 4 C8 4 6 6 6 6 L5 18 C5 18 7 20 12 20 C17 20 19 18 19 18 Z" stroke="#FF3D00" stroke-width="1.5" fill="none"/>
+                <circle cx="9.5" cy="13" r="1.5" fill="#FF3D00"/>
+                <circle cx="14.5" cy="13" r="1.5" fill="#FF3D00"/>
+                <path d="M8 6.5 C9.5 5.5 14.5 5.5 16 6.5" stroke="#FF3D00" stroke-width="1.2" fill="none"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;">
+          <div class="footer-links">
+            <a href="#">Datenschutz</a>
+            <a href="#">Impressum</a>
+            <a href="#">Kontakt</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2025 Stickman Fight Legacy — Made for real players.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ===== NAVBAR SCROLL =====
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // ===== INTERSECTION OBSERVER — REVEAL =====
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          // Trigger shake on pain card icons
+          const icon = entry.target.querySelector('.pain-icon');
+          if (icon) {
+            entry.target.classList.add('shake');
+          }
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => observer.observe(el));
+
+    // ===== SMOOTH SCROLL for anchor links =====
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
