@@ -129,7 +129,20 @@
       backdrop-filter: blur(2px);
     }
     #menu.hidden { display: none; }
-    #menu h2 {
+    #map-select {
+      position: absolute;
+      inset: 0;
+      background: rgba(5,5,5,0.92);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      z-index: 10;
+      backdrop-filter: blur(2px);
+    }
+    #map-select.visible { display: flex; }
+    #menu h2, #map-select h2 {
       font-family: 'Bangers', cursive;
       font-size: clamp(26px, 5vw, 44px);
       color: #fff;
@@ -164,6 +177,30 @@
       color: rgba(255,255,255,0.55);
       margin-top: 6px;
     }
+    .map-btn-row { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+    .map-btn {
+      background: rgba(255,255,255,0.04);
+      border: 2px solid rgba(255,255,255,0.25);
+      color: #fff;
+      font-family: 'Bangers', cursive;
+      font-size: clamp(22px, 3.5vw, 32px);
+      letter-spacing: 0.05em;
+      padding: 18px 30px;
+      border-radius: 14px;
+      cursor: pointer;
+      min-width: 200px;
+      text-align: center;
+      transition: transform 0.12s, background 0.12s, border-color 0.12s, box-shadow 0.12s;
+    }
+    .map-btn:hover { transform: scale(1.05); }
+    .map-btn.desert { border-color: #D4840A; color: #F5A623; box-shadow: 0 0 20px rgba(212,132,10,0.3); }
+    .map-btn.desert:hover { background: rgba(212,132,10,0.14); box-shadow: 0 0 36px rgba(212,132,10,0.55); }
+    .map-btn.ice { border-color: #5BC8FF; color: #A8DFFF; box-shadow: 0 0 20px rgba(91,200,255,0.3); }
+    .map-btn.ice:hover { background: rgba(91,200,255,0.12); box-shadow: 0 0 36px rgba(91,200,255,0.55); }
+    .map-btn .map-icon { font-size: 2em; display: block; margin-bottom: 6px; }
+    .map-btn .map-sub { display: block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); margin-top: 6px; letter-spacing: 0.04em; }
+    .back-link { font-family: 'Inter', sans-serif; font-size: 13px; color: rgba(255,255,255,0.4); cursor: pointer; background: none; border: none; text-decoration: underline; margin-top: 4px; }
+    .back-link:hover { color: #FF3D00; }
   </style>
 </head>
 <body>
@@ -172,6 +209,25 @@
 
   <div id="canvas-wrapper">
     <canvas id="game" width="900" height="500"></canvas>
+
+    <!-- Map Selection -->
+    <div id="map-select">
+      <h2>WÄHLE DEINE MAP</h2>
+      <div class="map-btn-row">
+        <button class="map-btn desert" id="map-desert">
+          <span class="map-icon">🏜️</span>
+          WÜSTE
+          <span class="map-sub">Kakten · Sand · Glut</span>
+        </button>
+        <button class="map-btn ice" id="map-ice">
+          <span class="map-icon">❄️</span>
+          EIS
+          <span class="map-sub">Schnee · Eis · Kälte</span>
+        </button>
+      </div>
+      <button class="back-link" id="map-back">← Zurück zur Modusauswahl</button>
+    </div>
+
     <div id="menu">
       <h2>WÄHLE DEINEN MODUS</h2>
       <button class="mode-btn" id="mode-ai">
@@ -230,19 +286,48 @@
 
     let player, ai, gameOver, gameOverTimer, winner;
     let particles = [];
+    let snow = [];
     let mode = null;       // 'ai' or 'pvp'
+    let map  = null;       // 'desert' or 'ice'
     let started = false;
 
-    // Menu mode selection
-    const menuEl = document.getElementById('menu');
-    function startGame(selectedMode) {
-      mode = selectedMode;
-      started = true;
+    const menuEl    = document.getElementById('menu');
+    const mapSelEl  = document.getElementById('map-select');
+
+    function showMenu() {
+      started = false;
+      mode = null;
+      map  = null;
+      mapSelEl.classList.remove('visible');
+      menuEl.classList.remove('hidden');
+    }
+
+    function showMapSelect() {
       menuEl.classList.add('hidden');
+      mapSelEl.classList.add('visible');
+    }
+
+    function startGame(selectedMap) {
+      map = selectedMap;
+      mapSelEl.classList.remove('visible');
+      started = true;
+      snow = [];
       init();
     }
-    document.getElementById('mode-ai').addEventListener('click', () => startGame('ai'));
-    document.getElementById('mode-pvp').addEventListener('click', () => startGame('pvp'));
+
+    // Z key → back to menu anytime (but don't let keydown propagate as 'z' movement)
+    document.addEventListener('keydown', e => {
+      if (e.key === 'z' || e.key === 'Z') {
+        if (started) { showMenu(); }
+        e.preventDefault();
+      }
+    });
+
+    document.getElementById('mode-ai').addEventListener('click', () => { mode = 'ai'; showMapSelect(); });
+    document.getElementById('mode-pvp').addEventListener('click', () => { mode = 'pvp'; showMapSelect(); });
+    document.getElementById('map-desert').addEventListener('click', () => startGame('desert'));
+    document.getElementById('map-ice').addEventListener('click', () => startGame('ice'));
+    document.getElementById('map-back').addEventListener('click', showMenu);
 
     function createStickman(x, isPlayer) {
       return {
@@ -535,44 +620,203 @@
       }
     }
 
-    function drawBackground() {
-      // Sky gradient
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-      skyGrad.addColorStop(0, '#050505');
-      skyGrad.addColorStop(1, '#0D0812');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, W, H);
+    // ---- Snow system ----
+    function spawnSnow() {
+      if (map !== 'ice') return;
+      if (snow.length < 120 && Math.random() < 0.4) {
+        snow.push({ x: Math.random() * W, y: -8, r: 2 + Math.random() * 4,
+          speed: 0.8 + Math.random() * 1.8, drift: (Math.random() - 0.5) * 0.6,
+          opacity: 0.4 + Math.random() * 0.6 });
+      }
+      for (let i = snow.length - 1; i >= 0; i--) {
+        const s = snow[i];
+        s.y += s.speed; s.x += s.drift;
+        if (s.y > H + 10) snow.splice(i, 1);
+      }
+    }
 
-      // Subtle grid
+    function drawSnow() {
+      for (const s of snow) {
+        ctx.save();
+        ctx.globalAlpha = s.opacity;
+        ctx.fillStyle = '#E8F4FF';
+        ctx.shadowColor = '#A8DFFF';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // ---- Cactus drawing ----
+    function drawCactus(cx, baseY, h) {
       ctx.save();
-      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.strokeStyle = '#3A7A2A';
+      ctx.fillStyle = '#2D6020';
+      ctx.lineWidth = 0;
+      const w = h * 0.18;
+      // Main trunk
+      ctx.fillRect(cx - w/2, baseY - h, w, h);
+      // Left arm
+      const lArmY = baseY - h * 0.6;
+      ctx.fillRect(cx - w/2 - w*1.5, lArmY - h*0.25, w, h*0.3);
+      ctx.fillRect(cx - w/2 - w*1.5, lArmY - h*0.25, w, h*0.25);
+      // Left arm vertical
+      ctx.fillRect(cx - w/2 - w*1.5, lArmY - h*0.45, w, h*0.22);
+      // Right arm
+      const rArmY = baseY - h * 0.45;
+      ctx.fillRect(cx + w/2, rArmY - h*0.15, w*1.5, w);
+      ctx.fillRect(cx + w/2 + w*1.5 - w, rArmY - h*0.35, w, h*0.22);
+      // Spines (light green lines)
+      ctx.strokeStyle = '#7DC96A';
       ctx.lineWidth = 1;
-      for (let gx = 0; gx <= W; gx += 60) {
-        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
-      }
-      for (let gy = 0; gy <= H; gy += 60) {
-        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+      for (let i = 0; i < 5; i++) {
+        const sy = baseY - h * 0.15 - i * (h * 0.16);
+        ctx.beginPath(); ctx.moveTo(cx - w/2 - 5, sy); ctx.lineTo(cx - w/2 - 12, sy - 4); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx + w/2 + 5, sy); ctx.lineTo(cx + w/2 + 12, sy - 4); ctx.stroke();
       }
       ctx.restore();
+    }
 
-      // Ground glow (orange neon underneath)
-      const groundGrad = ctx.createLinearGradient(0, GROUND, 0, GROUND + 80);
-      groundGrad.addColorStop(0, 'rgba(255,61,0,0.25)');
-      groundGrad.addColorStop(1, 'rgba(255,61,0,0)');
-      ctx.fillStyle = groundGrad;
-      ctx.fillRect(0, GROUND, W, 80);
+    function drawBackground() {
+      if (map === 'desert') {
+        // Desert sky gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+        skyGrad.addColorStop(0, '#1A0A00');
+        skyGrad.addColorStop(0.5, '#3D1800');
+        skyGrad.addColorStop(1, '#7A3500');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, W, H);
 
-      // Ground line
-      ctx.save();
-      ctx.strokeStyle = '#FF3D00';
-      ctx.lineWidth = 3;
-      ctx.shadowColor = '#FF3D00';
-      ctx.shadowBlur = 20;
-      ctx.beginPath();
-      ctx.moveTo(0, GROUND);
-      ctx.lineTo(W, GROUND);
-      ctx.stroke();
-      ctx.restore();
+        // Sun glow
+        ctx.save();
+        ctx.shadowColor = '#FF8C00';
+        ctx.shadowBlur = 60;
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(W * 0.78, 70, 38, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Sand ground
+        const sandGrad = ctx.createLinearGradient(0, GROUND, 0, H);
+        sandGrad.addColorStop(0, '#C8873A');
+        sandGrad.addColorStop(1, '#9A5F22');
+        ctx.fillStyle = sandGrad;
+        ctx.fillRect(0, GROUND, W, H - GROUND);
+
+        // Cacti in background
+        drawCactus(80,  GROUND, 110);
+        drawCactus(230, GROUND, 75);
+        drawCactus(580, GROUND, 130);
+        drawCactus(730, GROUND, 85);
+        drawCactus(860, GROUND, 95);
+
+        // Ground line (sand-colored glow)
+        ctx.save();
+        ctx.strokeStyle = '#D4840A';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#FF8C00';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND);
+        ctx.stroke();
+        ctx.restore();
+
+        // Heat shimmer dots
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,160,40,0.06)';
+        for (let i = 0; i < 8; i++) {
+          ctx.beginPath();
+          ctx.ellipse(100 + i * 110, GROUND - 8, 40, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+      } else if (map === 'ice') {
+        // Ice sky gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+        skyGrad.addColorStop(0, '#04121F');
+        skyGrad.addColorStop(0.6, '#0A2A40');
+        skyGrad.addColorStop(1, '#0D3050');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Aurora effect
+        ctx.save();
+        const auroraGrad = ctx.createLinearGradient(0, 0, W, 0);
+        auroraGrad.addColorStop(0,   'rgba(0,255,180,0)');
+        auroraGrad.addColorStop(0.3, 'rgba(0,220,180,0.07)');
+        auroraGrad.addColorStop(0.5, 'rgba(80,120,255,0.10)');
+        auroraGrad.addColorStop(0.7, 'rgba(160,80,255,0.07)');
+        auroraGrad.addColorStop(1,   'rgba(0,255,180,0)');
+        ctx.fillStyle = auroraGrad;
+        ctx.fillRect(0, 0, W, H * 0.4);
+        ctx.restore();
+
+        // Ice/snow ground
+        const iceGrad = ctx.createLinearGradient(0, GROUND, 0, H);
+        iceGrad.addColorStop(0, '#B8DCF0');
+        iceGrad.addColorStop(0.3, '#8ABFDC');
+        iceGrad.addColorStop(1, '#5A90B0');
+        ctx.fillStyle = iceGrad;
+        ctx.fillRect(0, GROUND, W, H - GROUND);
+
+        // Snow surface bumps
+        ctx.save();
+        ctx.fillStyle = '#D4EEFA';
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND);
+        for (let x = 0; x <= W; x += 40) {
+          ctx.lineTo(x, GROUND - 6 - Math.sin(x * 0.05) * 5);
+        }
+        ctx.lineTo(W, GROUND); ctx.lineTo(0, GROUND);
+        ctx.fill();
+        ctx.restore();
+
+        // Ice cracks on ground
+        ctx.save();
+        ctx.strokeStyle = 'rgba(150,220,255,0.35)';
+        ctx.lineWidth = 1;
+        [[150,GROUND+10,200,GROUND+30],[350,GROUND+5,380,GROUND+25],
+         [550,GROUND+8,620,GROUND+20],[750,GROUND+12,800,GROUND+28]].forEach(([x1,y1,x2,y2]) => {
+          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        });
+        ctx.restore();
+
+        // Ground line (ice blue glow)
+        ctx.save();
+        ctx.strokeStyle = '#5BC8FF';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#A8DFFF';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND);
+        ctx.stroke();
+        ctx.restore();
+
+        // Snow particles
+        spawnSnow();
+        drawSnow();
+
+      } else {
+        // Default dark bg (shown behind menus)
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+        skyGrad.addColorStop(0, '#050505');
+        skyGrad.addColorStop(1, '#0D0812');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, W, H);
+        ctx.save();
+        ctx.strokeStyle = '#FF3D00';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#FF3D00';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND);
+        ctx.stroke();
+        ctx.restore();
+      }
     }
 
     function drawUI() {
@@ -589,8 +833,8 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       const hint = mode === 'pvp'
-        ? 'S1: A / D + LEERTASTE   |   S2: K / Ö + O'
-        : 'A / D — Bewegen   |   LEERTASTE — Angriff';
+        ? 'S1: A / D + LEERTASTE   |   S2: K / Ö + O   |   Z = Menü'
+        : 'A / D — Bewegen   |   LEERTASTE — Angriff   |   Z = Menü';
       ctx.fillText(hint, W / 2, H - 8);
       ctx.restore();
     }
