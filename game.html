@@ -276,7 +276,7 @@
       </button>
       <button class="mode-btn" id="mode-pvp">
         2 SPIELER (PVP)
-        <span>S1: A/D + LEERTASTE &nbsp;·&nbsp; S2: K/Ö + O</span>
+        <span>S1: A/D + LEERTASTE &nbsp;·&nbsp; S2: ← / → + ENTER</span>
       </button>
     </div>
   </div>
@@ -301,11 +301,11 @@
       <span class="touch-label">SPIELER 2</span>
       <div class="touch-cluster">
         <div class="touch-group">
-          <button class="touch-btn" data-key="k">&#9664;</button>
-          <button class="touch-btn" data-key="ö">&#9654;</button>
+          <button class="touch-btn" data-key="ArrowLeft">&#9664;</button>
+          <button class="touch-btn" data-key="ArrowRight">&#9654;</button>
         </div>
         <div class="touch-group">
-          <button class="touch-btn atk" data-key="o">&#9876;</button>
+          <button class="touch-btn atk" data-key="Enter">&#9876;</button>
           <button class="touch-btn ult" data-ultra="p2">&#9889;</button>
         </div>
       </div>
@@ -331,15 +331,19 @@
     let shake = 0;          // screen-shake intensity
 
     const keys = {};
-    document.addEventListener('keydown', e => { keys[e.key] = true; });
+    const blockScroll = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter', ' '];
+    document.addEventListener('keydown', e => {
+      keys[e.key] = true;
+      if (blockScroll.includes(e.key)) e.preventDefault();
+    });
     document.addEventListener('keyup', e => { keys[e.key] = false; });
 
     // Touch controls — bind every button with data-key or data-ultra
     function bindTouchButton(el) {
       // Which keys does this button set?
       let setKeys;
-      if (el.dataset.ultra === 'p1')      setKeys = ['a', 'd'];   // P1 ultra = A+D
-      else if (el.dataset.ultra === 'p2') setKeys = ['k', 'ö'];   // P2 ultra = K+Ö
+      if (el.dataset.ultra === 'p1')      setKeys = ['a', 'd'];                 // P1 ultra = A+D
+      else if (el.dataset.ultra === 'p2') setKeys = ['ArrowLeft', 'ArrowRight']; // P2 ultra = ←+→
       else                                setKeys = [el.dataset.key];
 
       const press = (e) => {
@@ -1243,7 +1247,7 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       const hint = mode === 'pvp'
-        ? 'S1: A/D + LEERTASTE (A+D=ULTRA⚡)   |   S2: K/Ö + O (K+Ö=ULTRA⚡)   |   Z = Menü'
+        ? 'S1: A/D + LEERTASTE (A+D=ULTRA⚡)   |   S2: ←/→ + ENTER (←+→=ULTRA⚡)   |   Z = Menü'
         : 'A / D — Bewegen   |   LEERTASTE — Angriff   |   A+D = ULTRA ⚡   |   Z = Menü';
       ctx.fillText(hint, W / 2, H - 8);
       ctx.restore();
@@ -1396,10 +1400,10 @@
     }
 
     function updatePlayer2() {
-      // Player 2 controls the blue stickman: k=left, ö=right, o=attack
+      // Player 2 controls the blue stickman: ←=left, →=right, Enter=attack, ←+→=ultra
       ai.moving = false;
-      const left  = keys['k'] || keys['K'];
-      const right = keys['ö'] || keys['Ö'];
+      const left  = keys['ArrowLeft'];
+      const right = keys['ArrowRight'];
       const both  = left && right;
 
       if (!both) {
@@ -1420,7 +1424,7 @@
         ai.ultraFlash = 45;
       }
       // Normal attack
-      else if ((keys['o'] || keys['O']) && !ai.attacking && ai.cooldown === 0) {
+      else if (keys['Enter'] && !ai.attacking && ai.cooldown === 0) {
         ai.attacking = true;
         ai.attackFrame = 0;
         ai.isUltra = false;
