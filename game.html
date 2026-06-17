@@ -65,17 +65,35 @@
     #touch-controls {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-end;
       width: 100%;
       max-width: 900px;
       margin-top: 16px;
-      padding: 0 8px;
+      padding: 0 6px;
       gap: 8px;
+    }
+
+    .touch-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .touch-label {
+      font-family: 'Bangers', cursive;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.45);
+    }
+    .touch-cluster {
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
 
     .touch-group {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .touch-btn {
@@ -83,35 +101,43 @@
       border: 2px solid #FF3D00;
       color: #FF3D00;
       font-family: 'Bangers', cursive;
-      font-size: 22px;
+      font-size: 26px;
       letter-spacing: 0.06em;
-      width: 70px;
-      height: 70px;
+      width: 62px;
+      height: 62px;
       border-radius: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 12px rgba(255,61,0,0.2);
-      transition: background 0.1s, box-shadow 0.1s;
+      transition: background 0.1s, box-shadow 0.1s, transform 0.05s;
       -webkit-tap-highlight-color: transparent;
       touch-action: none;
+      user-select: none;
     }
 
     .touch-btn:active,
     .touch-btn.pressed {
-      background: rgba(255,61,0,0.18);
-      box-shadow: 0 0 24px rgba(255,61,0,0.5);
+      background: rgba(255,61,0,0.22);
+      box-shadow: 0 0 24px rgba(255,61,0,0.6);
+      transform: scale(0.93);
     }
 
-    #touch-attack {
-      width: 90px;
-      height: 70px;
-      font-size: 18px;
-      background: rgba(255,61,0,0.08);
+    .touch-btn.atk { background: rgba(255,61,0,0.10); }
+    .touch-btn.ult {
+      border-color: #FFD23D;
+      color: #FFD23D;
+      background: rgba(255,210,61,0.08);
+      box-shadow: 0 0 14px rgba(255,210,61,0.3);
+    }
+    .touch-btn.ult:active,
+    .touch-btn.ult.pressed {
+      background: rgba(255,210,61,0.25);
+      box-shadow: 0 0 26px rgba(255,210,61,0.7);
     }
 
-    @media (min-width: 700px) {
+    @media (min-width: 900px) {
       #touch-controls { display: none; }
     }
 
@@ -256,11 +282,34 @@
   </div>
 
   <div id="touch-controls">
-    <div class="touch-group">
-      <button class="touch-btn" id="touch-left">&#9664;</button>
-      <button class="touch-btn" id="touch-right">&#9654;</button>
+    <!-- Player 1 -->
+    <div class="touch-side" id="touch-p1">
+      <span class="touch-label">SPIELER 1</span>
+      <div class="touch-cluster">
+        <div class="touch-group">
+          <button class="touch-btn" data-key="a">&#9664;</button>
+          <button class="touch-btn" data-key="d">&#9654;</button>
+        </div>
+        <div class="touch-group">
+          <button class="touch-btn atk" data-key=" ">&#9876;</button>
+          <button class="touch-btn ult" data-ultra="p1">&#9889;</button>
+        </div>
+      </div>
     </div>
-    <button class="touch-btn" id="touch-attack">ATTACK</button>
+    <!-- Player 2 (only in PvP) -->
+    <div class="touch-side" id="touch-p2" style="display:none">
+      <span class="touch-label">SPIELER 2</span>
+      <div class="touch-cluster">
+        <div class="touch-group">
+          <button class="touch-btn" data-key="k">&#9664;</button>
+          <button class="touch-btn" data-key="ö">&#9654;</button>
+        </div>
+        <div class="touch-group">
+          <button class="touch-btn atk" data-key="o">&#9876;</button>
+          <button class="touch-btn ult" data-ultra="p2">&#9889;</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -285,12 +334,24 @@
     document.addEventListener('keydown', e => { keys[e.key] = true; });
     document.addEventListener('keyup', e => { keys[e.key] = false; });
 
-    // Touch controls
-    function bindTouch(id, key) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const press = (e) => { e.preventDefault(); keys[key] = true; el.classList.add('pressed'); };
-      const release = (e) => { e.preventDefault(); keys[key] = false; el.classList.remove('pressed'); };
+    // Touch controls — bind every button with data-key or data-ultra
+    function bindTouchButton(el) {
+      // Which keys does this button set?
+      let setKeys;
+      if (el.dataset.ultra === 'p1')      setKeys = ['a', 'd'];   // P1 ultra = A+D
+      else if (el.dataset.ultra === 'p2') setKeys = ['k', 'ö'];   // P2 ultra = K+Ö
+      else                                setKeys = [el.dataset.key];
+
+      const press = (e) => {
+        e.preventDefault();
+        setKeys.forEach(k => { keys[k] = true; });
+        el.classList.add('pressed');
+      };
+      const release = (e) => {
+        e.preventDefault();
+        setKeys.forEach(k => { keys[k] = false; });
+        el.classList.remove('pressed');
+      };
       el.addEventListener('touchstart', press, { passive: false });
       el.addEventListener('touchend', release, { passive: false });
       el.addEventListener('touchcancel', release, { passive: false });
@@ -298,9 +359,7 @@
       el.addEventListener('mouseup', release);
       el.addEventListener('mouseleave', release);
     }
-    bindTouch('touch-left', 'a');
-    bindTouch('touch-right', 'd');
-    bindTouch('touch-attack', ' ');
+    document.querySelectorAll('#touch-controls .touch-btn').forEach(bindTouchButton);
 
     let player, ai, gameOver, gameOverTimer, winner;
     let particles = [];
@@ -330,6 +389,8 @@
       mapSelEl.classList.remove('visible');
       started = true;
       snow = [];
+      // Show Player 2 touch controls only in PvP
+      document.getElementById('touch-p2').style.display = (mode === 'pvp') ? 'flex' : 'none';
       init();
     }
 

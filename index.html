@@ -1070,17 +1070,27 @@
           <p class="feature-desc">Ragdoll-Physik trifft auf präzises Kampfsystem. Jeder Treffer fühlt sich anders an — kein Kampf ist wie der andere. Du entwickelst echten Skill, nicht nur Grind-Level.</p>
         </div>
         <div class="feature-visual">
-          <!-- Ragdoll stickman -->
-          <svg class="feature-stick" width="140" height="160" viewBox="0 0 140 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 10px #FF3D00)">
-            <circle cx="70" cy="20" r="16" stroke="white" stroke-width="2.5"/>
-            <line x1="70" y1="36" x2="70" y2="90" stroke="white" stroke-width="2.5"/>
-            <line x1="70" y1="55" x2="35" y2="75" stroke="white" stroke-width="2.5"/>
-            <line x1="70" y1="55" x2="108" y2="40" stroke="white" stroke-width="2.5"/>
-            <line x1="70" y1="90" x2="45" y2="130" stroke="white" stroke-width="2.5"/>
-            <line x1="70" y1="90" x2="92" y2="135" stroke="white" stroke-width="2.5"/>
-            <!-- impact lines -->
-            <line x1="100" y1="50" x2="120" y2="38" stroke="#FF3D00" stroke-width="2"/>
-            <line x1="105" y1="42" x2="118" y2="30" stroke="#FF3D00" stroke-width="1.5"/>
+          <!-- Dynamic flying-kick fighter -->
+          <svg class="feature-stick" width="170" height="160" viewBox="0 0 170 160" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 10px #FF3D00)">
+            <!-- swoosh trail -->
+            <path d="M120 30 Q150 70 120 120" stroke="#FF3D00" stroke-width="6" opacity="0.5"/>
+            <path d="M128 28 Q162 72 128 124" stroke="#FF3D00" stroke-width="3" opacity="0.35"/>
+            <!-- head filled -->
+            <circle cx="64" cy="34" r="17" fill="#1a1a1a" stroke="white" stroke-width="4"/>
+            <!-- leaning torso -->
+            <line x1="64" y1="51" x2="78" y2="100" stroke="white" stroke-width="5"/>
+            <!-- back arm -->
+            <line x1="70" y1="66" x2="38" y2="52" stroke="white" stroke-width="4.5"/>
+            <!-- striking arm + sword -->
+            <line x1="70" y1="66" x2="104" y2="56" stroke="white" stroke-width="4.5"/>
+            <line x1="104" y1="56" x2="150" y2="36" stroke="#FF6633" stroke-width="4"/>
+            <line x1="112" y1="64" x2="124" y2="44" stroke="#FF6633" stroke-width="4"/>
+            <!-- kicking leg up -->
+            <line x1="78" y1="100" x2="120" y2="92" stroke="white" stroke-width="5"/>
+            <line x1="120" y1="92" x2="142" y2="104" stroke="white" stroke-width="4.5"/>
+            <!-- planted leg -->
+            <line x1="78" y1="100" x2="62" y2="140" stroke="white" stroke-width="5"/>
+            <line x1="62" y1="140" x2="50" y2="150" stroke="white" stroke-width="4.5"/>
           </svg>
         </div>
       </div>
@@ -1094,19 +1104,28 @@
           <p class="feature-desc">Wähle aus Dutzenden Waffen-Loadouts — Schwerter, Hämmer, Speere. Schalte Skins durch echtes Gameplay frei, nicht durch dein Portemonnaie. Dein Stickman, deine Regeln.</p>
         </div>
         <div class="feature-visual">
-          <!-- Stickman with multiple weapons -->
-          <svg class="feature-stick" width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.5s">
-            <circle cx="80" cy="20" r="16" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="36" x2="80" y2="95" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="55" x2="40" y2="70" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="55" x2="118" y2="70" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="95" x2="58" y2="140" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="95" x2="100" y2="140" stroke="white" stroke-width="2.5"/>
-            <!-- Sword in right hand -->
-            <line x1="118" y1="70" x2="150" y2="40" stroke="white" stroke-width="4"/>
-            <line x1="126" y1="62" x2="138" y2="68" stroke="white" stroke-width="3"/>
-            <!-- Shield left -->
-            <rect x="20" y="60" width="20" height="28" rx="4" fill="none" stroke="#FF3D00" stroke-width="2"/>
+          <!-- Loadout fighter: sword raised + shield + hammer on back -->
+          <svg class="feature-stick" width="180" height="160" viewBox="0 0 180 160" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.5s">
+            <!-- hammer slung on back -->
+            <line x1="92" y1="44" x2="70" y2="20" stroke="#FF6633" stroke-width="4"/>
+            <rect x="56" y="6" width="26" height="16" rx="3" fill="none" stroke="#FF6633" stroke-width="4"/>
+            <!-- head -->
+            <circle cx="90" cy="34" r="17" fill="#1a1a1a" stroke="white" stroke-width="4"/>
+            <!-- torso -->
+            <line x1="90" y1="51" x2="90" y2="105" stroke="white" stroke-width="5"/>
+            <!-- shield arm (left) -->
+            <line x1="90" y1="66" x2="58" y2="78" stroke="white" stroke-width="4.5"/>
+            <path d="M40 64 L58 60 L58 96 L40 90 Z" fill="none" stroke="#FF3D00" stroke-width="3.5"/>
+            <line x1="49" y1="68" x2="49" y2="88" stroke="#FF3D00" stroke-width="2"/>
+            <!-- sword arm raised (right) -->
+            <line x1="90" y1="66" x2="124" y2="50" stroke="white" stroke-width="4.5"/>
+            <line x1="124" y1="50" x2="150" y2="8" stroke="#FF6633" stroke-width="4.5"/>
+            <line x1="114" y1="44" x2="134" y2="56" stroke="#FF6633" stroke-width="4"/>
+            <!-- legs wide stance -->
+            <line x1="90" y1="105" x2="66" y2="148" stroke="white" stroke-width="5"/>
+            <line x1="66" y1="148" x2="54" y2="156" stroke="white" stroke-width="4.5"/>
+            <line x1="90" y1="105" x2="116" y2="148" stroke="white" stroke-width="5"/>
+            <line x1="116" y1="148" x2="130" y2="156" stroke="white" stroke-width="4.5"/>
           </svg>
         </div>
       </div>
@@ -1122,13 +1141,24 @@
         <div class="feature-visual">
           <!-- Stickman with wifi crossed -->
           <div style="position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
-            <svg class="feature-stick" width="100" height="130" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.8s">
-              <circle cx="50" cy="18" r="14" stroke="white" stroke-width="2.5"/>
-              <line x1="50" y1="32" x2="50" y2="82" stroke="white" stroke-width="2.5"/>
-              <line x1="50" y1="48" x2="22" y2="64" stroke="white" stroke-width="2.5"/>
-              <line x1="50" y1="48" x2="78" y2="64" stroke="white" stroke-width="2.5"/>
-              <line x1="50" y1="82" x2="34" y2="118" stroke="white" stroke-width="2.5"/>
-              <line x1="50" y1="82" x2="66" y2="118" stroke="white" stroke-width="2.5"/>
+            <svg class="feature-stick" width="130" height="140" viewBox="0 0 130 140" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.8s">
+              <!-- chilling stickman holding a phone, relaxed -->
+              <circle cx="58" cy="22" r="15" fill="#1a1a1a" stroke="white" stroke-width="4"/>
+              <line x1="58" y1="37" x2="58" y2="88" stroke="white" stroke-width="5"/>
+              <!-- both arms holding phone in front -->
+              <line x1="58" y1="52" x2="80" y2="66" stroke="white" stroke-width="4.5"/>
+              <line x1="58" y1="52" x2="80" y2="74" stroke="white" stroke-width="4.5"/>
+              <!-- phone -->
+              <rect x="80" y="60" width="20" height="32" rx="4" fill="#1a1a1a" stroke="#FF3D00" stroke-width="3"/>
+              <!-- crossed/relaxed legs -->
+              <line x1="58" y1="88" x2="40" y2="124" stroke="white" stroke-width="5"/>
+              <line x1="40" y1="124" x2="28" y2="132" stroke="white" stroke-width="4.5"/>
+              <line x1="58" y1="88" x2="78" y2="124" stroke="white" stroke-width="5"/>
+              <line x1="78" y1="124" x2="92" y2="132" stroke="white" stroke-width="4.5"/>
+              <!-- crossed-out wifi above -->
+              <path d="M44 8 Q58 -2 72 8" stroke="#FF3D00" stroke-width="2.5" opacity="0.7"/>
+              <path d="M49 13 Q58 7 67 13" stroke="#FF3D00" stroke-width="2.5" opacity="0.7"/>
+              <line x1="42" y1="4" x2="74" y2="20" stroke="#FF3D00" stroke-width="2.5"/>
             </svg>
             <div style="color:#FF3D00;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:1px;">NO WIFI NEEDED ✓</div>
           </div>
@@ -1144,18 +1174,33 @@
           <p class="feature-desc">Zero Pay-to-Win. Jeder Spieler startet gleich. Wer gewinnt, gewinnt weil er besser ist — nicht weil er mehr Geld ausgegeben hat. So muss Gaming sein.</p>
         </div>
         <div class="feature-visual">
-          <!-- Balance/trophy visual -->
-          <svg class="feature-stick" width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.3s">
-            <circle cx="80" cy="22" r="16" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="38" x2="80" y2="92" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="58" x2="45" y2="72" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="58" x2="115" y2="72" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="92" x2="60" y2="138" stroke="white" stroke-width="2.5"/>
-            <line x1="80" y1="92" x2="100" y2="138" stroke="white" stroke-width="2.5"/>
-            <!-- Trophy (held up) -->
-            <path d="M115 55 Q115 45 125 45 Q135 45 135 55 L130 72 L120 72 Z" fill="none" stroke="#FF3D00" stroke-width="2"/>
-            <line x1="125" y1="72" x2="125" y2="82" stroke="#FF3D00" stroke-width="2"/>
-            <line x1="118" y1="82" x2="132" y2="82" stroke="#FF3D00" stroke-width="2"/>
+          <!-- Victorious champion holding trophy high -->
+          <svg class="feature-stick" width="170" height="170" viewBox="0 0 170 170" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 10px #FF3D00);animation-delay:-0.3s">
+            <!-- victory glow rays -->
+            <line x1="120" y1="22" x2="120" y2="6" stroke="#FF3D00" stroke-width="2.5" opacity="0.6"/>
+            <line x1="100" y1="26" x2="92" y2="12" stroke="#FF3D00" stroke-width="2.5" opacity="0.6"/>
+            <line x1="140" y1="26" x2="148" y2="12" stroke="#FF3D00" stroke-width="2.5" opacity="0.6"/>
+            <!-- head -->
+            <circle cx="76" cy="40" r="17" fill="#1a1a1a" stroke="white" stroke-width="4"/>
+            <!-- torso -->
+            <line x1="76" y1="57" x2="76" y2="112" stroke="white" stroke-width="5"/>
+            <!-- left arm flexed -->
+            <line x1="76" y1="72" x2="50" y2="60" stroke="white" stroke-width="4.5"/>
+            <line x1="50" y1="60" x2="54" y2="40" stroke="white" stroke-width="4.5"/>
+            <!-- right arm raised holding trophy -->
+            <line x1="76" y1="72" x2="104" y2="58" stroke="white" stroke-width="4.5"/>
+            <line x1="104" y1="58" x2="120" y2="40" stroke="white" stroke-width="4.5"/>
+            <!-- trophy -->
+            <path d="M104 38 Q104 22 120 22 Q136 22 136 38 Q136 50 120 52 Q104 50 104 38 Z" fill="#1a1a1a" stroke="#FFB300" stroke-width="3.5"/>
+            <line x1="110" y1="30" x2="100" y2="34" stroke="#FFB300" stroke-width="3"/>
+            <line x1="130" y1="30" x2="140" y2="34" stroke="#FFB300" stroke-width="3"/>
+            <line x1="120" y1="52" x2="120" y2="62" stroke="#FFB300" stroke-width="3.5"/>
+            <line x1="110" y1="64" x2="130" y2="64" stroke="#FFB300" stroke-width="4"/>
+            <!-- legs power stance -->
+            <line x1="76" y1="112" x2="54" y2="156" stroke="white" stroke-width="5"/>
+            <line x1="54" y1="156" x2="42" y2="164" stroke="white" stroke-width="4.5"/>
+            <line x1="76" y1="112" x2="98" y2="156" stroke="white" stroke-width="5"/>
+            <line x1="98" y1="156" x2="110" y2="164" stroke="white" stroke-width="4.5"/>
           </svg>
         </div>
       </div>
