@@ -259,9 +259,13 @@
     const PLAYER_SPEED = 4;
     const AI_SPEED = 2.5;
     const HIT_DAMAGE = 10;
+    const ULTRA_DAMAGE = 30;
+    const ULTRA_COOLDOWN = 130;
     const PLAYER_COOLDOWN = 45;
     const AI_COOLDOWN = 80;
     const ATTACK_FRAMES = 20;
+
+    let shake = 0;          // screen-shake intensity
 
     const keys = {};
     document.addEventListener('keydown', e => { keys[e.key] = true; });
@@ -347,6 +351,8 @@
         walkPhase: 0,         // continuous leg-cycle angle
         walkBlend: 0,         // 0..1 smooth blend in/out of walk
         moveDir: 0,           // -1/+1 direction of movement (for lean)
+        isUltra: false,       // current attack is an ultra
+        ultraFlash: 0,        // banner timer after firing ultra
       };
     }
 
@@ -370,8 +376,9 @@
     }
 
     // Particle system for hit effects
-    function spawnParticles(x, y, color) {
-      for (let i = 0; i < 14; i++) {
+    function spawnParticles(x, y, color, count) {
+      const n = count || 14;
+      for (let i = 0; i < n; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 2 + Math.random() * 5;
         particles.push({
@@ -623,26 +630,28 @@
 
       // ---- Swoosh arc trail during the strike window ----
       if (inStrike(s)) {
-        const wColor = s.isPlayer ? '#FF6633' : '#33AAFF';
-        const a0 = getArmAngle({ dir: s.dir, attacking: true, attackFrame: s.attackFrame - 4 });
+        const ult = s.isUltra;
+        const wColor = ult ? '#FFD23D' : (s.isPlayer ? '#FF6633' : '#33AAFF');
+        const trailFrames = ult ? 8 : 4;
+        const radius = ult ? 110 : 95;
+        const a0 = getArmAngle({ dir: s.dir, attacking: true, attackFrame: s.attackFrame - trailFrames });
         const a1 = getArmAngle(s);
         // Convert arm angle to a world swoosh centered on shoulder
         ctx.save();
         ctx.translate(shouldersX, shouldersY);
         ctx.strokeStyle = wColor;
-        ctx.globalAlpha = 0.5;
-        ctx.shadowColor = wColor;
-        ctx.shadowBlur = 18;
-        ctx.lineWidth = 6;
+        ctx.globalAlpha = ult ? 0.7 : 0.5;
+        ctx.shadowColor = ult ? '#FF3D00' : wColor;
+        ctx.shadowBlur = ult ? 30 : 18;
+        ctx.lineWidth = ult ? 10 : 6;
         ctx.lineCap = 'round';
-        // arm angle 0 points down (+y); arc radius near weapon tip
         ctx.beginPath();
-        ctx.arc(0, 0, 95, a0 + Math.PI / 2, a1 + Math.PI / 2, a1 < a0);
+        ctx.arc(0, 0, radius, a0 + Math.PI / 2, a1 + Math.PI / 2, a1 < a0);
         ctx.stroke();
-        ctx.globalAlpha = 0.25;
-        ctx.lineWidth = 12;
+        ctx.globalAlpha = ult ? 0.35 : 0.25;
+        ctx.lineWidth = ult ? 22 : 12;
         ctx.beginPath();
-        ctx.arc(0, 0, 95, a0 + Math.PI / 2, a1 + Math.PI / 2, a1 < a0);
+        ctx.arc(0, 0, radius, a0 + Math.PI / 2, a1 + Math.PI / 2, a1 < a0);
         ctx.stroke();
         ctx.restore();
       }
@@ -907,8 +916,8 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       const hint = mode === 'pvp'
-        ? 'S1: A / D + LEERTASTE   |   S2: K / Ö + O   |   Z = Menü'
-        : 'A / D — Bewegen   |   LEERTASTE — Angriff   |   Z = Menü';
+        ? 'S1: A/D + LEERTASTE (A+D=ULTRA⚡)   |   S2: K/Ö + O (K+Ö=ULTRA⚡)   |   Z = Menü'
+        : 'A / D — Bewegen   |   LEERTASTE — Angriff   |   A+D = ULTRA ⚡   |   Z = Menü';
       ctx.fillText(hint, W / 2, H - 8);
       ctx.restore();
     }
@@ -944,13 +953,13 @@
 
     function updatePlayer() {
       player.moving = false;
-      if (keys['a'] || keys['A']) {
-        player.x -= PLAYER_SPEED;
-        player.moving = true; player.moveDir = -1;
-      }
-      if (keys['d'] || keys['D']) {
-        player.x += PLAYER_SPEED;
-        player.moving = true; player.moveDir = 1;
+      const left  = keys['a'] || keys['A'];
+      const right = keys['d'] || keys['D'];
+      const both  = left && right;
+
+      if (!both) {
+        if (left)  { player.x -= PLAYER_SPEED; player.moving = true; player.moveDir = -1; }
+        if (right) { player.x += PLAYER_SPEED; player.moving = true; player.moveDir = 1; }
       }
 
       // Clamp
@@ -959,10 +968,18 @@
       // Face direction toward AI
       player.dir = ai.x > player.x ? 1 : -1;
 
-      // Attack
-      if ((keys[' ']) && !player.attacking && player.cooldown === 0) {
+      // ULTRA attack: A + D together
+      if (both && !player.attacking && player.cooldown === 0) {
         player.attacking = true;
         player.attackFrame = 0;
+        player.isUltra = true;
+        player.ultraFlash = 45;
+      }
+      // Normal attack
+      else if (keys[' '] && !player.attacking && player.cooldown === 0) {
+        player.attacking = true;
+        player.attackFrame = 0;
+        player.isUltra = false;
       }
 
       if (player.attacking) {
@@ -970,9 +987,11 @@
         if (player.attackFrame >= ATTACK_FRAMES) {
           player.attacking = false;
           player.attackFrame = 0;
-          player.cooldown = PLAYER_COOLDOWN;
+          player.cooldown = player.isUltra ? ULTRA_COOLDOWN : PLAYER_COOLDOWN;
+          player.isUltra = false;
         }
       }
+      if (player.ultraFlash > 0) player.ultraFlash--;
 
       if (player.cooldown > 0) player.cooldown--;
 
@@ -1052,18 +1071,32 @@
     function updatePlayer2() {
       // Player 2 controls the blue stickman: k=left, ö=right, o=attack
       ai.moving = false;
-      if (keys['k'] || keys['K']) { ai.x -= PLAYER_SPEED; ai.moving = true; ai.moveDir = -1; }
-      if (keys['ö'] || keys['Ö']) { ai.x += PLAYER_SPEED; ai.moving = true; ai.moveDir = 1; }
+      const left  = keys['k'] || keys['K'];
+      const right = keys['ö'] || keys['Ö'];
+      const both  = left && right;
+
+      if (!both) {
+        if (left)  { ai.x -= PLAYER_SPEED; ai.moving = true; ai.moveDir = -1; }
+        if (right) { ai.x += PLAYER_SPEED; ai.moving = true; ai.moveDir = 1; }
+      }
 
       ai.x = Math.max(30, Math.min(W - 30, ai.x));
 
       // Face player 1
       ai.dir = player.x < ai.x ? -1 : 1;
 
-      // Attack
-      if ((keys['o'] || keys['O']) && !ai.attacking && ai.cooldown === 0) {
+      // ULTRA attack: K + Ö together
+      if (both && !ai.attacking && ai.cooldown === 0) {
         ai.attacking = true;
         ai.attackFrame = 0;
+        ai.isUltra = true;
+        ai.ultraFlash = 45;
+      }
+      // Normal attack
+      else if ((keys['o'] || keys['O']) && !ai.attacking && ai.cooldown === 0) {
+        ai.attacking = true;
+        ai.attackFrame = 0;
+        ai.isUltra = false;
       }
 
       if (ai.attacking) {
@@ -1071,9 +1104,11 @@
         if (ai.attackFrame >= ATTACK_FRAMES) {
           ai.attacking = false;
           ai.attackFrame = 0;
-          ai.cooldown = PLAYER_COOLDOWN;
+          ai.cooldown = ai.isUltra ? ULTRA_COOLDOWN : PLAYER_COOLDOWN;
+          ai.isUltra = false;
         }
       }
+      if (ai.ultraFlash > 0) ai.ultraFlash--;
 
       if (ai.cooldown > 0) ai.cooldown--;
       if (ai.hitFlash > 0) ai.hitFlash--;
@@ -1089,22 +1124,27 @@
     function resolveHits() {
       // Player hits AI
       if (checkHit(player, ai)) {
-        ai.hp -= HIT_DAMAGE;
-        ai.hitFlash = 10;
-        ai.knockback = 8;
+        const ult = player.isUltra;
+        ai.hp -= ult ? ULTRA_DAMAGE : HIT_DAMAGE;
+        ai.hitFlash = ult ? 18 : 10;
+        ai.knockback = ult ? 18 : 8;
         ai.knockbackDir = player.dir;
         // Interrupt AI attack
         if (ai.attacking) { ai.attacking = false; ai.attackFrame = 0; }
-        spawnParticles(ai.x, GROUND - 80, '#0088FF');
+        spawnParticles(ai.x, GROUND - 80, ult ? '#FFD23D' : '#0088FF', ult ? 36 : 14);
+        if (ult) { shake = 16; spawnParticles(ai.x, GROUND - 80, '#FF3D00', 20); }
       }
 
-      // AI hits player
+      // AI / Player 2 hits player
       if (checkHit(ai, player)) {
-        player.hp -= HIT_DAMAGE;
-        player.hitFlash = 10;
-        player.knockback = 8;
+        const ult = ai.isUltra;
+        player.hp -= ult ? ULTRA_DAMAGE : HIT_DAMAGE;
+        player.hitFlash = ult ? 18 : 10;
+        player.knockback = ult ? 18 : 8;
         player.knockbackDir = ai.dir;
-        spawnParticles(player.x, GROUND - 80, '#FF2200');
+        if (player.attacking) { player.attacking = false; player.attackFrame = 0; }
+        spawnParticles(player.x, GROUND - 80, ult ? '#FFD23D' : '#FF2200', ult ? 36 : 14);
+        if (ult) { shake = 16; spawnParticles(player.x, GROUND - 80, '#FF3D00', 20); }
       }
     }
 
@@ -1124,6 +1164,8 @@
       stepWalk(ai);
       resolveHits();
       updateParticles();
+      if (shake > 0) shake *= 0.85;
+      if (shake < 0.3) shake = 0;
 
       // Check win conditions
       if (player.hp <= 0 || ai.hp <= 0) {
@@ -1135,12 +1177,35 @@
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      if (shake > 0) {
+        ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+      }
       drawBackground();
       drawParticles();
       drawStickman(player);
       drawStickman(ai);
+      ctx.restore();
       drawUI();
+      drawUltraBanner(player);
+      drawUltraBanner(ai);
       if (gameOver) drawGameOver();
+    }
+
+    function drawUltraBanner(s) {
+      if (s.ultraFlash <= 0) return;
+      const alpha = Math.min(1, s.ultraFlash / 20);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.font = 'bold 30px Bangers, cursive';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#FFD23D';
+      ctx.shadowColor = '#FF3D00';
+      ctx.shadowBlur = 24;
+      const yOff = (45 - s.ultraFlash) * 0.8;
+      ctx.fillText('⚡ ULTRA! ⚡', s.x, GROUND - 200 - yOff);
+      ctx.restore();
     }
 
     function gameLoop() {
