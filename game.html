@@ -343,7 +343,21 @@
         aiBackTimer: 0,
         knockback: 0,
         knockbackDir: 0,
+        moving: false,        // is currently walking this frame
+        walkPhase: 0,         // continuous leg-cycle angle
+        walkBlend: 0,         // 0..1 smooth blend in/out of walk
+        moveDir: 0,           // -1/+1 direction of movement (for lean)
       };
+    }
+
+    // Advance walk-cycle state each frame (call once per stickman in update)
+    function stepWalk(s) {
+      if (s.moving) {
+        s.walkPhase += 0.32;
+        s.walkBlend = Math.min(1, s.walkBlend + 0.18);
+      } else {
+        s.walkBlend = Math.max(0, s.walkBlend - 0.16);
+      }
     }
 
     function init() {
@@ -404,26 +418,37 @@
       return dist < 110;
     }
 
-    // Arm angles for attack animation
-    // dir=1 (facing right): rest behind = -2.2rad, forward = 0.4rad
-    // dir=-1 (facing left): rest behind = 2.2rad, forward = -0.4rad
+    // Punchy 3-phase weapon swing: windup → fast strike → recovery.
     function getArmAngle(s) {
       const t = s.attackFrame / ATTACK_FRAMES; // 0→1
-      // swing from behind to forward with overshoot, then back
-      let progress;
-      if (t <= 0.5) {
-        progress = t * 2; // 0 → 1 (swing forward)
-      } else {
-        progress = 1 - (t - 0.5) * 2 * 0.6; // return partway
-      }
-      // ease
-      const eased = progress < 0.5
-        ? 2 * progress * progress
-        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+      const sgn  = s.dir;                       // +1 right, -1 left
+      const back = sgn * -2.7;                  // wound up behind head
+      const fwd  = sgn *  1.0;                  // full follow-through in front
+      const rest = sgn * -1.9;                  // neutral guard
 
-      const startAngle = s.dir === 1 ? -2.4 : 2.4;
-      const endAngle = s.dir === 1 ? 0.5 : -0.5;
-      return startAngle + (endAngle - startAngle) * eased;
+      if (t < 0.28) {
+        // Windup: pull the weapon a touch further back (anticipation)
+        const k = t / 0.28;
+        const eased = Math.sin(k * Math.PI / 2);   // ease-out
+        return back + sgn * -0.35 * eased;
+      } else if (t < 0.55) {
+        // Strike: whip from back to forward, fast accelerating arc
+        const k = (t - 0.28) / 0.27;
+        const eased = k * k * (3 - 2 * k);         // smoothstep, snappy
+        return (back + sgn * -0.35) + (fwd - (back + sgn * -0.35)) * eased;
+      } else {
+        // Recovery: settle from forward back to guard
+        const k = (t - 0.55) / 0.45;
+        const eased = k * k * (3 - 2 * k);
+        return fwd + (rest - fwd) * eased;
+      }
+    }
+
+    // Is this stickman in the fast strike window (for swoosh + lean)?
+    function inStrike(s) {
+      if (!s.attacking) return false;
+      const t = s.attackFrame / ATTACK_FRAMES;
+      return t >= 0.28 && t < 0.6;
     }
 
     function drawStickman(s) {
@@ -440,34 +465,54 @@
       ctx.shadowBlur = s.hitFlash > 0 ? 30 : 18;
       if (s.hitFlash > 0) ctx.strokeStyle = '#FFFFFF';
 
+      // ---- Walk-cycle helpers ----
+      const blend = s.walkBlend;
+      const ph    = s.walkPhase;
+      const bob   = Math.abs(Math.sin(ph)) * 3.5 * blend;   // vertical bounce
+      const walkLean   = (s.moveDir || 0) * 4 * blend;       // lean into stride
+      const strikeLean = inStrike(s) ? s.dir * 8 : 0;        // lunge on strike
+      const lean  = walkLean + strikeLean;
+
       // ---- Measurements ----
-      const feetY = s.y;                // GROUND
-      const hipsY = feetY - 65;
-      const shouldersY = feetY - 135;
-      const headCY = feetY - 162;
+      const feetY = s.y;                       // GROUND
+      const hipsY = feetY - 65 - bob;
+      const shouldersY = feetY - 135 - bob;
+      const headCY = feetY - 162 - bob;
       const headR = 22;
+      const hipX = x;                          // hips pivot at base x
+      const shouldersX = x + lean;             // upper body leans
+      const headX = x + lean * 1.3;            // head leads the lean
 
-      // ---- Legs ----
-      // Left leg
-      ctx.beginPath();
-      ctx.moveTo(x - 14, hipsY);
-      ctx.lineTo(x - 22, feetY);
-      ctx.stroke();
-      // Right leg
-      ctx.beginPath();
-      ctx.moveTo(x + 14, hipsY);
-      ctx.lineTo(x + 22, feetY);
-      ctx.stroke();
+      // ---- Legs (animated walk cycle with knees) ----
+      const stride = 14 * blend;
+      const lSw = Math.sin(ph);
+      const rSw = -lSw;
+      const lFootX = x - 14 + lSw * stride;
+      const rFootX = x + 14 + rSw * stride;
+      const lFootY = feetY - Math.max(0, lSw) * 9 * blend;   // lift swinging foot
+      const rFootY = feetY - Math.max(0, rSw) * 9 * blend;
 
-      // ---- Torso ----
+      function drawLeg(hX, fX, fY) {
+        const kneeX = (hX + fX) / 2 + s.dir * 2;
+        const kneeY = (hipsY + fY) / 2 + 3;
+        ctx.beginPath();
+        ctx.moveTo(hX, hipsY);
+        ctx.lineTo(kneeX, kneeY);
+        ctx.lineTo(fX, fY);
+        ctx.stroke();
+      }
+      drawLeg(hipX - 7, lFootX, lFootY);
+      drawLeg(hipX + 7, rFootX, rFootY);
+
+      // ---- Torso (leans from hips to shoulders) ----
       ctx.beginPath();
-      ctx.moveTo(x, hipsY);
-      ctx.lineTo(x, shouldersY);
+      ctx.moveTo(hipX, hipsY);
+      ctx.lineTo(shouldersX, shouldersY);
       ctx.stroke();
 
       // ---- Head ----
       ctx.beginPath();
-      ctx.arc(x, headCY, headR, 0, Math.PI * 2);
+      ctx.arc(headX, headCY, headR, 0, Math.PI * 2);
       ctx.stroke();
 
       // ---- Face features ----
@@ -477,38 +522,41 @@
       // Eyes
       const eyeOff = 8 * s.dir;
       ctx.beginPath();
-      ctx.arc(x + eyeOff, headCY - 5, 3, 0, Math.PI * 2);
+      ctx.arc(headX + eyeOff, headCY - 5, 3, 0, Math.PI * 2);
       ctx.stroke();
       // Angry eyebrow
       ctx.beginPath();
-      ctx.moveTo(x + eyeOff - 6, headCY - 12);
-      ctx.lineTo(x + eyeOff + 5, headCY - 8);
+      ctx.moveTo(headX + eyeOff - 6, headCY - 12);
+      ctx.lineTo(headX + eyeOff + 5, headCY - 8);
       ctx.stroke();
       // Grimace mouth
       ctx.beginPath();
-      ctx.moveTo(x + 4 * s.dir - 7, headCY + 9);
-      ctx.lineTo(x + 4 * s.dir + 7, headCY + 9);
+      ctx.moveTo(headX + 4 * s.dir - 7, headCY + 9);
+      ctx.lineTo(headX + 4 * s.dir + 7, headCY + 9);
       ctx.stroke();
       // Teeth lines (grimace)
       for (let t = -4; t <= 4; t += 4) {
         ctx.beginPath();
-        ctx.moveTo(x + 4 * s.dir + t, headCY + 9);
-        ctx.lineTo(x + 4 * s.dir + t, headCY + 12);
+        ctx.moveTo(headX + 4 * s.dir + t, headCY + 9);
+        ctx.lineTo(headX + 4 * s.dir + t, headCY + 12);
         ctx.stroke();
       }
       ctx.restore();
 
-      // ---- Resting arm (opposite to weapon arm) ----
+      // ---- Resting arm (opposite to weapon arm) — swings opposite to legs when walking ----
       const restDir = -s.dir;
+      const restSwing = Math.sin(ph + Math.PI) * 14 * blend;
       ctx.beginPath();
-      ctx.moveTo(x, shouldersY);
-      ctx.lineTo(x + restDir * 40, shouldersY + 30);
+      ctx.moveTo(shouldersX, shouldersY);
+      ctx.lineTo(shouldersX + restDir * 30 + restSwing, shouldersY + 32);
       ctx.stroke();
 
       // ---- Weapon arm (with swing animation) ----
       ctx.save();
-      ctx.translate(x, shouldersY);
-      const armAngle = s.attacking ? getArmAngle(s) : (s.dir === 1 ? -1.9 : 1.9);
+      ctx.translate(shouldersX, shouldersY);
+      // Idle weapon arm gets a gentle counter-swing while walking
+      const idleArm = (s.dir === 1 ? -1.9 : 1.9) + Math.sin(ph) * 0.12 * blend;
+      const armAngle = s.attacking ? getArmAngle(s) : idleArm;
       ctx.rotate(armAngle);
 
       // Draw upper arm (from shoulder)
@@ -572,6 +620,32 @@
       }
 
       ctx.restore(); // end weapon arm group
+
+      // ---- Swoosh arc trail during the strike window ----
+      if (inStrike(s)) {
+        const wColor = s.isPlayer ? '#FF6633' : '#33AAFF';
+        const a0 = getArmAngle({ dir: s.dir, attacking: true, attackFrame: s.attackFrame - 4 });
+        const a1 = getArmAngle(s);
+        // Convert arm angle to a world swoosh centered on shoulder
+        ctx.save();
+        ctx.translate(shouldersX, shouldersY);
+        ctx.strokeStyle = wColor;
+        ctx.globalAlpha = 0.5;
+        ctx.shadowColor = wColor;
+        ctx.shadowBlur = 18;
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+        // arm angle 0 points down (+y); arc radius near weapon tip
+        ctx.beginPath();
+        ctx.arc(0, 0, 95, a0 + Math.PI / 2, a1 + Math.PI / 2, a1 < a0);
+        ctx.stroke();
+        ctx.globalAlpha = 0.25;
+        ctx.lineWidth = 12;
+        ctx.beginPath();
+        ctx.arc(0, 0, 95, a0 + Math.PI / 2, a1 + Math.PI / 2, a1 < a0);
+        ctx.stroke();
+        ctx.restore();
+      }
 
       ctx.restore(); // end stickman
     }
@@ -869,11 +943,14 @@
     }
 
     function updatePlayer() {
+      player.moving = false;
       if (keys['a'] || keys['A']) {
         player.x -= PLAYER_SPEED;
+        player.moving = true; player.moveDir = -1;
       }
       if (keys['d'] || keys['D']) {
         player.x += PLAYER_SPEED;
+        player.moving = true; player.moveDir = 1;
       }
 
       // Clamp
@@ -912,6 +989,7 @@
     function updateAI() {
       const dist = ai.x - player.x;
       const absDist = Math.abs(dist);
+      ai.moving = false;
 
       // Face player
       ai.dir = player.x < ai.x ? -1 : 1;
@@ -928,7 +1006,9 @@
       // State machine
       if (ai.aiState === 'chase') {
         if (absDist > 90) {
-          ai.x += dist > 0 ? -AI_SPEED : AI_SPEED;
+          const d = dist > 0 ? -1 : 1;
+          ai.x += d * AI_SPEED;
+          ai.moving = true; ai.moveDir = d;
         } else {
           ai.aiState = 'attack';
         }
@@ -946,6 +1026,7 @@
       } else if (ai.aiState === 'backoff') {
         const backDir = dist > 0 ? 1 : -1; // move away from player
         ai.x += backDir * AI_SPEED * 1.2;
+        ai.moving = true; ai.moveDir = backDir;
         ai.aiBackTimer--;
         if (ai.aiBackTimer <= 0) ai.aiState = 'chase';
       }
@@ -970,8 +1051,9 @@
 
     function updatePlayer2() {
       // Player 2 controls the blue stickman: k=left, ö=right, o=attack
-      if (keys['k'] || keys['K']) ai.x -= PLAYER_SPEED;
-      if (keys['ö'] || keys['Ö']) ai.x += PLAYER_SPEED;
+      ai.moving = false;
+      if (keys['k'] || keys['K']) { ai.x -= PLAYER_SPEED; ai.moving = true; ai.moveDir = -1; }
+      if (keys['ö'] || keys['Ö']) { ai.x += PLAYER_SPEED; ai.moving = true; ai.moveDir = 1; }
 
       ai.x = Math.max(30, Math.min(W - 30, ai.x));
 
@@ -1038,6 +1120,8 @@
       updatePlayer();
       if (mode === 'pvp') updatePlayer2();
       else updateAI();
+      stepWalk(player);
+      stepWalk(ai);
       resolveHits();
       updateParticles();
 
