@@ -197,6 +197,10 @@
     .map-btn.desert:hover { background: rgba(212,132,10,0.14); box-shadow: 0 0 36px rgba(212,132,10,0.55); }
     .map-btn.ice { border-color: #5BC8FF; color: #A8DFFF; box-shadow: 0 0 20px rgba(91,200,255,0.3); }
     .map-btn.ice:hover { background: rgba(91,200,255,0.12); box-shadow: 0 0 36px rgba(91,200,255,0.55); }
+    .map-btn.grass { border-color: #5BC44A; color: #A6E68A; box-shadow: 0 0 20px rgba(91,196,74,0.3); }
+    .map-btn.grass:hover { background: rgba(91,196,74,0.12); box-shadow: 0 0 36px rgba(91,196,74,0.55); }
+    .map-btn.castle { border-color: #B0A088; color: #D8C8A8; box-shadow: 0 0 20px rgba(176,160,136,0.3); }
+    .map-btn.castle:hover { background: rgba(176,160,136,0.14); box-shadow: 0 0 36px rgba(176,160,136,0.55); }
     .map-btn .map-icon { font-size: 2em; display: block; margin-bottom: 6px; }
     .map-btn .map-sub { display: block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); margin-top: 6px; letter-spacing: 0.04em; }
     .back-link { font-family: 'Inter', sans-serif; font-size: 13px; color: rgba(255,255,255,0.4); cursor: pointer; background: none; border: none; text-decoration: underline; margin-top: 4px; }
@@ -223,6 +227,16 @@
           <span class="map-icon">❄️</span>
           EIS
           <span class="map-sub">Schnee · Eis · Kälte</span>
+        </button>
+        <button class="map-btn grass" id="map-grass">
+          <span class="map-icon">🌳</span>
+          GRASLAND
+          <span class="map-sub">Wiese · Hügel · Burg am Horizont</span>
+        </button>
+        <button class="map-btn castle" id="map-castle">
+          <span class="map-icon">🏰</span>
+          BURG
+          <span class="map-sub">Steinmauern · Zinnen · Fackeln</span>
         </button>
       </div>
       <button class="back-link" id="map-back">← Zurück zur Modusauswahl</button>
@@ -331,6 +345,8 @@
     document.getElementById('mode-pvp').addEventListener('click', () => { mode = 'pvp'; showMapSelect(); });
     document.getElementById('map-desert').addEventListener('click', () => startGame('desert'));
     document.getElementById('map-ice').addEventListener('click', () => startGame('ice'));
+    document.getElementById('map-grass').addEventListener('click', () => startGame('grass'));
+    document.getElementById('map-castle').addEventListener('click', () => startGame('castle'));
     document.getElementById('map-back').addEventListener('click', showMenu);
 
     function createStickman(x, isPlayer) {
@@ -762,6 +778,93 @@
       ctx.restore();
     }
 
+    // ---- Castle drawing (reusable: background silhouette & full map) ----
+    // style: 'far' = distant silhouette, 'near' = detailed stone
+    function drawCastle(cx, baseY, scale, style) {
+      ctx.save();
+      const far = style === 'far';
+      const stone = far ? '#5A6B7A' : '#8A8170';
+      const stoneDark = far ? '#46535F' : '#6E665859';
+      const u = scale; // unit
+      ctx.fillStyle = stone;
+      ctx.strokeStyle = far ? '#3A4651' : '#5C5446';
+      ctx.lineWidth = far ? 0 : 2;
+
+      const wallW = 120 * u, wallH = 70 * u;
+      const wallX = cx - wallW / 2, wallY = baseY - wallH;
+
+      // Main wall
+      ctx.fillRect(wallX, wallY, wallW, wallH);
+      // Battlements on main wall
+      const merlonW = 14 * u;
+      for (let mx = wallX; mx < wallX + wallW - 2; mx += merlonW * 2) {
+        ctx.fillRect(mx, wallY - 10 * u, merlonW, 10 * u);
+      }
+
+      // Towers (left, right, center taller)
+      function tower(tx, tw, th) {
+        const tY = baseY - th;
+        ctx.fillRect(tx - tw / 2, tY, tw, th);
+        // Battlements
+        for (let mx = tx - tw / 2; mx < tx + tw / 2 - 1; mx += (tw / 3)) {
+          ctx.fillRect(mx, tY - 9 * u, tw / 6, 9 * u);
+        }
+        // Conical roof
+        ctx.save();
+        ctx.fillStyle = far ? '#3E4A55' : '#7A3B2E';
+        ctx.beginPath();
+        ctx.moveTo(tx - tw / 2 - 4 * u, tY - 9 * u);
+        ctx.lineTo(tx, tY - 9 * u - th * 0.5);
+        ctx.lineTo(tx + tw / 2 + 4 * u, tY - 9 * u);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        // Window
+        if (!far) {
+          ctx.save();
+          ctx.fillStyle = '#2A2418';
+          ctx.fillRect(tx - 4 * u, tY + th * 0.4, 8 * u, 14 * u);
+          ctx.restore();
+        }
+      }
+      tower(wallX, 34 * u, wallH + 28 * u);
+      tower(wallX + wallW, 34 * u, wallH + 28 * u);
+      tower(cx, 40 * u, wallH + 55 * u);
+
+      // Gate (arched)
+      if (!far) {
+        ctx.fillStyle = '#2A2418';
+        const gW = 34 * u, gH = 42 * u;
+        ctx.beginPath();
+        ctx.moveTo(cx - gW / 2, baseY);
+        ctx.lineTo(cx - gW / 2, baseY - gH + gW / 2);
+        ctx.arc(cx, baseY - gH + gW / 2, gW / 2, Math.PI, 0);
+        ctx.lineTo(cx + gW / 2, baseY);
+        ctx.closePath();
+        ctx.fill();
+        // Portcullis bars
+        ctx.strokeStyle = '#5C5446';
+        ctx.lineWidth = 2;
+        for (let bx = cx - gW / 2 + 6 * u; bx < cx + gW / 2; bx += 8 * u) {
+          ctx.beginPath(); ctx.moveTo(bx, baseY); ctx.lineTo(bx, baseY - gH + 4 * u); ctx.stroke();
+        }
+      } else {
+        // distant gate hint
+        ctx.fillStyle = '#2E3842';
+        ctx.fillRect(cx - 12 * u, baseY - 30 * u, 24 * u, 30 * u);
+      }
+
+      // Brick lines on near walls
+      if (!far) {
+        ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+        ctx.lineWidth = 1;
+        for (let by = wallY + 14 * u; by < baseY; by += 14 * u) {
+          ctx.beginPath(); ctx.moveTo(wallX, by); ctx.lineTo(wallX + wallW, by); ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
     function drawBackground() {
       if (map === 'desert') {
         // Desert sky gradient
@@ -882,6 +985,169 @@
         // Snow particles
         spawnSnow();
         drawSnow();
+
+      } else if (map === 'grass') {
+        // Bright day sky
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND);
+        skyGrad.addColorStop(0, '#4FA8E0');
+        skyGrad.addColorStop(1, '#BDE4F2');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, W, GROUND);
+
+        // Sun
+        ctx.save();
+        ctx.shadowColor = '#FFF3B0';
+        ctx.shadowBlur = 50;
+        ctx.fillStyle = '#FFF6C2';
+        ctx.beginPath();
+        ctx.arc(W * 0.16, 80, 34, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Clouds
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        function cloud(cx, cy, s) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, 18*s, 0, Math.PI*2);
+          ctx.arc(cx+22*s, cy+4*s, 22*s, 0, Math.PI*2);
+          ctx.arc(cx+48*s, cy, 16*s, 0, Math.PI*2);
+          ctx.arc(cx+24*s, cy-10*s, 16*s, 0, Math.PI*2);
+          ctx.fill();
+        }
+        cloud(W*0.55, 70, 1); cloud(W*0.8, 120, 0.7); cloud(W*0.33, 130, 0.55);
+        ctx.restore();
+
+        // Distant hills
+        ctx.save();
+        ctx.fillStyle = '#6FB24A';
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND);
+        for (let x = 0; x <= W; x += 30) ctx.lineTo(x, GROUND - 50 - Math.sin(x*0.012)*30 - Math.cos(x*0.03)*12);
+        ctx.lineTo(W, GROUND); ctx.fill();
+        ctx.restore();
+
+        // Castle from the castle map, in the background on a hill
+        drawCastle(W * 0.72, GROUND - 40, 0.85, 'far');
+
+        // Grass ground
+        const grassGrad = ctx.createLinearGradient(0, GROUND, 0, H);
+        grassGrad.addColorStop(0, '#5FB23E');
+        grassGrad.addColorStop(1, '#3C7A26');
+        ctx.fillStyle = grassGrad;
+        ctx.fillRect(0, GROUND, W, H - GROUND);
+
+        // Grass blades along the ground line
+        ctx.save();
+        ctx.strokeStyle = '#7DD45A';
+        ctx.lineWidth = 2;
+        for (let gx = 0; gx <= W; gx += 11) {
+          const gh = 8 + Math.sin(gx * 0.7) * 4;
+          ctx.beginPath();
+          ctx.moveTo(gx, GROUND);
+          ctx.lineTo(gx + 3, GROUND - gh);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Small flowers
+        ctx.save();
+        [[120,'#FF5BA0'],[300,'#FFD23D'],[470,'#FF5BA0'],[640,'#FFFFFF'],[800,'#FFD23D']].forEach(([fx,fc]) => {
+          ctx.fillStyle = fc;
+          for (let p = 0; p < 5; p++) {
+            const a = p / 5 * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(fx + Math.cos(a)*3, GROUND + 8 + Math.sin(a)*3, 2.2, 0, Math.PI*2);
+            ctx.fill();
+          }
+          ctx.fillStyle = '#FFB300';
+          ctx.beginPath(); ctx.arc(fx, GROUND + 8, 2, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.restore();
+
+        // Ground line (green glow)
+        ctx.save();
+        ctx.strokeStyle = '#9BE86A';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#7DD45A';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND);
+        ctx.stroke();
+        ctx.restore();
+
+      } else if (map === 'castle') {
+        // Dusk sky behind the castle
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND);
+        skyGrad.addColorStop(0, '#1B1430');
+        skyGrad.addColorStop(0.6, '#3A2848');
+        skyGrad.addColorStop(1, '#6B3A4A');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, W, GROUND);
+
+        // Moon
+        ctx.save();
+        ctx.shadowColor = '#FFF8E0';
+        ctx.shadowBlur = 40;
+        ctx.fillStyle = '#F5EFD0';
+        ctx.beginPath();
+        ctx.arc(W * 0.82, 75, 28, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Big detailed castle filling the background
+        drawCastle(W * 0.5, GROUND, 1.35, 'near');
+
+        // Stone courtyard ground
+        const stoneGrad = ctx.createLinearGradient(0, GROUND, 0, H);
+        stoneGrad.addColorStop(0, '#8A8170');
+        stoneGrad.addColorStop(1, '#5C5446');
+        ctx.fillStyle = stoneGrad;
+        ctx.fillRect(0, GROUND, W, H - GROUND);
+
+        // Cobblestone lines
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+        ctx.lineWidth = 1;
+        for (let cy = GROUND + 14; cy < H; cy += 16) {
+          ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+        }
+        for (let cx = 0; cx <= W; cx += 40) {
+          ctx.beginPath(); ctx.moveTo(cx, GROUND); ctx.lineTo(cx + 8, H); ctx.stroke();
+        }
+        ctx.restore();
+
+        // Wall torches with flickering flame
+        ctx.save();
+        [W * 0.12, W * 0.88].forEach((tx) => {
+          // Bracket
+          ctx.fillStyle = '#3A2E20';
+          ctx.fillRect(tx - 3, GROUND - 130, 6, 40);
+          // Flame
+          const flick = 0.7 + Math.abs(Math.sin(Date.now() * 0.012 + tx)) * 0.5;
+          ctx.shadowColor = '#FF8C00';
+          ctx.shadowBlur = 30 * flick;
+          ctx.fillStyle = '#FFB02E';
+          ctx.beginPath();
+          ctx.ellipse(tx, GROUND - 138, 7, 14 * flick, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#FFE07A';
+          ctx.beginPath();
+          ctx.ellipse(tx, GROUND - 136, 3.5, 8 * flick, 0, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+
+        // Ground line (warm stone glow)
+        ctx.save();
+        ctx.strokeStyle = '#C2A86A';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#FF8C00';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND);
+        ctx.stroke();
+        ctx.restore();
 
       } else {
         // Default dark bg (shown behind menus)
