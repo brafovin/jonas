@@ -626,8 +626,10 @@
 
     function startGame(selectedMap) {
       map = selectedMap;
+      menuEl.classList.add('hidden');
       mapSelEl.classList.remove('visible');
       weaponSelEl.classList.remove('visible');
+      onlineLobbyEl.classList.remove('visible');
       started = true;
       snow = [];
       bullets = [];
