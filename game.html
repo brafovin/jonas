@@ -1093,215 +1093,86 @@
 
         // === SKY ===
         const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-        skyGrad.addColorStop(0,    '#1E98CC');
-        skyGrad.addColorStop(0.28, '#3AB8E8');
-        skyGrad.addColorStop(0.62, '#72D2F0');
-        skyGrad.addColorStop(1,    '#9AE0F6');
+        skyGrad.addColorStop(0,    '#0A80C0');
+        skyGrad.addColorStop(0.28, '#2AA8DC');
+        skyGrad.addColorStop(0.6,  '#58C8EC');
+        skyGrad.addColorStop(1,    '#84DCF6');
         ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, W, H);
 
-        // === CLOUDS (large, Ghibli-style) ===
-        function bigCloud(cx, cy, s) {
+        // === DRAMATISCHE WOLKEN (blau-weiß, füllen den Himmel) ===
+        function dCloud(cx, cy, rx, ry) {
           ctx.save();
+          ctx.fillStyle = 'rgba(90,150,195,0.5)';
+          ctx.beginPath(); ctx.ellipse(cx, cy+10, rx*1.05, ry*0.6, 0, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#EEF6FF';
+          ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2); ctx.fill();
           ctx.fillStyle = '#FFFFFF';
-          ctx.beginPath();
-          ctx.arc(cx,       cy+6*s,  30*s, 0, Math.PI*2);
-          ctx.arc(cx+40*s,  cy+8*s,  38*s, 0, Math.PI*2);
-          ctx.arc(cx+80*s,  cy+6*s,  30*s, 0, Math.PI*2);
-          ctx.arc(cx+112*s, cy+10*s, 23*s, 0, Math.PI*2);
-          ctx.arc(cx+22*s,  cy-14*s, 26*s, 0, Math.PI*2);
-          ctx.arc(cx+56*s,  cy-20*s, 32*s, 0, Math.PI*2);
-          ctx.arc(cx+88*s,  cy-12*s, 24*s, 0, Math.PI*2);
-          ctx.arc(cx+42*s,  cy-36*s, 22*s, 0, Math.PI*2);
-          ctx.arc(cx+65*s,  cy-40*s, 18*s, 0, Math.PI*2);
-          ctx.fill();
-          ctx.fillStyle = 'rgba(185,228,245,0.28)';
-          ctx.beginPath();
-          ctx.arc(cx+44*s, cy+14*s, 34*s, 0, Math.PI*2);
-          ctx.arc(cx+82*s, cy+13*s, 26*s, 0, Math.PI*2);
-          ctx.fill();
+          ctx.beginPath(); ctx.ellipse(cx-rx*0.12, cy-ry*0.18, rx*0.72, ry*0.62, -0.15, 0, Math.PI*2); ctx.fill();
           ctx.restore();
         }
-        bigCloud(300, 52, 1.05);
-        bigCloud(580, 35, 0.92);
-        bigCloud(15,  72, 0.62);
-        bigCloud(195, 96, 0.46);
-        bigCloud(790, 84, 0.42);
+        // Linke Gruppe
+        dCloud(75,  108, 88, 54); dCloud(162, 85,  74, 48); dCloud(228, 118, 62, 40);
+        // Mitte
+        dCloud(395, 72,  98, 60); dCloud(488, 88,  78, 50); dCloud(552, 68,  68, 43);
+        dCloud(448, 138, 82, 48);
+        // Rechte Gruppe
+        dCloud(678, 92,  92, 58); dCloud(768, 72,  78, 50); dCloud(842, 108, 68, 43);
+        dCloud(748, 148, 72, 43);
+        // Kleine Wolken
+        dCloud(295, 155, 52, 33); dCloud(618, 158, 48, 30); dCloud(148, 168, 42, 26);
 
-        // === FAR MOUNTAINS ===
+        // === EINZELNER BERG (Mitte-rechts, abgerundet) ===
         ctx.save();
-        // Left blue-green mountain range
-        ctx.fillStyle = '#628898';
-        ctx.beginPath();
-        ctx.moveTo(270, 290); ctx.lineTo(335, 215); ctx.lineTo(375, 198);
-        ctx.lineTo(415, 213); ctx.lineTo(458, 196); ctx.lineTo(500, 213);
-        ctx.lineTo(550, 205); ctx.lineTo(600, 225); ctx.lineTo(648, 248); ctx.lineTo(648, 290);
-        ctx.closePath(); ctx.fill();
-        // Right main rocky mountain
-        const mG = ctx.createLinearGradient(0, 128, 0, 290);
-        mG.addColorStop(0, '#7E9098'); mG.addColorStop(0.45, '#687880'); mG.addColorStop(1, '#485C58');
+        const mG = ctx.createLinearGradient(0, 215, 0, 315);
+        mG.addColorStop(0, '#3A7080'); mG.addColorStop(1, '#2A5C60');
         ctx.fillStyle = mG;
         ctx.beginPath();
-        ctx.moveTo(635, 292); ctx.lineTo(678, 232);
-        ctx.lineTo(712, 198); ctx.lineTo(732, 170);
-        ctx.lineTo(752, 143); // main peak
-        ctx.lineTo(774, 158); ctx.lineTo(793, 146); // secondary
-        ctx.lineTo(824, 178); ctx.lineTo(860, 212);
-        ctx.lineTo(W, 258); ctx.lineTo(W, 292);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = 'rgba(130,148,158,0.55)';
-        ctx.beginPath(); ctx.moveTo(752,143); ctx.lineTo(725,182); ctx.lineTo(782,174); ctx.closePath(); ctx.fill();
+        ctx.moveTo(370, 315);
+        ctx.bezierCurveTo(395, 282, 428, 248, 460, 233);
+        ctx.bezierCurveTo(492, 218, 515, 217, 540, 230);
+        ctx.bezierCurveTo(572, 243, 598, 272, 618, 315);
+        ctx.closePath(); ctx.fill(); ctx.restore();
+
+        // === HORIZON (flache dunkle Linie) ===
+        ctx.save(); ctx.fillStyle = '#248018';
+        ctx.beginPath(); ctx.moveTo(0, 322); ctx.lineTo(0, 312);
+        ctx.bezierCurveTo(200, 304, 450, 306, W*0.5, 308);
+        ctx.bezierCurveTo(W*0.6, 310, 750, 302, W, 310);
+        ctx.lineTo(W, 322); ctx.closePath(); ctx.fill(); ctx.restore();
+
+        // === FLACHES GRASFELD ===
+        const fgG = ctx.createLinearGradient(0, 312, 0, H);
+        fgG.addColorStop(0,    '#32C405');
+        fgG.addColorStop(0.25, '#2CB004');
+        fgG.addColorStop(0.6,  '#249803');
+        fgG.addColorStop(1,    '#1A7C02');
+        ctx.fillStyle = fgG; ctx.fillRect(0, 312, W, H-312);
+
+        // === SPURRINNEN (Perspektivlinien zur Mitte) ===
+        ctx.save();
+        ctx.strokeStyle = 'rgba(15,90,3,0.55)'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(W*0.5-7, 314); ctx.lineTo(W*0.5-65, GROUND+5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(W*0.5+7, 314); ctx.lineTo(W*0.5+65, GROUND+5); ctx.stroke();
         ctx.restore();
 
-        // === HILL ROWS ===
-        // Row 1 – darkest/farthest
-        ctx.save(); ctx.fillStyle = '#2C6820';
-        ctx.beginPath(); ctx.moveTo(0,308); ctx.lineTo(0,258);
-        ctx.bezierCurveTo(65,242,140,236,225,248);
-        ctx.bezierCurveTo(310,260,368,238,462,237);
-        ctx.bezierCurveTo(556,236,645,248,738,240);
-        ctx.bezierCurveTo(808,233,865,246,W,256);
-        ctx.lineTo(W,308); ctx.closePath(); ctx.fill(); ctx.restore();
-
-        // Row 2
-        ctx.save(); ctx.fillStyle = '#397C25';
-        ctx.beginPath(); ctx.moveTo(0,342); ctx.lineTo(0,295);
-        ctx.bezierCurveTo(85,278,175,266,272,280);
-        ctx.bezierCurveTo(365,292,432,270,535,272);
-        ctx.bezierCurveTo(638,274,725,284,808,268);
-        ctx.bezierCurveTo(862,258,W,270,W,283);
-        ctx.lineTo(W,342); ctx.closePath(); ctx.fill(); ctx.restore();
-
-        // Row 3 – sweeping bright hills
+        // === GRASHALME ===
         ctx.save();
-        const r3g = ctx.createLinearGradient(0,305,0,H);
-        r3g.addColorStop(0,'#56C038'); r3g.addColorStop(0.45,'#42AE22'); r3g.addColorStop(1,'#308A10');
-        ctx.fillStyle = r3g;
-        ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(0,350);
-        ctx.bezierCurveTo(75,315,168,302,278,316);
-        ctx.bezierCurveTo(385,330,465,306,585,310);
-        ctx.bezierCurveTo(700,314,805,330,W,350);
-        ctx.lineTo(W,H); ctx.closePath(); ctx.fill(); ctx.restore();
-
-        // === BUSHES ===
-        function gBush(x,y,r,c){
-          ctx.save(); ctx.fillStyle=c||'#258A14';
-          ctx.beginPath();
-          ctx.arc(x,y,r,0,Math.PI*2); ctx.arc(x+r*.85,y+r*.15,r*.75,0,Math.PI*2);
-          ctx.arc(x-r*.8,y+r*.2,r*.7,0,Math.PI*2); ctx.arc(x+r*.2,y-r*.5,r*.65,0,Math.PI*2);
-          ctx.fill(); ctx.restore();
-        }
-        gBush(252,348,16,'#278A14'); gBush(405,337,13,'#228012');
-        gBush(538,344,15,'#278A14'); gBush(645,335,11,'#1E7010');
-        gBush(162,352,12,'#1E7010'); gBush(318,342,10,'#228012');
-
-        // === LARGE TREE (left) ===
-        ctx.save();
-        ctx.fillStyle='rgba(0,55,0,0.13)';
-        ctx.beginPath(); ctx.ellipse(138,GROUND-2,52,9,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#6B4422';
-        ctx.beginPath();
-        ctx.moveTo(130,GROUND); ctx.bezierCurveTo(125,362,122,320,126,285);
-        ctx.lineTo(134,285); ctx.bezierCurveTo(138,320,138,362,133,GROUND);
-        ctx.closePath(); ctx.fill();
-        ctx.strokeStyle='#5A3818'; ctx.lineWidth=5; ctx.lineCap='round';
-        ctx.beginPath(); ctx.moveTo(130,296); ctx.bezierCurveTo(118,282,156,267,170,260); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(130,310); ctx.bezierCurveTo(108,302,100,292,94,286); ctx.stroke();
-        const cG=ctx.createRadialGradient(132,252,8,132,262,70);
-        cG.addColorStop(0,'#6CE040'); cG.addColorStop(0.5,'#46BC22'); cG.addColorStop(1,'#2C7A12');
-        ctx.fillStyle=cG;
-        ctx.beginPath();
-        ctx.arc(132,268,64,0,Math.PI*2); ctx.arc(176,280,44,0,Math.PI*2);
-        ctx.arc(92,280,42,0,Math.PI*2); ctx.arc(130,230,50,0,Math.PI*2);
-        ctx.arc(168,250,38,0,Math.PI*2); ctx.arc(96,255,35,0,Math.PI*2);
-        ctx.fill();
-        ctx.fillStyle='rgba(128,228,64,0.32)';
-        ctx.beginPath(); ctx.arc(112,240,30,0,Math.PI*2); ctx.fill();
-        ctx.restore();
-
-        // Small bg tree left
-        ctx.save(); ctx.fillStyle='#348A18';
-        ctx.beginPath();
-        ctx.arc(54,314,23,0,Math.PI*2); ctx.arc(71,305,18,0,Math.PI*2); ctx.arc(40,309,16,0,Math.PI*2);
-        ctx.fill(); ctx.fillStyle='#3A2010'; ctx.fillRect(52,327,5,24); ctx.restore();
-
-        // === PINE TREES (right) ===
-        function pine(x,y,h){
-          ctx.save(); ctx.fillStyle='#3A2010'; ctx.fillRect(x-3,y-h*.2,6,h*.24);
-          const lc=['#164E1A','#1C6020','#227028'];
-          for(let i=0;i<3;i++){
-            const ly=y-h*(.15+i*.26),lw=h*(.34-i*.06);
-            ctx.fillStyle=lc[i]; ctx.beginPath();
-            ctx.moveTo(x,ly-h*.28); ctx.lineTo(x+lw,ly); ctx.lineTo(x-lw,ly); ctx.closePath(); ctx.fill();
-          }
-          ctx.restore();
-        }
-        pine(815,376,120); pine(850,384,100); pine(780,380,93);
-        pine(858,394,80);  pine(875,340,68); pine(900,344,54);
-
-        // === DIRT PATH ===
-        ctx.save();
-        const pg=ctx.createLinearGradient(730,320,W,GROUND);
-        pg.addColorStop(0,'#CAA868'); pg.addColorStop(1,'#B89058');
-        ctx.fillStyle=pg;
-        ctx.beginPath();
-        ctx.moveTo(W,GROUND+6);
-        ctx.bezierCurveTo(W-14,GROUND-16,W-52,GROUND-56,W-102,GROUND-96);
-        ctx.bezierCurveTo(W-132,GROUND-112,W-164,GROUND-118,W-180,GROUND-110);
-        ctx.bezierCurveTo(W-160,GROUND-114,W-130,GROUND-106,W-94,GROUND-74);
-        ctx.bezierCurveTo(W-44,GROUND-34,W+6,GROUND+6,W,GROUND+6);
-        ctx.fill(); ctx.restore();
-
-        // === FOREGROUND GRASS ===
-        const fgG=ctx.createLinearGradient(0,328,0,H);
-        fgG.addColorStop(0,'#72DC48'); fgG.addColorStop(0.38,'#54C232'); fgG.addColorStop(1,'#2C9012');
-        ctx.fillStyle=fgG; ctx.fillRect(0,328,W,H-328);
-
-        // === ROCKS ===
-        function rock(x,y,rw,rh,a){
-          ctx.save();
-          const rg=ctx.createLinearGradient(x-rw,y-rh,x+rw*.5,y+rh*.3);
-          rg.addColorStop(0,'#BCBCBC'); rg.addColorStop(0.5,'#888888'); rg.addColorStop(1,'#545454');
-          ctx.fillStyle=rg; ctx.beginPath(); ctx.ellipse(x,y,rw,rh,a||0,0,Math.PI*2); ctx.fill();
-          ctx.fillStyle='rgba(255,255,255,0.22)';
-          ctx.beginPath(); ctx.ellipse(x-rw*.25,y-rh*.3,rw*.35,rh*.26,(a||0)-.3,0,Math.PI*2); ctx.fill();
-          ctx.restore();
-        }
-        rock(202,GROUND-7,23,12,0.1); rock(395,GROUND-9,27,14,-0.1); rock(495,GROUND+20,36,17,0.05);
-
-        // === GRASS BLADES ===
-        ctx.save();
-        for(let gx=0;gx<=W;gx+=7){
-          const lean=Math.sin(gx*.11)*5+Math.cos(gx*.23)*2;
-          const gh=10+Math.sin(gx*.5)*4+Math.cos(gx*.29)*3;
-          const t=Math.floor(gx/7)%3;
-          ctx.strokeStyle=t===0?'#8EEC5C':t===1?'#74D444':'#5EC034';
-          ctx.lineWidth=1.5;
-          ctx.beginPath(); ctx.moveTo(gx,GROUND);
-          ctx.quadraticCurveTo(gx+lean*.7,GROUND-gh*.55,gx+lean*1.3,GROUND-gh);
+        for(let gx=0; gx<=W; gx+=7){
+          const lean = Math.sin(gx*0.11)*5 + Math.cos(gx*0.23)*2;
+          const gh   = 10 + Math.sin(gx*0.5)*4 + Math.cos(gx*0.29)*3;
+          const t    = Math.floor(gx/7)%3;
+          ctx.strokeStyle = t===0 ? '#58E820' : t===1 ? '#42D410' : '#30C008';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.moveTo(gx, GROUND);
+          ctx.quadraticCurveTo(gx+lean*0.7, GROUND-gh*0.55, gx+lean*1.3, GROUND-gh);
           ctx.stroke();
         }
         ctx.restore();
 
-        // === FLOWERS ===
-        [[72,GROUND+11,'#FFF'],[150,GROUND+7,'#FFFADC'],[228,GROUND+13,'#FFF'],
-         [295,GROUND+9,'#FFF'],[370,GROUND+15,'#FFFADC'],[448,GROUND+8,'#FFF'],
-         [525,GROUND+12,'#FFFADC'],[598,GROUND+10,'#FFF'],[665,GROUND+14,'#FFFADC'],
-         [725,GROUND+8,'#FFF'],[110,GROUND+21,'#FFFADC'],[322,GROUND+19,'#FFF'],
-         [468,GROUND+23,'#FFFADC'],[614,GROUND+19,'#FFF'],[760,GROUND+11,'#FFFADC'],
-        ].forEach(([fx,fy,fc])=>{
-          ctx.save(); ctx.fillStyle=fc;
-          for(let p=0;p<8;p++){
-            const a=p/8*Math.PI*2;
-            ctx.beginPath(); ctx.ellipse(fx+Math.cos(a)*4.5,fy+Math.sin(a)*4.5,3.5,2,a,0,Math.PI*2); ctx.fill();
-          }
-          ctx.fillStyle='#FFD000'; ctx.beginPath(); ctx.arc(fx,fy,2.8,0,Math.PI*2); ctx.fill();
-          ctx.restore();
-        });
-
-        // === GROUND LINE ===
-        ctx.save(); ctx.strokeStyle='#8EEC5C'; ctx.lineWidth=2;
-        ctx.shadowColor='#70D840'; ctx.shadowBlur=8;
+        // === BODENLINIE ===
+        ctx.save(); ctx.strokeStyle='#58E820'; ctx.lineWidth=2;
+        ctx.shadowColor='#30C008'; ctx.shadowBlur=8;
         ctx.beginPath(); ctx.moveTo(0,GROUND); ctx.lineTo(W,GROUND); ctx.stroke(); ctx.restore();
 
         } // end fallback
