@@ -276,7 +276,7 @@
       </button>
       <button class="mode-btn" id="mode-pvp">
         2 SPIELER (PVP)
-        <span>S1: A/D + LEERTASTE &nbsp;·&nbsp; S2: ← / → + ENTER</span>
+        <span>S1: A/D + S-Sprung + LEERTASTE &nbsp;·&nbsp; S2: ←/→ + ↑-Sprung + ENTER</span>
       </button>
       <button class="mode-btn" id="mode-soccer">
         ⚽ FUSSBALL (2 SPIELER)
@@ -295,6 +295,7 @@
           <button class="touch-btn" data-key="d">&#9654;</button>
         </div>
         <div class="touch-group">
+          <button class="touch-btn" data-key="s">&#9650;</button>
           <button class="touch-btn atk" data-key=" ">&#9876;</button>
           <button class="touch-btn ult" data-ultra="p1">&#9889;</button>
         </div>
@@ -309,6 +310,7 @@
           <button class="touch-btn" data-key="ArrowRight">&#9654;</button>
         </div>
         <div class="touch-group">
+          <button class="touch-btn" data-key="ArrowUp">&#9650;</button>
           <button class="touch-btn atk" data-key="Enter">&#9876;</button>
           <button class="touch-btn ult" data-ultra="p2">&#9889;</button>
         </div>
@@ -325,6 +327,8 @@
     const GROUND = 420;
     const PLAYER_SPEED = 4;
     const AI_SPEED = 2.5;
+    const JUMP_FORCE = -13;
+    const GRAVITY = 0.55;
     const HIT_DAMAGE = 10;
     const ULTRA_DAMAGE = 30;
     const ULTRA_COOLDOWN = 130;
@@ -442,6 +446,8 @@
         aiBackTimer: 0,
         knockback: 0,
         knockbackDir: 0,
+        vy: 0,
+        onGround: true,
         moving: false,        // is currently walking this frame
         walkPhase: 0,         // continuous leg-cycle angle
         walkBlend: 0,         // 0..1 smooth blend in/out of walk
@@ -1299,7 +1305,7 @@
         ctx.fillStyle = 'rgba(255,255,255,0.28)';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('S1: A/D + LEERTASTE-Schuss   |   S2: ←/→ + ENTER-Schuss   |   Z = Menü', W / 2, H - 8);
+        ctx.fillText('S1: A/D + S-Sprung + LEERTASTE-Schuss   |   S2: ←/→ + ↑-Sprung + ENTER-Schuss   |   Z = Menü', W / 2, H - 8);
         ctx.restore();
         return;
       }
@@ -1317,8 +1323,8 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       const hint = mode === 'pvp'
-        ? 'S1: A/D + LEERTASTE (A+D=ULTRA⚡)   |   S2: ←/→ + ENTER (←+→=ULTRA⚡)   |   Z = Menü'
-        : 'A / D — Bewegen   |   LEERTASTE — Angriff   |   A+D = ULTRA ⚡   |   Z = Menü';
+        ? 'S1: A/D + S-Sprung + LEERTASTE (A+D=ULTRA⚡)   |   S2: ←/→ + ↑-Sprung + ENTER (←+→=ULTRA⚡)   |   Z = Menü'
+        : 'A / D — Bewegen   |   S — Springen   |   LEERTASTE — Angriff   |   A+D = ULTRA ⚡   |   Z = Menü';
       ctx.fillText(hint, W / 2, H - 8);
       ctx.restore();
     }
@@ -1370,6 +1376,21 @@
       if (!both) {
         if (left)  { player.x -= PLAYER_SPEED; player.moving = true; player.moveDir = -1; }
         if (right) { player.x += PLAYER_SPEED; player.moving = true; player.moveDir = 1; }
+      }
+
+      // Jump (S)
+      if ((keys['s'] || keys['S']) && player.onGround) {
+        player.vy = JUMP_FORCE;
+        player.onGround = false;
+      }
+
+      // Gravity & vertical position
+      player.vy += GRAVITY;
+      player.y += player.vy;
+      if (player.y >= GROUND) {
+        player.y = GROUND;
+        player.vy = 0;
+        player.onGround = true;
       }
 
       // Clamp
@@ -1462,6 +1483,11 @@
 
       ai.x = Math.max(30, Math.min(W - 30, ai.x));
 
+      // Gravity (AI stays on ground)
+      ai.vy += GRAVITY;
+      ai.y += ai.vy;
+      if (ai.y >= GROUND) { ai.y = GROUND; ai.vy = 0; ai.onGround = true; }
+
       // Attack animation
       if (ai.attacking) {
         ai.attackFrame++;
@@ -1479,7 +1505,7 @@
     }
 
     function updatePlayer2() {
-      // Player 2 controls the blue stickman: ←=left, →=right, Enter=attack, ←+→=ultra
+      // Player 2 controls the blue stickman: ←=left, →=right, Enter=attack, ←+→=ultra, ↑=jump
       ai.moving = false;
       const left  = keys['ArrowLeft'];
       const right = keys['ArrowRight'];
@@ -1488,6 +1514,21 @@
       if (!both) {
         if (left)  { ai.x -= PLAYER_SPEED; ai.moving = true; ai.moveDir = -1; }
         if (right) { ai.x += PLAYER_SPEED; ai.moving = true; ai.moveDir = 1; }
+      }
+
+      // Jump (ArrowUp)
+      if (keys['ArrowUp'] && ai.onGround) {
+        ai.vy = JUMP_FORCE;
+        ai.onGround = false;
+      }
+
+      // Gravity & vertical position
+      ai.vy += GRAVITY;
+      ai.y += ai.vy;
+      if (ai.y >= GROUND) {
+        ai.y = GROUND;
+        ai.vy = 0;
+        ai.onGround = true;
       }
 
       ai.x = Math.max(30, Math.min(W - 30, ai.x));
