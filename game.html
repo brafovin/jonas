@@ -377,11 +377,11 @@
       <h2>WÄHLE DEINEN MODUS</h2>
       <button class="mode-btn" id="mode-ai">
         1 SPIELER VS KI
-        <span>Spieler 1: A / D — Bewegen &nbsp;·&nbsp; LEERTASTE — Angriff</span>
+        <span>Spieler 1: A / D — Bewegen · LEERTASTE — Sprung · LINKSKLICK — Angriff</span>
       </button>
       <button class="mode-btn" id="mode-pvp">
         2 SPIELER (PVP)
-        <span>S1: A/D + LEERTASTE &nbsp;·&nbsp; S2: ← / → + ENTER</span>
+        <span>S1: A/D · LEERTASTE-Sprung · Klick-Angriff &nbsp;·&nbsp; S2: ←/→ · ↑-Sprung · ENTER-Angriff</span>
       </button>
       <button class="mode-btn" id="mode-soccer">
         ⚽ FUSSBALL (2 SPIELER)
@@ -519,6 +519,8 @@
 
     const PLAYER_SPEED = 4;
     const AI_SPEED = 2.5;
+    const JUMP_FORCE = -13;
+    const GRAVITY = 0.55;
     const HIT_DAMAGE = 10;
     const ULTRA_DAMAGE = 30;
     const ULTRA_COOLDOWN = 130;
@@ -543,6 +545,13 @@
       if (blockScroll.includes(e.key)) e.preventDefault();
     });
     document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+    // Mouse click = attack for Player 1
+    const gameCanvas = document.getElementById('game');
+    gameCanvas.addEventListener('mousedown', e => { if (e.button === 0) keys['MouseLeft'] = true; });
+    gameCanvas.addEventListener('mouseup',   e => { if (e.button === 0) keys['MouseLeft'] = false; });
+    gameCanvas.addEventListener('mouseleave',() => { keys['MouseLeft'] = false; });
+    document.addEventListener('mouseup',    e => { if (e.button === 0) keys['MouseLeft'] = false; });
 
     // Touch controls — bind every button with data-key or data-ultra
     function bindTouchButton(el) {
@@ -847,6 +856,7 @@
     function createStickman(x, isPlayer, weapon) {
       return {
         x, y: GROUND,
+        vy: 0, onGround: true,
         isPlayer,
         hp: 100,
         dir: isPlayer ? 1 : -1,
@@ -1997,7 +2007,7 @@
         ctx.fillStyle = 'rgba(255,255,255,0.28)';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('S1: A/D + LEERTASTE-Schuss   |   S2: ←/→ + ENTER-Schuss   |   Z = Menü', W / 2, H - 8);
+        ctx.fillText('S1: A/D · LEERTASTE-Sprung · Klick-Schuss   |   S2: ←/→ · ↑-Sprung · ENTER-Schuss   |   Z = Menü', W / 2, H - 8);
         ctx.restore();
         return;
       }
@@ -2015,8 +2025,8 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       const hint = mode === 'pvp'
-        ? 'S1: A/D + LEERTASTE (A+D=ULTRA⚡)   |   S2: ←/→ + ENTER (←+→=ULTRA⚡)   |   Z = Menü'
-        : 'A / D — Bewegen   |   LEERTASTE — Angriff   |   A+D = ULTRA ⚡   |   Z = Menü';
+        ? 'S1: A/D · LEERTASTE-Sprung · Klick-Angriff (A+D=ULTRA⚡)   |   S2: ←/→ · ↑-Sprung · ENTER (←+→=ULTRA⚡)   |   Z = Menü'
+        : 'A/D — Bewegen   |   LEERTASTE — Sprung   |   LINKSKLICK — Angriff   |   A+D = ULTRA ⚡   |   Z = Menü';
       ctx.fillText(hint, W / 2, H - 8);
       ctx.restore();
     }
@@ -2077,6 +2087,12 @@
       // Face direction toward AI
       player.dir = ai.x > player.x ? 1 : -1;
 
+      // Jump: Spacebar
+      if (keys[' '] && player.onGround) {
+        player.vy = JUMP_FORCE;
+        player.onGround = false;
+      }
+
       // ULTRA attack: A + D together
       if (both && !player.attacking && player.cooldown === 0) {
         player.attacking = true;
@@ -2084,8 +2100,8 @@
         player.isUltra = true;
         player.ultraFlash = 45;
       }
-      // Normal attack
-      else if (keys[' '] && !player.attacking && player.cooldown === 0) {
+      // Normal attack: left mouse click
+      else if (keys['MouseLeft'] && !player.attacking && player.cooldown === 0) {
         player.attacking = true;
         player.attackFrame = 0;
         player.isUltra = false;
@@ -2112,6 +2128,11 @@
         player.x += player.knockbackDir * 3;
         player.knockback--;
       }
+
+      // Gravity & landing
+      player.vy += GRAVITY;
+      player.y  += player.vy;
+      if (player.y >= GROUND) { player.y = GROUND; player.vy = 0; player.onGround = true; }
     }
 
     function updateAI() {
@@ -2195,7 +2216,13 @@
       // Face player 1
       ai.dir = player.x < ai.x ? -1 : 1;
 
-      // ULTRA attack: K + Ö together
+      // Jump: Arrow Up
+      if (keys['ArrowUp'] && ai.onGround) {
+        ai.vy = JUMP_FORCE;
+        ai.onGround = false;
+      }
+
+      // ULTRA attack: ← + → together
       if (both && !ai.attacking && ai.cooldown === 0) {
         ai.attacking = true;
         ai.attackFrame = 0;
@@ -2229,6 +2256,11 @@
         ai.knockback--;
         ai.x = Math.max(30, Math.min(W - 30, ai.x));
       }
+
+      // Gravity & landing
+      ai.vy += GRAVITY;
+      ai.y  += ai.vy;
+      if (ai.y >= GROUND) { ai.y = GROUND; ai.vy = 0; ai.onGround = true; }
     }
 
     function resolveHits() {
@@ -2277,8 +2309,8 @@
 
     function kickBall(s) {
       const dx = ball.x - s.x;
-      const bodyTop = GROUND - 175;
-      if (Math.abs(dx) < ball.r + 20 && ball.y > bodyTop && ball.y < GROUND + 6) {
+      const bodyTop = s.y - 175;
+      if (Math.abs(dx) < ball.r + 20 && ball.y > bodyTop && ball.y < s.y + 6) {
         const dir = dx >= 0 ? 1 : -1;
         let power = 4 + Math.abs(s.moveDir || 0) * 2;
         let lift = 2.5;
@@ -2448,80 +2480,85 @@
 
       // Ground shadow
       ctx.save();
-      const sc = Math.max(0.25, 1 - (GROUND - ball.y) / 380);
-      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      const sc = Math.max(0.2, 1 - (GROUND - ball.y) / 380);
+      const grad0 = ctx.createRadialGradient(ball.x, GROUND, 0, ball.x, GROUND, r * sc * 1.3);
+      grad0.addColorStop(0,   'rgba(0,0,0,0.45)');
+      grad0.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = grad0;
       ctx.beginPath();
-      ctx.ellipse(ball.x, GROUND - 1, r * sc * 1.1, 4 * sc, 0, 0, Math.PI * 2);
+      ctx.ellipse(ball.x, GROUND, r * sc * 1.3, r * sc * 0.35, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
       ctx.save();
       ctx.translate(ball.x, ball.y);
 
-      // Outer glow
-      ctx.shadowColor = '#FFE566';
-      ctx.shadowBlur = 18;
-
-      // 3D sphere: radial gradient (light top-left)
-      const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.05, 0, 0, r);
-      grad.addColorStop(0,   '#FFFFFF');
-      grad.addColorStop(0.45, '#F0F0F0');
-      grad.addColorStop(0.85, '#D8D8D8');
-      grad.addColorStop(1,   '#B8B8B8');
+      // --- Sphere base: white with soft 3-D shading ---
+      const sphGrad = ctx.createRadialGradient(-r * 0.32, -r * 0.36, r * 0.04, 0, 0, r);
+      sphGrad.addColorStop(0,    '#FFFFFF');
+      sphGrad.addColorStop(0.55, '#EFEFEF');
+      sphGrad.addColorStop(0.88, '#D4D4D4');
+      sphGrad.addColorStop(1,    '#BEBEBE');
       ctx.beginPath();
       ctx.arc(0, 0, r, 0, Math.PI * 2);
-      ctx.fillStyle = grad;
+      ctx.fillStyle = sphGrad;
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 6;
       ctx.fill();
-
-      // Clip all pattern drawing to the ball circle
       ctx.shadowBlur = 0;
+
+      // --- Clip everything to ball circle ---
       ctx.save();
       ctx.beginPath();
       ctx.arc(0, 0, r, 0, Math.PI * 2);
       ctx.clip();
 
-      // Rotate with ball spin
       ctx.rotate(ball.rot);
 
-      // Draw pentagons function
-      function pentagon(cx, cy, pr, angle) {
+      // Helper: draw a convex polygon with slightly rounded feel
+      function patch(cx, cy, pts) {
         ctx.beginPath();
-        for (let i = 0; i < 5; i++) {
-          const a = angle + (i / 5) * Math.PI * 2 - Math.PI / 2;
-          const px = cx + Math.cos(a) * pr;
-          const py = cy + Math.sin(a) * pr;
-          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-        }
+        ctx.moveTo(cx + pts[0][0], cy + pts[0][1]);
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(cx + pts[i][0], cy + pts[i][1]);
         ctx.closePath();
       }
 
-      ctx.fillStyle = '#1a1a1a';
-      ctx.strokeStyle = '#1a1a1a';
-      ctx.lineWidth = 0.8;
+      // Helper: get N-gon vertices
+      function polyPts(n, pr, startAngle) {
+        const pts = [];
+        for (let i = 0; i < n; i++) {
+          const a = startAngle + (i / n) * Math.PI * 2;
+          pts.push([Math.cos(a) * pr, Math.sin(a) * pr]);
+        }
+        return pts;
+      }
+
+      // Black patches — central pentagon + 5 outer pentagons (classic Telstar pattern)
+      ctx.fillStyle = '#111111';
+      ctx.strokeStyle = '#111111';
+      ctx.lineWidth = r * 0.07;
 
       // Central pentagon
-      pentagon(0, 0, r * 0.38, Math.PI / 10);
+      patch(0, 0, polyPts(5, r * 0.40, -Math.PI / 2));
       ctx.fill();
+      ctx.stroke();
 
-      // 5 surrounding pentagons
+      // 5 satellite pentagons
       for (let i = 0; i < 5; i++) {
-        const a = (i / 5) * Math.PI * 2;
-        const dist = r * 0.7;
-        pentagon(
-          Math.cos(a) * dist,
-          Math.sin(a) * dist,
-          r * 0.32,
-          a + Math.PI / 10
-        );
+        const a = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+        const cx = Math.cos(a) * r * 0.72;
+        const cy = Math.sin(a) * r * 0.72;
+        patch(cx, cy, polyPts(5, r * 0.33, a + Math.PI / 5));
         ctx.fill();
+        ctx.stroke();
       }
 
       ctx.restore(); // remove clip
 
-      // Specular highlight (top-left sheen)
-      const shine = ctx.createRadialGradient(-r * 0.28, -r * 0.32, 0, -r * 0.28, -r * 0.32, r * 0.42);
-      shine.addColorStop(0,   'rgba(255,255,255,0.72)');
-      shine.addColorStop(0.5, 'rgba(255,255,255,0.18)');
+      // --- Specular highlight (top-left) ---
+      const shine = ctx.createRadialGradient(-r * 0.3, -r * 0.34, 0, -r * 0.3, -r * 0.34, r * 0.5);
+      shine.addColorStop(0,   'rgba(255,255,255,0.82)');
+      shine.addColorStop(0.45,'rgba(255,255,255,0.28)');
       shine.addColorStop(1,   'rgba(255,255,255,0)');
       ctx.beginPath();
       ctx.arc(0, 0, r, 0, Math.PI * 2);
