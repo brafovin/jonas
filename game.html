@@ -231,8 +231,64 @@
     .map-btn .map-sub { display: block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); margin-top: 6px; letter-spacing: 0.04em; }
     .back-link { font-family: 'Inter', sans-serif; font-size: 13px; color: rgba(255,255,255,0.4); cursor: pointer; background: none; border: none; text-decoration: underline; margin-top: 4px; }
     .back-link:hover { color: #FF3D00; }
+
+    /* ===== Weapon select ===== */
+    #weapon-select {
+      position: absolute; inset: 0;
+      background: rgba(5,5,5,0.94);
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; z-index: 10; backdrop-filter: blur(2px);
+      overflow-y: auto; padding: 16px 8px;
+    }
+    #weapon-select.visible { display: flex; }
+    #weapon-select h2 { font-family:'Bangers',cursive; font-size:clamp(22px,4vw,38px); color:#fff; letter-spacing:.06em; text-shadow:0 0 16px rgba(255,61,0,.5); }
+    .weapon-section { display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .weapon-player-label { font-family:'Bangers',cursive; font-size:clamp(16px,3vw,24px); letter-spacing:.06em; }
+    .weapon-grid { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+    .weapon-btn {
+      background:rgba(255,255,255,.04); border:2px solid rgba(255,255,255,.2);
+      color:#fff; font-family:'Bangers',cursive; font-size:clamp(14px,2.2vw,20px);
+      letter-spacing:.04em; padding:12px 16px; border-radius:12px; cursor:pointer;
+      min-width:120px; text-align:center;
+      transition: transform .12s, background .12s, border-color .12s, box-shadow .12s;
+    }
+    .weapon-btn:hover { transform:scale(1.06); background:rgba(255,255,255,.1); }
+    .weapon-btn.selected-p1 { border-color:#FF3D00; box-shadow:0 0 22px rgba(255,61,0,.55); background:rgba(255,61,0,.14); }
+    .weapon-btn.selected-p2 { border-color:#0088FF; box-shadow:0 0 22px rgba(0,136,255,.55); background:rgba(0,136,255,.14); }
+    .weapon-btn .w-icon { font-size:1.6em; display:block; margin-bottom:4px; }
+    .weapon-btn .w-sub { display:block; font-family:'Inter',sans-serif; font-size:10px; color:rgba(255,255,255,.45); margin-top:4px; font-weight:600; }
+
+    /* ===== Online lobby ===== */
+    #online-lobby {
+      position: absolute; inset: 0;
+      background: rgba(5,5,5,0.94);
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 18px; z-index: 10; backdrop-filter: blur(2px);
+    }
+    #online-lobby.visible { display: flex; }
+    #online-lobby h2 { font-family:'Bangers',cursive; font-size:clamp(24px,4.5vw,42px); color:#fff; letter-spacing:.06em; text-shadow:0 0 18px rgba(0,180,255,.5); }
+    .ol-panel { display:flex; flex-direction:column; align-items:center; gap:14px; }
+    .room-code {
+      font-family:'Bangers',cursive; font-size:clamp(34px,6vw,56px); letter-spacing:.18em;
+      color:#00CCFF; text-shadow:0 0 24px rgba(0,180,255,.8), 0 0 48px rgba(0,180,255,.4);
+      background:rgba(0,180,255,.06); border:2px solid rgba(0,180,255,.3);
+      padding:10px 24px; border-radius:12px; min-width:200px; text-align:center;
+    }
+    .room-input {
+      font-family:'Bangers',cursive; font-size:clamp(24px,4vw,38px); letter-spacing:.14em;
+      color:#fff; background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.3);
+      padding:10px 20px; border-radius:12px; width:200px; text-align:center;
+      outline:none;
+    }
+    .room-input:focus { border-color:#00CCFF; box-shadow:0 0 16px rgba(0,180,255,.4); }
+    .ol-status { font-family:'Inter',sans-serif; font-size:14px; color:rgba(255,255,255,.65); }
+    .ol-waiting { font-family:'Inter',sans-serif; font-size:14px; color:rgba(0,200,255,.8); animation: pulse 1.4s infinite; }
+    @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
   </style>
 </head>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <body>
   <a id="back-btn" href="index.html">&#8592; Zur&uuml;ck</a>
   <div id="game-title">Stickman Fight Legacy</div>
@@ -282,6 +338,58 @@
         ⚽ FUSSBALL (2 SPIELER)
         <span>Schieß den Ball ins gegnerische Tor — Angriff = Schuss!</span>
       </button>
+      <button class="mode-btn" id="mode-online" style="border-color:#00CCFF;color:#00CCFF;box-shadow:0 0 20px rgba(0,180,255,.25)">
+        🌐 ONLINE MODUS
+        <span>Kämpfe gegen andere Spieler über das Internet</span>
+      </button>
+    </div>
+
+    <!-- Weapon Select Overlay -->
+    <div id="weapon-select">
+      <h2>WÄHLE DEINE WAFFE</h2>
+      <div class="weapon-section">
+        <p class="weapon-player-label" style="color:#FF2200">⚔ SPIELER 1</p>
+        <div class="weapon-grid" id="wgrid-p1">
+          <button class="weapon-btn selected-p1" data-weapon="sword" data-player="1"><span class="w-icon">⚔️</span>SCHWERT<span class="w-sub">Ausgewogen · Mittelweit</span></button>
+          <button class="weapon-btn" data-weapon="hammer" data-player="1"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
+          <button class="weapon-btn" data-weapon="spear" data-player="1"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
+          <button class="weapon-btn" data-weapon="pistol" data-player="1"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf · Projektil</span></button>
+        </div>
+      </div>
+      <div class="weapon-section" id="weapon-p2-section">
+        <p class="weapon-player-label" style="color:#0088FF">⚔ SPIELER 2</p>
+        <div class="weapon-grid" id="wgrid-p2">
+          <button class="weapon-btn" data-weapon="sword" data-player="2"><span class="w-icon">⚔️</span>SCHWERT<span class="w-sub">Ausgewogen · Mittelweit</span></button>
+          <button class="weapon-btn selected-p2" data-weapon="hammer" data-player="2"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
+          <button class="weapon-btn" data-weapon="spear" data-player="2"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
+          <button class="weapon-btn" data-weapon="pistol" data-player="2"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf · Projektil</span></button>
+        </div>
+      </div>
+      <button class="mode-btn" id="weapon-confirm" style="min-width:200px;font-size:clamp(18px,3vw,26px);padding:12px 28px">WEITER →</button>
+      <button class="back-link" id="weapon-back">← Zurück zur Modusauswahl</button>
+    </div>
+
+    <!-- Online Lobby Overlay -->
+    <div id="online-lobby">
+      <h2>🌐 ONLINE MODUS</h2>
+      <div id="ol-start" class="ol-panel">
+        <button class="mode-btn" id="ol-host" style="border-color:#00CCFF;color:#00CCFF">🏠 RAUM ERSTELLEN</button>
+        <button class="mode-btn" id="ol-join-btn" style="border-color:#00CCFF;color:#00CCFF">🔗 RAUM BEITRETEN</button>
+        <button class="back-link" id="ol-back">← Zurück</button>
+      </div>
+      <div id="ol-hosting" class="ol-panel" style="display:none">
+        <p class="ol-status">Dein Raumcode:</p>
+        <div class="room-code" id="ol-code">------</div>
+        <p class="ol-waiting" id="ol-host-status">⏳ Warte auf Gegner...</p>
+        <button class="back-link" id="ol-host-back">← Abbrechen</button>
+      </div>
+      <div id="ol-joining" class="ol-panel" style="display:none">
+        <p class="ol-status">Raumcode eingeben:</p>
+        <input type="text" class="room-input" id="ol-code-input" maxlength="6" placeholder="ABC123" autocomplete="off" spellcheck="false">
+        <button class="mode-btn" id="ol-connect" style="border-color:#00CCFF;color:#00CCFF;min-width:160px">VERBINDEN</button>
+        <p class="ol-status" id="ol-join-status"></p>
+        <button class="back-link" id="ol-join-back">← Zurück</button>
+      </div>
     </div>
   </div>
 
@@ -381,34 +489,64 @@
     let player, ai, gameOver, gameOverTimer, winner;
     let particles = [];
     let snow = [];
-    let mode = null;       // 'ai' or 'pvp'
-    let map  = null;       // 'desert' or 'ice'
+    let bullets = [];
+    let mode = null;       // 'ai' | 'pvp' | 'soccer' | 'online'
+    let map  = null;
     let started = false;
 
-    const menuEl    = document.getElementById('menu');
-    const mapSelEl  = document.getElementById('map-select');
+    // Weapons
+    let playerWeapon = 'sword';
+    let aiWeapon     = 'hammer';
+    const WEAPON_LIST = ['sword','hammer','spear','pistol'];
+
+    // Online state
+    let peer = null, onlineConn = null, onlineRole = null;
+    let remoteKeys = {};
+    let onlineGameState = null;
+
+    const menuEl      = document.getElementById('menu');
+    const mapSelEl    = document.getElementById('map-select');
+    const weaponSelEl = document.getElementById('weapon-select');
+    const onlineLobbyEl = document.getElementById('online-lobby');
 
     function showMenu() {
       started = false;
       mode = null;
       map  = null;
       mapSelEl.classList.remove('visible');
+      weaponSelEl.classList.remove('visible');
+      onlineLobbyEl.classList.remove('visible');
       menuEl.classList.remove('hidden');
     }
 
-    function showMapSelect() {
+    function showWeaponSelect() {
       menuEl.classList.add('hidden');
+      mapSelEl.classList.remove('visible');
+      // In AI or Soccer mode, P2 weapon pick is hidden
+      const showP2 = (mode === 'pvp' || mode === 'online');
+      document.getElementById('weapon-p2-section').style.display = showP2 ? 'block' : 'none';
+      weaponSelEl.classList.add('visible');
+    }
+
+    function showMapSelect() {
+      weaponSelEl.classList.remove('visible');
+      if (mode === 'ai') aiWeapon = WEAPON_LIST[Math.floor(Math.random() * WEAPON_LIST.length)];
       mapSelEl.classList.add('visible');
     }
 
     function startGame(selectedMap) {
       map = selectedMap;
       mapSelEl.classList.remove('visible');
+      weaponSelEl.classList.remove('visible');
       started = true;
       snow = [];
-      // Show Player 2 touch controls in PvP and Soccer (both are 2-player)
+      bullets = [];
       document.getElementById('touch-p2').style.display =
-        (mode === 'pvp' || mode === 'soccer') ? 'flex' : 'none';
+        (mode === 'pvp' || mode === 'soccer' || mode === 'online') ? 'flex' : 'none';
+      // Tell client to start
+      if (mode === 'online' && onlineRole === 'host' && onlineConn && onlineConn.open) {
+        onlineConn.send({ type:'start', map: selectedMap, hostWeapon: playerWeapon });
+      }
       init();
     }
 
@@ -420,16 +558,161 @@
       }
     });
 
-    document.getElementById('mode-ai').addEventListener('click', () => { mode = 'ai'; showMapSelect(); });
-    document.getElementById('mode-pvp').addEventListener('click', () => { mode = 'pvp'; showMapSelect(); });
-    document.getElementById('mode-soccer').addEventListener('click', () => { mode = 'soccer'; showMapSelect(); });
+    document.getElementById('mode-ai').addEventListener('click', () => { mode = 'ai'; showWeaponSelect(); });
+    document.getElementById('mode-pvp').addEventListener('click', () => { mode = 'pvp'; showWeaponSelect(); });
+    document.getElementById('mode-soccer').addEventListener('click', () => { mode = 'soccer'; startGame('grass'); });
+    document.getElementById('mode-online').addEventListener('click', () => {
+      menuEl.classList.add('hidden');
+      onlineLobbyEl.classList.add('visible');
+      document.getElementById('ol-start').style.display = 'flex';
+      document.getElementById('ol-hosting').style.display = 'none';
+      document.getElementById('ol-joining').style.display = 'none';
+    });
     document.getElementById('map-desert').addEventListener('click', () => startGame('desert'));
     document.getElementById('map-ice').addEventListener('click', () => startGame('ice'));
     document.getElementById('map-grass').addEventListener('click', () => startGame('grass'));
     document.getElementById('map-castle').addEventListener('click', () => startGame('castle'));
-    document.getElementById('map-back').addEventListener('click', showMenu);
+    document.getElementById('map-back').addEventListener('click', () => { mapSelEl.classList.remove('visible'); showWeaponSelect(); });
 
-    function createStickman(x, isPlayer) {
+    // Weapon select buttons
+    document.querySelectorAll('.weapon-btn[data-player="1"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.weapon-btn[data-player="1"]').forEach(b => b.classList.remove('selected-p1'));
+        btn.classList.add('selected-p1');
+        playerWeapon = btn.dataset.weapon;
+      });
+    });
+    document.querySelectorAll('.weapon-btn[data-player="2"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.weapon-btn[data-player="2"]').forEach(b => b.classList.remove('selected-p2'));
+        btn.classList.add('selected-p2');
+        aiWeapon = btn.dataset.weapon;
+      });
+    });
+    document.getElementById('weapon-confirm').addEventListener('click', () => {
+      if (mode === 'online') {
+        // Exchange weapons online, then host shows map select
+        if (onlineConn && onlineConn.open) {
+          onlineConn.send({ type: 'weapon', weapon: playerWeapon });
+        }
+        if (onlineRole === 'host') {
+          weaponSelEl.classList.remove('visible');
+          showMapSelect();
+        } else {
+          weaponSelEl.classList.remove('visible');
+          // Show waiting for host to pick map
+          const waitDiv = document.createElement('div');
+          waitDiv.id = 'ol-map-wait';
+          waitDiv.style.cssText = 'position:absolute;inset:0;background:rgba(5,5,5,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:10;backdrop-filter:blur(2px)';
+          waitDiv.innerHTML = '<p style="font-family:Bangers,cursive;font-size:clamp(22px,4vw,36px);color:#fff;letter-spacing:.06em">ONLINE MODUS</p><p class="ol-waiting" style="font-family:Inter,sans-serif;font-size:15px;color:rgba(0,200,255,.85)">⏳ Warte auf Karte vom Host...</p>';
+          document.getElementById('canvas-wrapper').appendChild(waitDiv);
+        }
+      } else {
+        weaponSelEl.classList.remove('visible');
+        showMapSelect();
+      }
+    });
+    document.getElementById('weapon-back').addEventListener('click', () => {
+      weaponSelEl.classList.remove('visible');
+      if (mode === 'online') {
+        onlineLobbyEl.classList.add('visible');
+      } else {
+        showMenu();
+      }
+    });
+
+    // Online lobby buttons
+    document.getElementById('ol-back').addEventListener('click', () => {
+      onlineLobbyEl.classList.remove('visible');
+      showMenu();
+      if (peer) { peer.destroy(); peer = null; }
+    });
+    document.getElementById('ol-host').addEventListener('click', startHosting);
+    document.getElementById('ol-join-btn').addEventListener('click', () => {
+      document.getElementById('ol-start').style.display = 'none';
+      document.getElementById('ol-joining').style.display = 'flex';
+    });
+    document.getElementById('ol-host-back').addEventListener('click', () => {
+      if (peer) { peer.destroy(); peer = null; }
+      document.getElementById('ol-hosting').style.display = 'none';
+      document.getElementById('ol-start').style.display = 'flex';
+    });
+    document.getElementById('ol-join-back').addEventListener('click', () => {
+      document.getElementById('ol-joining').style.display = 'none';
+      document.getElementById('ol-start').style.display = 'flex';
+    });
+    document.getElementById('ol-connect').addEventListener('click', startJoining);
+
+    function startHosting() {
+      document.getElementById('ol-start').style.display = 'none';
+      document.getElementById('ol-hosting').style.display = 'flex';
+      document.getElementById('ol-host-status').textContent = '⏳ Verbinde mit Server...';
+      const roomCode = Math.random().toString(36).substr(2,6).toUpperCase();
+      try {
+        peer = new Peer('sfl-' + roomCode, { debug: 0 });
+        peer.on('open', () => {
+          document.getElementById('ol-code').textContent = roomCode;
+          document.getElementById('ol-host-status').textContent = '⏳ Warte auf Gegner...';
+        });
+        peer.on('connection', (conn) => {
+          onlineConn = conn; onlineRole = 'host';
+          conn.on('open', () => {
+            document.getElementById('ol-host-status').textContent = '✅ Verbunden! Wähle jetzt deine Waffe.';
+            setTimeout(() => {
+              onlineLobbyEl.classList.remove('visible');
+              mode = 'online';
+              showWeaponSelect();
+            }, 900);
+          });
+          conn.on('data', (data) => {
+            if (data.type === 'keys')   remoteKeys = data.keys || {};
+            if (data.type === 'weapon') aiWeapon = data.weapon;
+          });
+          conn.on('close', () => { if (started) showMenu(); });
+        });
+        peer.on('error', (e) => {
+          document.getElementById('ol-host-status').textContent = '❌ Fehler: ' + e.type;
+        });
+      } catch(e) { document.getElementById('ol-host-status').textContent = '❌ PeerJS nicht verfügbar'; }
+    }
+
+    function startJoining() {
+      const code = document.getElementById('ol-code-input').value.trim().toUpperCase();
+      if (!code) return;
+      document.getElementById('ol-join-status').textContent = '⏳ Verbinde...';
+      try {
+        peer = new Peer({ debug: 0 });
+        peer.on('open', () => {
+          onlineConn = peer.connect('sfl-' + code, { reliable: false, serialization: 'json' });
+          onlineConn.on('open', () => {
+            onlineRole = 'client';
+            document.getElementById('ol-join-status').textContent = '✅ Verbunden! Wähle jetzt deine Waffe.';
+            setTimeout(() => {
+              onlineLobbyEl.classList.remove('visible');
+              mode = 'online';
+              showWeaponSelect();
+            }, 900);
+          });
+          onlineConn.on('data', (data) => {
+            if (data.type === 'state')  onlineGameState = data;
+            if (data.type === 'weapon') playerWeapon = data.weapon; // host's weapon
+            if (data.type === 'start')  {
+              aiWeapon = playerWeapon; // swap: our local pick becomes ai.weapon
+              playerWeapon = data.hostWeapon;
+              const waitEl = document.getElementById('ol-map-wait');
+              if (waitEl) waitEl.remove();
+              startGame(data.map);
+            }
+          });
+          onlineConn.on('close', () => { if (started) showMenu(); });
+        });
+        peer.on('error', (e) => {
+          document.getElementById('ol-join-status').textContent = '❌ Fehler: ' + e.type;
+        });
+      } catch(e) { document.getElementById('ol-join-status').textContent = '❌ PeerJS nicht verfügbar'; }
+    }
+
+    function createStickman(x, isPlayer, weapon) {
       return {
         x, y: GROUND,
         isPlayer,
@@ -443,12 +726,13 @@
         aiBackTimer: 0,
         knockback: 0,
         knockbackDir: 0,
-        moving: false,        // is currently walking this frame
-        walkPhase: 0,         // continuous leg-cycle angle
-        walkBlend: 0,         // 0..1 smooth blend in/out of walk
-        moveDir: 0,           // -1/+1 direction of movement (for lean)
-        isUltra: false,       // current attack is an ultra
-        ultraFlash: 0,        // banner timer after firing ultra
+        moving: false,
+        walkPhase: 0,
+        walkBlend: 0,
+        moveDir: 0,
+        isUltra: false,
+        ultraFlash: 0,
+        weapon: weapon || 'sword',
       };
     }
 
@@ -463,8 +747,8 @@
     }
 
     function init() {
-      player = createStickman(150, true);
-      ai = createStickman(750, false);
+      player = createStickman(150, true,  playerWeapon);
+      ai     = createStickman(750, false, aiWeapon);
       gameOver = false;
       gameOverTimer = 0;
       winner = null;
@@ -530,11 +814,73 @@
       }
     }
 
-    // Attack hit detection — returns true if attacker hits target
+    // Attack hit detection
     function checkHit(attacker, target) {
       if (!attacker.attacking || attacker.attackFrame !== 10) return false;
-      const dist = Math.abs(attacker.x - target.x);
-      return dist < 110;
+      if (attacker.weapon === 'pistol') {
+        spawnBullet(attacker);
+        return false; // bullet handles damage
+      }
+      const range = attacker.weapon === 'spear' ? 148
+                  : attacker.weapon === 'hammer' ? 122 : 110;
+      return Math.abs(attacker.x - target.x) < range;
+    }
+
+    // ---- Bullet system ----
+    function spawnBullet(s) {
+      bullets.push({
+        x: s.x + s.dir * 38,
+        y: s.y - 130,
+        vx: s.dir * 18,
+        owner: s.isPlayer ? 'player' : 'ai',
+        color: s.isPlayer ? '#FF2200' : '#0088FF',
+        isUltra: s.isUltra,
+        life: 65,
+      });
+    }
+
+    function updateBullets() {
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        b.x += b.vx;
+        b.life--;
+        if (b.x < -20 || b.x > W + 20 || b.life <= 0) { bullets.splice(i, 1); continue; }
+        const target = b.owner === 'player' ? ai : player;
+        const dx = Math.abs(b.x - target.x);
+        const dy = Math.abs(b.y - (target.y - 100));
+        if (dx < 28 && dy < 65) {
+          const dmg = b.isUltra ? ULTRA_DAMAGE : 14;
+          target.hp -= dmg;
+          target.hitFlash = b.isUltra ? 18 : 10;
+          target.knockback = b.isUltra ? 12 : 4;
+          target.knockbackDir = b.vx > 0 ? 1 : -1;
+          if (target.attacking) { target.attacking = false; target.attackFrame = 0; }
+          spawnParticles(target.x, target.y - 100, b.color, b.isUltra ? 28 : 12);
+          if (b.isUltra) shake = 14;
+          bullets.splice(i, 1);
+        }
+      }
+    }
+
+    function drawBullets() {
+      for (const b of bullets) {
+        const alpha = Math.min(1, b.life / 12);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = b.color;
+        ctx.shadowColor = b.color;
+        ctx.shadowBlur = b.isUltra ? 22 : 14;
+        ctx.beginPath();
+        ctx.ellipse(b.x, b.y, b.isUltra ? 13 : 9, 3.5, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.globalAlpha = alpha * 0.3;
+        for (let t = 1; t <= 3; t++) {
+          ctx.beginPath();
+          ctx.ellipse(b.x - b.vx * t * 0.45, b.y, (b.isUltra?13:9)*(1-t*.25), 2, 0, 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
     }
 
     // Punchy 3-phase weapon swing: windup → fast strike → recovery.
@@ -570,6 +916,111 @@
       return t >= 0.28 && t < 0.6;
     }
 
+    // ---- Weapon draw functions (called inside weapon-arm ctx.save/rotate) ----
+    function drawWeaponSword(hx, hy, color, flash) {
+      const ec = flash > 0 ? '#FFFFFF' : color;
+      ctx.shadowColor = ec; ctx.shadowBlur = 22;
+      // Pommel
+      ctx.fillStyle = ec;
+      ctx.beginPath(); ctx.ellipse(hx, hy-2, 5, 7, 0, 0, Math.PI*2); ctx.fill();
+      // Grip
+      ctx.strokeStyle = ec; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx, hy+18); ctx.stroke();
+      // Grip wraps
+      ctx.shadowBlur = 0; ctx.strokeStyle = flash>0?'#FFFFFF':'rgba(255,255,255,.38)'; ctx.lineWidth = 2;
+      for (let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(hx-4,hy+4+i*5);ctx.lineTo(hx+4,hy+2+i*5);ctx.stroke();}
+      // Crossguard
+      ctx.shadowColor=ec;ctx.shadowBlur=16;ctx.strokeStyle=ec;ctx.lineWidth=5;
+      ctx.beginPath();ctx.moveTo(hx-17,hy+18);ctx.lineTo(hx+17,hy+18);ctx.stroke();
+      ctx.fillStyle=ec;
+      ctx.beginPath();ctx.arc(hx-17,hy+18,3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(hx+17,hy+18,3,0,Math.PI*2);ctx.fill();
+      // Blade
+      ctx.strokeStyle=flash>0?'#FFFFFF':'#D8D8EE';ctx.shadowBlur=12;ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(hx-4,hy+20);ctx.lineTo(hx+3,hy+95);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(hx+4,hy+20);ctx.lineTo(hx+3,hy+95);ctx.stroke();
+      // Fuller
+      ctx.lineWidth=1.5;ctx.strokeStyle=flash>0?'#FFFFFF':'#A0A0C0';
+      ctx.beginPath();ctx.moveTo(hx,hy+24);ctx.lineTo(hx+2,hy+88);ctx.stroke();
+    }
+
+    function drawWeaponHammer(hx, hy, color, flash) {
+      const ec = flash>0?'#FFFFFF':color;
+      ctx.shadowColor=ec;ctx.shadowBlur=22;
+      // Handle
+      ctx.strokeStyle=ec;ctx.lineWidth=5;
+      ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(hx,hy+52);ctx.stroke();
+      // Grip wraps
+      ctx.shadowBlur=0;ctx.strokeStyle=flash>0?'#FFFFFF':'rgba(210,210,210,.5)';ctx.lineWidth=2.5;
+      for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(hx-4,hy+5+i*7);ctx.lineTo(hx+4,hy+3+i*7);ctx.stroke();}
+      // Hammer head
+      ctx.shadowColor=ec;ctx.shadowBlur=20;ctx.strokeStyle=ec;ctx.lineWidth=3;
+      ctx.save();ctx.globalAlpha=0.32;ctx.fillStyle=flash>0?'#FFFFFF':color;
+      ctx.beginPath();ctx.roundRect(hx-23,hy+52,46,30,4);ctx.fill();
+      ctx.beginPath();ctx.roundRect(hx-7,hy+46,14,9,3);ctx.fill();
+      ctx.restore();
+      ctx.beginPath();ctx.roundRect(hx-23,hy+52,46,30,4);ctx.stroke();
+      ctx.beginPath();ctx.roundRect(hx-7,hy+46,14,9,3);ctx.stroke();
+      // Face details
+      ctx.lineWidth=2;ctx.strokeStyle=flash>0?'#FFFFFF':'rgba(255,255,255,.28)';
+      ctx.beginPath();ctx.moveTo(hx-19,hy+62);ctx.lineTo(hx+19,hy+62);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(hx-22,hy+53);ctx.lineTo(hx-22,hy+81);ctx.stroke();
+    }
+
+    function drawWeaponSpear(hx, hy, color, flash) {
+      const ec = flash>0?'#FFFFFF':color;
+      ctx.shadowColor=ec;ctx.shadowBlur=16;
+      // Shaft
+      ctx.strokeStyle=ec;ctx.lineWidth=4;
+      ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(hx,hy+100);ctx.stroke();
+      // Upper binding
+      ctx.shadowBlur=0;ctx.strokeStyle=flash>0?'#FFFFFF':'rgba(200,200,200,.55)';ctx.lineWidth=2.5;
+      for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(hx-5,hy+3+i*5);ctx.lineTo(hx+5,hy+1+i*5);ctx.stroke();}
+      // Near-tip binding
+      for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(hx-4,hy+96+i*4);ctx.lineTo(hx+4,hy+94+i*4);ctx.stroke();}
+      // Spearhead
+      ctx.fillStyle=flash>0?'#FFFFFF':'#D8D8EE';ctx.strokeStyle=ec;ctx.shadowColor=ec;ctx.shadowBlur=20;ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(hx,hy+132);ctx.lineTo(hx-11,hy+112);ctx.lineTo(hx,hy+99);ctx.lineTo(hx+11,hy+112);ctx.closePath();ctx.fill();ctx.stroke();
+      // Center vein
+      ctx.strokeStyle=flash>0?'#FFFFFF':'#A0A0C8';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(hx,hy+101);ctx.lineTo(hx,hy+130);ctx.stroke();
+    }
+
+    function drawWeaponPistol(hx, hy, color, flash, firing) {
+      const ec = flash>0?'#FFFFFF':color;
+      ctx.shadowColor=ec;ctx.shadowBlur=20;
+      // Barrel
+      ctx.strokeStyle=flash>0?'#FFFFFF':'#C0C4CC';ctx.lineWidth=5;
+      ctx.beginPath();ctx.moveTo(hx+6,hy-2);ctx.lineTo(hx+6,hy+38);ctx.stroke();
+      // Slide/frame
+      ctx.strokeStyle=ec;ctx.lineWidth=2.5;
+      ctx.save();ctx.globalAlpha=0.38;ctx.fillStyle=flash>0?'#FFFFFF':color;
+      ctx.beginPath();ctx.roundRect(hx-6,hy-4,18,28,3);ctx.fill();ctx.restore();
+      ctx.beginPath();ctx.roundRect(hx-6,hy-4,18,28,3);ctx.stroke();
+      // Slide serrations
+      ctx.strokeStyle=flash>0?'#FFFFFF':'rgba(255,255,255,.3)';ctx.lineWidth=1.5;
+      for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(hx-4,hy+6+i*4);ctx.lineTo(hx-4,hy+9+i*4);ctx.stroke();}
+      // Grip
+      ctx.strokeStyle=ec;ctx.lineWidth=2.5;
+      ctx.save();ctx.globalAlpha=0.32;ctx.fillStyle=flash>0?'#FFFFFF':color;
+      ctx.beginPath();ctx.roundRect(hx-7,hy+20,13,26,3);ctx.fill();ctx.restore();
+      ctx.beginPath();ctx.roundRect(hx-7,hy+20,13,26,3);ctx.stroke();
+      // Trigger guard
+      ctx.lineWidth=2;ctx.strokeStyle=flash>0?'#FFFFFF':'#9099A8';
+      ctx.beginPath();ctx.arc(hx,hy+31,7,0,Math.PI);ctx.stroke();
+      // Muzzle
+      ctx.fillStyle='#0A0A0A';ctx.shadowBlur=0;
+      ctx.beginPath();ctx.arc(hx+6,hy+40,3.5,0,Math.PI*2);ctx.fill();
+      // Muzzle flash
+      if (firing) {
+        ctx.save();ctx.shadowColor='#FFAA00';ctx.shadowBlur=28;ctx.fillStyle='#FFDD55';ctx.globalAlpha=.9;
+        ctx.beginPath();ctx.arc(hx+6,hy+48,9,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#FFFFFF';ctx.globalAlpha=.7;
+        ctx.beginPath();ctx.arc(hx+6,hy+46,4,0,Math.PI*2);ctx.fill();
+        ctx.restore();
+      }
+    }
+
     function drawStickman(s) {
       const x = s.x;
       const glow = s.hitFlash > 0 ? '#FFFFFF' : (s.isPlayer ? '#FF2200' : '#0088FF');
@@ -584,46 +1035,48 @@
       ctx.shadowBlur = s.hitFlash > 0 ? 30 : 18;
       if (s.hitFlash > 0) ctx.strokeStyle = '#FFFFFF';
 
-      // ---- Walk-cycle helpers ----
+      // ---- Walk-cycle helpers (improved) ----
       const blend = s.walkBlend;
       const ph    = s.walkPhase;
-      const bob   = Math.abs(Math.sin(ph)) * 3.5 * blend;   // vertical bounce
-      const walkLean   = (s.moveDir || 0) * 4 * blend;       // lean into stride
-      const strikeLean = inStrike(s) ? s.dir * 8 : 0;        // lunge on strike
+      const bob        = Math.abs(Math.sin(ph)) * 5.5 * blend;   // pronounced bounce
+      const walkLean   = (s.moveDir || 0) * 7 * blend;           // forward lean
+      const strikeLean = inStrike(s) ? s.dir * 8 : 0;
       const lean  = walkLean + strikeLean;
 
       // ---- Measurements ----
-      const feetY = s.y;                       // GROUND
+      const feetY = s.y;
       const hipsY = feetY - 65 - bob;
       const shouldersY = feetY - 135 - bob;
       const headCY = feetY - 162 - bob;
       const headR = 22;
-      const hipX = x;                          // hips pivot at base x
-      const shouldersX = x + lean;             // upper body leans
-      const headX = x + lean * 1.3;            // head leads the lean
+      const hipX = x;
+      const shouldersX = x + lean;
+      const headX = x + lean * 1.4;
 
-      // ---- Legs (animated walk cycle with knees) ----
-      const stride = 14 * blend;
+      // ---- Legs (better stride with knee bend) ----
+      const stride = 20 * blend;
       const lSw = Math.sin(ph);
       const rSw = -lSw;
       const lFootX = x - 14 + lSw * stride;
       const rFootX = x + 14 + rSw * stride;
-      const lFootY = feetY - Math.max(0, lSw) * 9 * blend;   // lift swinging foot
-      const rFootY = feetY - Math.max(0, rSw) * 9 * blend;
+      const lFootY = feetY - Math.max(0, lSw) * 15 * blend;
+      const rFootY = feetY - Math.max(0, rSw) * 15 * blend;
 
-      function drawLeg(hX, fX, fY) {
-        const kneeX = (hX + fX) / 2 + s.dir * 2;
-        const kneeY = (hipsY + fY) / 2 + 3;
+      function drawLeg(hX, fX, fY, sw) {
+        // Knee swings forward when leg lifts, backward when pushing off
+        const kneeForward = sw * s.dir * 14 * blend;
+        const kneeX = (hX + fX) / 2 + kneeForward;
+        const kneeY = (hipsY + fY) / 2 - 4;
         ctx.beginPath();
         ctx.moveTo(hX, hipsY);
         ctx.lineTo(kneeX, kneeY);
         ctx.lineTo(fX, fY);
         ctx.stroke();
       }
-      drawLeg(hipX - 7, lFootX, lFootY);
-      drawLeg(hipX + 7, rFootX, rFootY);
+      drawLeg(hipX - 7, lFootX, lFootY, lSw);
+      drawLeg(hipX + 7, rFootX, rFootY, rSw);
 
-      // ---- Torso (leans from hips to shoulders) ----
+      // ---- Torso ----
       ctx.beginPath();
       ctx.moveTo(hipX, hipsY);
       ctx.lineTo(shouldersX, shouldersY);
@@ -638,22 +1091,18 @@
       ctx.save();
       ctx.shadowBlur = 0;
       ctx.lineWidth = 3;
-      // Eyes
       const eyeOff = 8 * s.dir;
       ctx.beginPath();
       ctx.arc(headX + eyeOff, headCY - 5, 3, 0, Math.PI * 2);
       ctx.stroke();
-      // Angry eyebrow
       ctx.beginPath();
       ctx.moveTo(headX + eyeOff - 6, headCY - 12);
       ctx.lineTo(headX + eyeOff + 5, headCY - 8);
       ctx.stroke();
-      // Grimace mouth
       ctx.beginPath();
       ctx.moveTo(headX + 4 * s.dir - 7, headCY + 9);
       ctx.lineTo(headX + 4 * s.dir + 7, headCY + 9);
       ctx.stroke();
-      // Teeth lines (grimace)
       for (let t = -4; t <= 4; t += 4) {
         ctx.beginPath();
         ctx.moveTo(headX + 4 * s.dir + t, headCY + 9);
@@ -662,23 +1111,29 @@
       }
       ctx.restore();
 
-      // ---- Resting arm (opposite to weapon arm) — swings opposite to legs when walking ----
+      // ---- Back arm (swings like a real runner — big elbow-bend arc) ----
       const restDir = -s.dir;
-      const restSwing = Math.sin(ph + Math.PI) * 14 * blend;
+      const armSwing = Math.sin(ph + Math.PI) * 24 * blend;  // strong counter-swing
+      const armLift  = Math.abs(Math.sin(ph)) * 8 * blend;   // lifts on stride
+      // Elbow
+      const elbX = shouldersX + restDir * 20 + armSwing * 0.4;
+      const elbY = shouldersY + 20 - armLift;
+      // Hand
+      const handRestX = shouldersX + restDir * 32 + armSwing;
+      const handRestY = shouldersY + 36 - armLift * 0.5;
       ctx.beginPath();
       ctx.moveTo(shouldersX, shouldersY);
-      ctx.lineTo(shouldersX + restDir * 30 + restSwing, shouldersY + 32);
+      ctx.lineTo(elbX, elbY);
+      ctx.lineTo(handRestX, handRestY);
       ctx.stroke();
 
-      // ---- Weapon arm (with swing animation) ----
+      // ---- Weapon arm ----
       ctx.save();
       ctx.translate(shouldersX, shouldersY);
-      // Idle weapon arm gets a gentle counter-swing while walking
-      const idleArm = (s.dir === 1 ? -1.9 : 1.9) + Math.sin(ph) * 0.12 * blend;
+      const idleArm = (s.dir === 1 ? -1.9 : 1.9) + Math.sin(ph) * 0.14 * blend;
       const armAngle = s.attacking ? getArmAngle(s) : idleArm;
       ctx.rotate(armAngle);
 
-      // Draw upper arm (from shoulder)
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(0, 55);
@@ -686,56 +1141,14 @@
 
       const handX = 0;
       const handY = 55;
+      const firing = s.weapon === 'pistol' && s.attacking && s.attackFrame >= 8 && s.attackFrame <= 13;
 
-      if (s.isPlayer) {
-        // SWORD
-        ctx.save();
-        ctx.strokeStyle = s.hitFlash > 0 ? '#FFFFFF' : '#FF6633';
-        ctx.shadowColor = s.hitFlash > 0 ? '#FFFFFF' : '#FF3D00';
-        ctx.shadowBlur = 22;
-        ctx.lineWidth = 4;
-        // Blade
-        ctx.beginPath();
-        ctx.moveTo(handX, handY);
-        ctx.lineTo(handX + 8, handY + 75);
-        ctx.stroke();
-        // Crossguard
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(handX - 14, handY + 20);
-        ctx.lineTo(handX + 14, handY + 20);
-        ctx.stroke();
-        // Pommel
-        ctx.beginPath();
-        ctx.arc(handX + 1, handY - 4, 4, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      } else {
-        // HAMMER (Mjolnir)
-        ctx.save();
-        ctx.strokeStyle = s.hitFlash > 0 ? '#FFFFFF' : '#33AAFF';
-        ctx.fillStyle = s.hitFlash > 0 ? '#FFFFFF' : '#33AAFF';
-        ctx.shadowColor = s.hitFlash > 0 ? '#FFFFFF' : '#0088FF';
-        ctx.shadowBlur = 22;
-        ctx.lineWidth = 4;
-        // Handle
-        ctx.beginPath();
-        ctx.moveTo(handX, handY);
-        ctx.lineTo(handX, handY + 45);
-        ctx.stroke();
-        // Hammer head (rect)
-        ctx.lineWidth = 3;
-        ctx.strokeRect(handX - 20, handY + 45, 40, 26);
-        ctx.globalAlpha = 0.35;
-        ctx.fillRect(handX - 20, handY + 45, 40, 26);
-        ctx.globalAlpha = 1;
-        // Strike line detail on head
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(handX - 20, handY + 55);
-        ctx.lineTo(handX + 20, handY + 55);
-        ctx.stroke();
-        ctx.restore();
+      switch (s.weapon) {
+        case 'sword':  drawWeaponSword(handX, handY, color, s.hitFlash);  break;
+        case 'hammer': drawWeaponHammer(handX, handY, color, s.hitFlash); break;
+        case 'spear':  drawWeaponSpear(handX, handY, color, s.hitFlash);  break;
+        case 'pistol': drawWeaponPistol(handX, handY, color, s.hitFlash, firing); break;
+        default:       drawWeaponSword(handX, handY, color, s.hitFlash);  break;
       }
 
       ctx.restore(); // end weapon arm group
@@ -1673,30 +2086,21 @@
     }
 
     function resolveHits() {
-      // Player hits AI
-      if (checkHit(player, ai)) {
-        const ult = player.isUltra;
-        ai.hp -= ult ? ULTRA_DAMAGE : HIT_DAMAGE;
-        ai.hitFlash = ult ? 18 : 10;
-        ai.knockback = ult ? 18 : 8;
-        ai.knockbackDir = player.dir;
-        // Interrupt AI attack
-        if (ai.attacking) { ai.attacking = false; ai.attackFrame = 0; }
-        spawnParticles(ai.x, GROUND - 80, ult ? '#FFD23D' : '#0088FF', ult ? 36 : 14);
-        if (ult) { shake = 16; spawnParticles(ai.x, GROUND - 80, '#FF3D00', 20); }
+      function applyHit(attacker, target, particleColor) {
+        const ult = attacker.isUltra;
+        const dmg = ult ? ULTRA_DAMAGE : (attacker.weapon === 'hammer' ? 12 : HIT_DAMAGE);
+        const kb  = ult ? 20 : (attacker.weapon === 'hammer' ? 13 : 8);
+        target.hp -= dmg;
+        target.hitFlash = ult ? 18 : 10;
+        target.knockback = kb;
+        target.knockbackDir = attacker.dir;
+        if (target.attacking) { target.attacking = false; target.attackFrame = 0; }
+        spawnParticles(target.x, GROUND - 80, ult ? '#FFD23D' : particleColor, ult ? 36 : 14);
+        if (ult) { shake = 16; spawnParticles(target.x, GROUND - 80, '#FF3D00', 20); }
+        if (!ult && attacker.weapon === 'hammer') shake = Math.max(shake, 6);
       }
-
-      // AI / Player 2 hits player
-      if (checkHit(ai, player)) {
-        const ult = ai.isUltra;
-        player.hp -= ult ? ULTRA_DAMAGE : HIT_DAMAGE;
-        player.hitFlash = ult ? 18 : 10;
-        player.knockback = ult ? 18 : 8;
-        player.knockbackDir = ai.dir;
-        if (player.attacking) { player.attacking = false; player.attackFrame = 0; }
-        spawnParticles(player.x, GROUND - 80, ult ? '#FFD23D' : '#FF2200', ult ? 36 : 14);
-        if (ult) { shake = 16; spawnParticles(player.x, GROUND - 80, '#FF3D00', 20); }
-      }
+      if (checkHit(player, ai))     applyHit(player, ai,     '#0088FF');
+      if (checkHit(ai,     player)) applyHit(ai,     player, '#FF2200');
     }
 
     // ===== Soccer logic =====
@@ -1780,7 +2184,53 @@
       if (goalFlash > 0) goalFlash--;
     }
 
+    // ---- Online helpers ----
+    function getLocalKeys() {
+      const l = keys['ArrowLeft'], r = keys['ArrowRight'];
+      return { left: !!(l&&!r), right: !!(r&&!l), attack: !!keys['Enter'], ultra: !!(l&&r) };
+    }
+    function updatePlayer2Online() {
+      ai.moving = false;
+      const { left, right, attack, ultra } = remoteKeys;
+      if (left)  { ai.x -= PLAYER_SPEED; ai.moving = true; ai.moveDir = -1; }
+      if (right) { ai.x += PLAYER_SPEED; ai.moving = true; ai.moveDir = 1;  }
+      ai.x = Math.max(30, Math.min(W-30, ai.x));
+      ai.dir = player.x < ai.x ? -1 : 1;
+      if (ultra && !ai.attacking && ai.cooldown === 0) {
+        ai.attacking=true; ai.attackFrame=0; ai.isUltra=true; ai.ultraFlash=45;
+      } else if (attack && !ultra && !ai.attacking && ai.cooldown === 0) {
+        ai.attacking=true; ai.attackFrame=0; ai.isUltra=false;
+      }
+      if (ai.attacking) { ai.attackFrame++; if (ai.attackFrame>=ATTACK_FRAMES){ai.attacking=false;ai.attackFrame=0;ai.cooldown=ai.isUltra?ULTRA_COOLDOWN:PLAYER_COOLDOWN;ai.isUltra=false;} }
+      if (ai.ultraFlash>0) ai.ultraFlash--;
+      if (ai.cooldown>0)   ai.cooldown--;
+      if (ai.hitFlash>0)   ai.hitFlash--;
+      if (ai.knockback>0)  { ai.x+=ai.knockbackDir*3; ai.knockback--; ai.x=Math.max(30,Math.min(W-30,ai.x)); }
+    }
+    function pickNetState(s) {
+      return { x:s.x,y:s.y,hp:s.hp,dir:s.dir,attacking:s.attacking,attackFrame:s.attackFrame,
+               hitFlash:s.hitFlash,walkPhase:s.walkPhase,walkBlend:s.walkBlend,moveDir:s.moveDir,
+               isUltra:s.isUltra,ultraFlash:s.ultraFlash,weapon:s.weapon };
+    }
+    function applyNetState(state) {
+      if (!state) return;
+      Object.assign(player, state.player);
+      Object.assign(ai, state.ai);
+      bullets    = state.bullets || [];
+      particles  = state.particles || [];
+      gameOver   = state.gameOver;
+      winner     = state.winner;
+      shake      = state.shake || 0;
+    }
+
     function update() {
+      if (mode === 'online' && onlineRole === 'client') {
+        if (onlineConn && onlineConn.open)
+          onlineConn.send({ type:'keys', keys: getLocalKeys() });
+        applyNetState(onlineGameState);
+        return;
+      }
+
       if (gameOver) {
         gameOverTimer--;
         if (gameOverTimer <= 0) {
@@ -1798,20 +2248,28 @@
       }
 
       updatePlayer();
-      if (mode === 'pvp') updatePlayer2();
-      else updateAI();
+      if (mode === 'pvp')    updatePlayer2();
+      else if (mode === 'online') updatePlayer2Online();
+      else                   updateAI();
       stepWalk(player);
       stepWalk(ai);
       resolveHits();
+      updateBullets();
       updateParticles();
       if (shake > 0) shake *= 0.85;
       if (shake < 0.3) shake = 0;
 
-      // Check win conditions
       if (player.hp <= 0 || ai.hp <= 0) {
         gameOver = true;
-        gameOverTimer = 150; // ~2.5s at 60fps
+        gameOverTimer = 150;
         winner = ai.hp <= 0 ? 'player' : 'ai';
+      }
+
+      // Host sends state to online client
+      if (mode === 'online' && onlineRole === 'host' && onlineConn && onlineConn.open) {
+        onlineConn.send({ type:'state', player:pickNetState(player), ai:pickNetState(ai),
+          bullets: bullets.map(b=>({x:b.x,y:b.y,vx:b.vx,color:b.color,isUltra:b.isUltra,life:b.life})),
+          particles: particles.slice(-20), gameOver, winner, shake: Math.round(shake) });
       }
     }
 
@@ -1883,6 +2341,7 @@
       drawBackground();
       if (mode === 'soccer') { drawGoal(-1); drawGoal(1); }
       drawParticles();
+      drawBullets();
       drawStickman(player);
       drawStickman(ai);
       if (mode === 'soccer') drawBall();
