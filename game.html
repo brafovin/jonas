@@ -165,17 +165,6 @@
       min-width: 280px;
     }
     #menu.hidden { display: none; }
-    .mode-pair {
-      display: flex;
-      gap: 8px;
-      width: 100%;
-      justify-content: center;
-    }
-    .mode-pair .mode-btn {
-      flex: 1;
-      min-width: 0;
-      max-width: 220px;
-    }
     #map-select {
       position: absolute;
       inset: 0;
@@ -195,6 +184,7 @@
       color: #fff;
       letter-spacing: 0.06em;
       text-shadow: 0 0 18px rgba(255,61,0,0.5);
+      margin: 0 0 2px 0;
     }
     .mode-btn {
       background: rgba(255,61,0,0.06);
@@ -409,16 +399,14 @@
         ⚽ FUSSBALL (2 SPIELER)
         <span>Schieß den Ball ins gegnerische Tor — Angriff = Schuss!</span>
       </button>
-      <div class="mode-pair">
-        <button class="mode-btn" id="mode-online" style="border-color:#00CCFF;color:#00CCFF;box-shadow:0 0 20px rgba(0,180,255,.25)">
-          🌐 ONLINE
-          <span>Gegen andere Spieler</span>
-        </button>
-        <button class="mode-btn" id="mode-story" style="border-color:#FFD700;color:#FFD700;box-shadow:0 0 20px rgba(255,215,0,.25)">
-          ⚔ STORY
-          <span>Epische Geschichte</span>
-        </button>
-      </div>
+      <button class="mode-btn" id="mode-online" style="border-color:#00CCFF;color:#00CCFF;box-shadow:0 0 20px rgba(0,180,255,.25)">
+        🌐 ONLINE MODUS
+        <span>Kämpfe gegen andere Spieler über das Internet</span>
+      </button>
+      <button class="mode-btn" id="mode-story" style="border-color:#FFD700;color:#FFD700;box-shadow:0 0 20px rgba(255,215,0,.25)">
+        ⚔ STORY MODUS
+        <span>Erlebe die epische Geschichte des gefallenen Ritters</span>
+      </button>
     </div>
 
     <!-- Weapon Select Overlay -->
