@@ -1023,132 +1023,142 @@
 
     function drawStickman(s) {
       const x = s.x;
-      const glow = s.hitFlash > 0 ? '#FFFFFF' : (s.isPlayer ? '#FF2200' : '#0088FF');
       const color = s.isPlayer ? '#FF2200' : '#0088FF';
+      const glow  = s.hitFlash > 0 ? '#FFFFFF' : color;
+      const fc    = s.hitFlash > 0 ? '#FFFFFF' : color;  // fill color
+      const out   = 'rgba(0,0,0,0.5)';                    // dark outline
 
       ctx.save();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 7;
-      ctx.lineCap = 'round';
+      ctx.lineCap  = 'round';
       ctx.lineJoin = 'round';
       ctx.shadowColor = glow;
-      ctx.shadowBlur = s.hitFlash > 0 ? 30 : 18;
-      if (s.hitFlash > 0) ctx.strokeStyle = '#FFFFFF';
+      ctx.shadowBlur  = s.hitFlash > 0 ? 32 : 22;
 
-      // ---- Walk-cycle helpers (improved) ----
-      const blend = s.walkBlend;
-      const ph    = s.walkPhase;
-      const bob        = Math.abs(Math.sin(ph)) * 5.5 * blend;   // pronounced bounce
-      const walkLean   = (s.moveDir || 0) * 7 * blend;           // forward lean
+      // ---- Walk-cycle (same math as before) ----
+      const blend = s.walkBlend, ph = s.walkPhase;
+      const bob        = Math.abs(Math.sin(ph)) * 5.5 * blend;
+      const walkLean   = (s.moveDir || 0) * 7 * blend;
       const strikeLean = inStrike(s) ? s.dir * 8 : 0;
-      const lean  = walkLean + strikeLean;
+      const lean       = walkLean + strikeLean;
 
-      // ---- Measurements ----
-      const feetY = s.y;
-      const hipsY = feetY - 65 - bob;
+      const feetY      = s.y;
+      const hipsY      = feetY - 65 - bob;
       const shouldersY = feetY - 135 - bob;
-      const headCY = feetY - 162 - bob;
-      const headR = 22;
-      const hipX = x;
+      const headCY     = feetY - 164 - bob;
+      const headR      = 24;
+      const hipX       = x;
       const shouldersX = x + lean;
-      const headX = x + lean * 1.4;
+      const headX      = x + lean * 1.4;
 
-      // ---- Legs (better stride with knee bend) ----
       const stride = 20 * blend;
-      const lSw = Math.sin(ph);
-      const rSw = -lSw;
+      const lSw = Math.sin(ph), rSw = -lSw;
       const lFootX = x - 14 + lSw * stride;
       const rFootX = x + 14 + rSw * stride;
       const lFootY = feetY - Math.max(0, lSw) * 15 * blend;
       const rFootY = feetY - Math.max(0, rSw) * 15 * blend;
 
+      // ---- Cartoon draw helpers ----
+      function cLine(x1, y1, x2, y2, w) {
+        ctx.strokeStyle = out;   ctx.lineWidth = w + 5;
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        ctx.strokeStyle = fc;    ctx.lineWidth = w;
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      }
+      function cCircle(cx, cy, r) {
+        ctx.fillStyle = out;
+        ctx.beginPath(); ctx.arc(cx, cy+2, r+2.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = fc;
+        ctx.beginPath(); ctx.arc(cx, cy,   r,     0, Math.PI*2); ctx.fill();
+        // Specular highlight
+        ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath(); ctx.ellipse(cx-r*.28, cy-r*.28, r*.38, r*.22, -0.5, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
+      function cBoot(bx, by) {
+        ctx.fillStyle = out;
+        ctx.beginPath(); ctx.ellipse(bx+s.dir*3, by+3, 14, 8.5, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = fc;
+        ctx.beginPath(); ctx.ellipse(bx+s.dir*3, by+1, 13, 7.5, 0, 0, Math.PI*2); ctx.fill();
+      }
+      function cFist(fx, fy) {
+        ctx.fillStyle = out; ctx.beginPath(); ctx.arc(fx, fy+2, 8.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = fc;  ctx.beginPath(); ctx.arc(fx, fy,   7.5, 0, Math.PI*2); ctx.fill();
+      }
+
+      // ---- Legs ----
       function drawLeg(hX, fX, fY, sw) {
-        // Knee swings forward when leg lifts, backward when pushing off
         const kneeForward = sw * s.dir * 14 * blend;
         const kneeX = (hX + fX) / 2 + kneeForward;
         const kneeY = (hipsY + fY) / 2 - 4;
-        ctx.beginPath();
-        ctx.moveTo(hX, hipsY);
-        ctx.lineTo(kneeX, kneeY);
-        ctx.lineTo(fX, fY);
-        ctx.stroke();
+        cLine(hX, hipsY, kneeX, kneeY, 14);
+        cLine(kneeX, kneeY, fX, fY, 13);
+        cBoot(fX, fY);
       }
       drawLeg(hipX - 7, lFootX, lFootY, lSw);
       drawLeg(hipX + 7, rFootX, rFootY, rSw);
 
       // ---- Torso ----
-      ctx.beginPath();
-      ctx.moveTo(hipX, hipsY);
-      ctx.lineTo(shouldersX, shouldersY);
-      ctx.stroke();
+      cLine(hipX, hipsY, shouldersX, shouldersY, 17);
 
       // ---- Head ----
-      ctx.beginPath();
-      ctx.arc(headX, headCY, headR, 0, Math.PI * 2);
-      ctx.stroke();
+      cCircle(headX, headCY, headR);
 
-      // ---- Face features ----
+      // ---- Face ----
       ctx.save();
       ctx.shadowBlur = 0;
-      ctx.lineWidth = 3;
-      const eyeOff = 8 * s.dir;
-      ctx.beginPath();
-      ctx.arc(headX + eyeOff, headCY - 5, 3, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(headX + eyeOff - 6, headCY - 12);
-      ctx.lineTo(headX + eyeOff + 5, headCY - 8);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(headX + 4 * s.dir - 7, headCY + 9);
-      ctx.lineTo(headX + 4 * s.dir + 7, headCY + 9);
-      ctx.stroke();
-      for (let t = -4; t <= 4; t += 4) {
-        ctx.beginPath();
-        ctx.moveTo(headX + 4 * s.dir + t, headCY + 9);
-        ctx.lineTo(headX + 4 * s.dir + t, headCY + 12);
-        ctx.stroke();
+      const eyeOff = 9 * s.dir;
+      // Eye whites
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.arc(headX+eyeOff, headCY-4, 5.5, 0, Math.PI*2); ctx.fill();
+      // Pupils
+      ctx.fillStyle = '#1A1A1A';
+      ctx.beginPath(); ctx.arc(headX+eyeOff+s.dir*1.5, headCY-4, 3, 0, Math.PI*2); ctx.fill();
+      // Eye shine
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.arc(headX+eyeOff+s.dir*.5, headCY-5.5, 1.2, 0, Math.PI*2); ctx.fill();
+      // Angry eyebrow
+      ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(headX+eyeOff-6, headCY-11); ctx.lineTo(headX+eyeOff+5, headCY-7); ctx.stroke();
+      // Grimace mouth
+      ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(headX+4*s.dir-7, headCY+9); ctx.lineTo(headX+4*s.dir+7, headCY+9); ctx.stroke();
+      // Teeth notches
+      for (let t=-3; t<=3; t+=3) {
+        ctx.beginPath(); ctx.moveTo(headX+4*s.dir+t, headCY+9); ctx.lineTo(headX+4*s.dir+t, headCY+12); ctx.stroke();
       }
       ctx.restore();
 
-      // ---- Back arm (swings like a real runner — big elbow-bend arc) ----
-      const restDir = -s.dir;
-      const armSwing = Math.sin(ph + Math.PI) * 24 * blend;  // strong counter-swing
-      const armLift  = Math.abs(Math.sin(ph)) * 8 * blend;   // lifts on stride
-      // Elbow
+      // ---- Back arm (with elbow bend) ----
+      const restDir  = -s.dir;
+      const armSwing = Math.sin(ph + Math.PI) * 24 * blend;
+      const armLift  = Math.abs(Math.sin(ph)) * 8 * blend;
       const elbX = shouldersX + restDir * 20 + armSwing * 0.4;
       const elbY = shouldersY + 20 - armLift;
-      // Hand
-      const handRestX = shouldersX + restDir * 32 + armSwing;
-      const handRestY = shouldersY + 36 - armLift * 0.5;
-      ctx.beginPath();
-      ctx.moveTo(shouldersX, shouldersY);
-      ctx.lineTo(elbX, elbY);
-      ctx.lineTo(handRestX, handRestY);
-      ctx.stroke();
+      const hRX  = shouldersX + restDir * 30 + armSwing;
+      const hRY  = shouldersY + 36 - armLift * 0.5;
+      cLine(shouldersX, shouldersY, elbX, elbY, 13);
+      cLine(elbX, elbY, hRX, hRY, 12);
+      cFist(hRX, hRY);
 
       // ---- Weapon arm ----
       ctx.save();
       ctx.translate(shouldersX, shouldersY);
-      const idleArm = (s.dir === 1 ? -1.9 : 1.9) + Math.sin(ph) * 0.14 * blend;
+      const idleArm  = (s.dir === 1 ? -1.9 : 1.9) + Math.sin(ph) * 0.14 * blend;
       const armAngle = s.attacking ? getArmAngle(s) : idleArm;
       ctx.rotate(armAngle);
 
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, 55);
-      ctx.stroke();
+      cLine(0, 0, 0, 55, 13);   // upper arm
+      cFist(0, 55);              // fist at hand
 
-      const handX = 0;
-      const handY = 55;
+      const handX = 0, handY = 55;
       const firing = s.weapon === 'pistol' && s.attacking && s.attackFrame >= 8 && s.attackFrame <= 13;
 
       switch (s.weapon) {
-        case 'sword':  drawWeaponSword(handX, handY, color, s.hitFlash);  break;
-        case 'hammer': drawWeaponHammer(handX, handY, color, s.hitFlash); break;
-        case 'spear':  drawWeaponSpear(handX, handY, color, s.hitFlash);  break;
+        case 'sword':  drawWeaponSword(handX, handY, color, s.hitFlash);         break;
+        case 'hammer': drawWeaponHammer(handX, handY, color, s.hitFlash);        break;
+        case 'spear':  drawWeaponSpear(handX, handY, color, s.hitFlash);         break;
         case 'pistol': drawWeaponPistol(handX, handY, color, s.hitFlash, firing); break;
-        default:       drawWeaponSword(handX, handY, color, s.hitFlash);  break;
+        default:       drawWeaponSword(handX, handY, color, s.hitFlash);          break;
       }
 
       ctx.restore(); // end weapon arm group
