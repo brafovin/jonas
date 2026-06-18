@@ -323,6 +323,9 @@
 
     const W = 900, H = 500;
     const GROUND = 420;
+
+    const grassImg = new Image();
+    grassImg.src = 'images/grassland.png';
     const PLAYER_SPEED = 4;
     const AI_SPEED = 2.5;
     const HIT_DAMAGE = 10;
@@ -1082,55 +1085,21 @@
         drawSnow();
 
       } else if (map === 'grass') {
-        // Bright day sky
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND);
-        skyGrad.addColorStop(0, '#4FA8E0');
-        skyGrad.addColorStop(1, '#BDE4F2');
-        ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, W, GROUND);
-
-        // Sun
-        ctx.save();
-        ctx.shadowColor = '#FFF3B0';
-        ctx.shadowBlur = 50;
-        ctx.fillStyle = '#FFF6C2';
-        ctx.beginPath();
-        ctx.arc(W * 0.16, 80, 34, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // Clouds
-        ctx.save();
-        ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        function cloud(cx, cy, s) {
-          ctx.beginPath();
-          ctx.arc(cx, cy, 18*s, 0, Math.PI*2);
-          ctx.arc(cx+22*s, cy+4*s, 22*s, 0, Math.PI*2);
-          ctx.arc(cx+48*s, cy, 16*s, 0, Math.PI*2);
-          ctx.arc(cx+24*s, cy-10*s, 16*s, 0, Math.PI*2);
-          ctx.fill();
+        // Background image or procedural fallback
+        if (grassImg.complete && grassImg.naturalWidth > 0) {
+          ctx.drawImage(grassImg, 0, 0, W, H);
+        } else {
+          const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND);
+          skyGrad.addColorStop(0, '#4FA8E0');
+          skyGrad.addColorStop(1, '#BDE4F2');
+          ctx.fillStyle = skyGrad;
+          ctx.fillRect(0, 0, W, GROUND);
+          const grassGrad = ctx.createLinearGradient(0, GROUND, 0, H);
+          grassGrad.addColorStop(0, '#5FB23E');
+          grassGrad.addColorStop(1, '#3C7A26');
+          ctx.fillStyle = grassGrad;
+          ctx.fillRect(0, GROUND, W, H - GROUND);
         }
-        cloud(W*0.55, 70, 1); cloud(W*0.8, 120, 0.7); cloud(W*0.33, 130, 0.55);
-        ctx.restore();
-
-        // Distant hills
-        ctx.save();
-        ctx.fillStyle = '#6FB24A';
-        ctx.beginPath();
-        ctx.moveTo(0, GROUND);
-        for (let x = 0; x <= W; x += 30) ctx.lineTo(x, GROUND - 50 - Math.sin(x*0.012)*30 - Math.cos(x*0.03)*12);
-        ctx.lineTo(W, GROUND); ctx.fill();
-        ctx.restore();
-
-        // Castle from the castle map, in the background on a hill
-        drawCastle(W * 0.72, GROUND - 40, 0.85, 'far');
-
-        // Grass ground
-        const grassGrad = ctx.createLinearGradient(0, GROUND, 0, H);
-        grassGrad.addColorStop(0, '#5FB23E');
-        grassGrad.addColorStop(1, '#3C7A26');
-        ctx.fillStyle = grassGrad;
-        ctx.fillRect(0, GROUND, W, H - GROUND);
 
         // Grass blades along the ground line
         ctx.save();
