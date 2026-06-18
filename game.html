@@ -324,6 +324,9 @@
     const W = 900, H = 500;
     const GROUND = 420;
 
+    const grassImg = new Image();
+    grassImg.src = 'images/grassland.png';
+
     const PLAYER_SPEED = 4;
     const AI_SPEED = 2.5;
     const HIT_DAMAGE = 10;
@@ -1083,6 +1086,11 @@
         drawSnow();
 
       } else if (map === 'grass') {
+        // === BILD oder prozeduraler Fallback ===
+        if (grassImg.complete && grassImg.naturalWidth > 0) {
+          ctx.drawImage(grassImg, 0, 0, W, H);
+        } else {
+
         // === SKY ===
         const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
         skyGrad.addColorStop(0,    '#1E98CC');
@@ -1295,6 +1303,8 @@
         ctx.save(); ctx.strokeStyle='#8EEC5C'; ctx.lineWidth=2;
         ctx.shadowColor='#70D840'; ctx.shadowBlur=8;
         ctx.beginPath(); ctx.moveTo(0,GROUND); ctx.lineTo(W,GROUND); ctx.stroke(); ctx.restore();
+
+        } // end fallback
 
       } else if (map === 'castle') {
         // Dusk sky behind the castle
