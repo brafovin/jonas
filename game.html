@@ -458,6 +458,10 @@
     <div id="online-lobby">
       <h2>🌐 ONLINE MODUS</h2>
       <div id="ol-start" class="ol-panel">
+        <div style="display:flex;gap:10px;margin-bottom:4px">
+          <button class="mode-btn ol-submode-btn ol-submode-active" id="ol-sub-fight" style="font-size:clamp(15px,2.5vw,20px);padding:10px 20px;border-color:#FF3D00;color:#FF3D00">⚔ KÄMPFEN</button>
+          <button class="mode-btn ol-submode-btn" id="ol-sub-soccer" style="font-size:clamp(15px,2.5vw,20px);padding:10px 20px;border-color:rgba(255,61,0,.3);color:rgba(255,61,0,.5)">⚽ FUSSBALL</button>
+        </div>
         <button class="mode-btn" id="ol-host" style="border-color:#00CCFF;color:#00CCFF">🏠 RAUM ERSTELLEN</button>
         <button class="mode-btn" id="ol-join-btn" style="border-color:#00CCFF;color:#00CCFF">🔗 RAUM BEITRETEN</button>
         <button class="back-link" id="ol-back">← Zurück</button>
@@ -602,6 +606,7 @@
     let peer = null, onlineConn = null, onlineRole = null;
     let remoteKeys = {};
     let onlineGameState = null;
+    let onlineSoccer = false;
 
     const menuEl      = document.getElementById('menu');
     const mapSelEl    = document.getElementById('map-select');
@@ -612,6 +617,7 @@
       started = false;
       mode = null;
       map  = null;
+      onlineSoccer = false;
       mapSelEl.classList.remove('visible');
       weaponSelEl.classList.remove('visible');
       onlineLobbyEl.classList.remove('visible');
@@ -646,7 +652,7 @@
         (mode === 'pvp' || mode === 'soccer' || mode === 'online') ? 'flex' : 'none';
       // Tell client to start
       if (mode === 'online' && onlineRole === 'host' && onlineConn && onlineConn.open) {
-        onlineConn.send({ type:'start', map: selectedMap, hostWeapon: playerWeapon, hostColor: player1Color });
+        onlineConn.send({ type:'start', map: selectedMap, hostWeapon: playerWeapon, hostColor: player1Color, soccer: onlineSoccer });
       }
       init();
     }
@@ -760,6 +766,18 @@
       }
     });
 
+    // Online sub-mode toggle (fight / soccer)
+    document.getElementById('ol-sub-fight').addEventListener('click', () => {
+      onlineSoccer = false;
+      document.getElementById('ol-sub-fight').style.cssText  = 'font-size:clamp(15px,2.5vw,20px);padding:10px 20px;border-color:#FF3D00;color:#FF3D00';
+      document.getElementById('ol-sub-soccer').style.cssText = 'font-size:clamp(15px,2.5vw,20px);padding:10px 20px;border-color:rgba(255,61,0,.3);color:rgba(255,61,0,.5)';
+    });
+    document.getElementById('ol-sub-soccer').addEventListener('click', () => {
+      onlineSoccer = true;
+      document.getElementById('ol-sub-soccer').style.cssText = 'font-size:clamp(15px,2.5vw,20px);padding:10px 20px;border-color:#00FF88;color:#00FF88';
+      document.getElementById('ol-sub-fight').style.cssText  = 'font-size:clamp(15px,2.5vw,20px);padding:10px 20px;border-color:rgba(255,61,0,.3);color:rgba(255,61,0,.5)';
+    });
+
     // Online lobby buttons
     document.getElementById('ol-back').addEventListener('click', () => {
       onlineLobbyEl.classList.remove('visible');
@@ -796,12 +814,22 @@
         peer.on('connection', (conn) => {
           onlineConn = conn; onlineRole = 'host';
           conn.on('open', () => {
-            document.getElementById('ol-host-status').textContent = '✅ Verbunden! Wähle jetzt deine Waffe.';
-            setTimeout(() => {
-              onlineLobbyEl.classList.remove('visible');
-              mode = 'online';
-              showWeaponSelect();
-            }, 900);
+            conn.send({ type: 'submode', soccer: onlineSoccer });
+            if (onlineSoccer) {
+              document.getElementById('ol-host-status').textContent = '✅ Verbunden! Fußball startet...';
+              setTimeout(() => {
+                onlineLobbyEl.classList.remove('visible');
+                mode = 'online';
+                showMapSelect();
+              }, 900);
+            } else {
+              document.getElementById('ol-host-status').textContent = '✅ Verbunden! Wähle jetzt deine Waffe.';
+              setTimeout(() => {
+                onlineLobbyEl.classList.remove('visible');
+                mode = 'online';
+                showWeaponSelect();
+              }, 900);
+            }
           });
           conn.on('data', (data) => {
             if (data.type === 'keys')   remoteKeys = data.keys || {};
@@ -833,13 +861,33 @@
             }, 900);
           });
           onlineConn.on('data', (data) => {
-            if (data.type === 'state')  onlineGameState = data;
-            if (data.type === 'weapon') playerWeapon = data.weapon; // host's weapon
+            if (data.type === 'state')   onlineGameState = data;
+            if (data.type === 'submode') {
+              onlineSoccer = !!data.soccer;
+              if (onlineSoccer) {
+                document.getElementById('ol-join-status').textContent = '✅ Verbunden! Fußball startet...';
+                setTimeout(() => {
+                  onlineLobbyEl.classList.remove('visible');
+                  mode = 'online';
+                }, 900);
+              } else {
+                document.getElementById('ol-join-status').textContent = '✅ Verbunden! Wähle jetzt deine Waffe.';
+                setTimeout(() => {
+                  onlineLobbyEl.classList.remove('visible');
+                  mode = 'online';
+                  showWeaponSelect();
+                }, 900);
+              }
+            }
+            if (data.type === 'weapon') playerWeapon = data.weapon;
             if (data.type === 'start')  {
-              aiWeapon = playerWeapon; // swap: our local pick becomes ai.weapon
-              playerWeapon = data.hostWeapon;
-              player2Color = player1Color;
-              player1Color = data.hostColor || '#FF2200';
+              onlineSoccer = !!data.soccer;
+              if (!onlineSoccer) {
+                aiWeapon = playerWeapon;
+                playerWeapon = data.hostWeapon;
+                player2Color = player1Color;
+                player1Color = data.hostColor || '#FF2200';
+              }
               const waitEl = document.getElementById('ol-map-wait');
               if (waitEl) waitEl.remove();
               startGame(data.map);
@@ -897,7 +945,7 @@
       gameOverTimer = 0;
       winner = null;
       particles = [];
-      if (mode === 'soccer') {
+      if (mode === 'soccer' || onlineSoccer) {
         score = { p1: 0, p2: 0 };
         goalFlash = 0;
         resetBall(0);
@@ -1972,7 +2020,7 @@
     }
 
     function drawUI() {
-      if (mode === 'soccer') {
+      if (mode === 'soccer' || onlineSoccer) {
         // Scoreboard
         ctx.save();
         ctx.textBaseline = 'top';
@@ -2016,7 +2064,7 @@
       drawHealthBar(18, 20, player.hp, player.color || '#FF2200', 'SPIELER 1');
 
       // Opponent health bar (right-aligned)
-      drawHealthBar(W - 218, 20, ai.hp, ai.color || '#0088FF', mode === 'pvp' ? 'SPIELER 2' : 'KI');
+      drawHealthBar(W - 218, 20, ai.hp, ai.color || '#0088FF', (mode === 'pvp' || mode === 'online') ? 'SPIELER 2' : 'KI');
 
       // Controls hint
       ctx.save();
@@ -2039,7 +2087,7 @@
 
       // Win text
       let mainText;
-      if (mode === 'pvp' || mode === 'soccer') {
+      if (mode === 'pvp' || mode === 'soccer' || onlineSoccer || mode === 'online') {
         mainText = winner === 'player' ? 'SPIELER 1 GEWINNT! 🏆' : 'SPIELER 2 GEWINNT! 🏆';
       } else {
         mainText = winner === 'player' ? 'DU HAST GEWONNEN! 🏆' : 'KI GEWINNT! 💀';
@@ -2053,7 +2101,7 @@
       ctx.fillText(mainText, W / 2, H / 2 - 30);
 
       let subY = H / 2 + 28;
-      if (mode === 'soccer') {
+      if (mode === 'soccer' || onlineSoccer) {
         ctx.font = '32px Bangers, cursive';
         ctx.shadowBlur = 12;
         ctx.fillStyle = '#FFD23D';
@@ -2365,15 +2413,18 @@
     // ---- Online helpers ----
     function getLocalKeys() {
       const l = keys['ArrowLeft'], r = keys['ArrowRight'];
-      return { left: !!(l&&!r), right: !!(r&&!l), attack: !!keys['Enter'], ultra: !!(l&&r) };
+      return { left: !!(l&&!r), right: !!(r&&!l), attack: !!keys['Enter'],
+               ultra: !!(l&&r), jump: !!keys['ArrowUp'] };
     }
     function updatePlayer2Online() {
       ai.moving = false;
-      const { left, right, attack, ultra } = remoteKeys;
+      ai.moveDir = 0;
+      const { left, right, attack, ultra, jump } = remoteKeys;
       if (left)  { ai.x -= PLAYER_SPEED; ai.moving = true; ai.moveDir = -1; }
       if (right) { ai.x += PLAYER_SPEED; ai.moving = true; ai.moveDir = 1;  }
       ai.x = Math.max(30, Math.min(W-30, ai.x));
       ai.dir = player.x < ai.x ? -1 : 1;
+      if (jump && ai.onGround) { ai.vy = JUMP_FORCE; ai.onGround = false; }
       if (ultra && !ai.attacking && ai.cooldown === 0) {
         ai.attacking=true; ai.attackFrame=0; ai.isUltra=true; ai.ultraFlash=45;
       } else if (attack && !ultra && !ai.attacking && ai.cooldown === 0) {
@@ -2384,9 +2435,12 @@
       if (ai.cooldown>0)   ai.cooldown--;
       if (ai.hitFlash>0)   ai.hitFlash--;
       if (ai.knockback>0)  { ai.x+=ai.knockbackDir*3; ai.knockback--; ai.x=Math.max(30,Math.min(W-30,ai.x)); }
+      ai.vy += GRAVITY; ai.y += ai.vy;
+      if (ai.y >= GROUND) { ai.y = GROUND; ai.vy = 0; ai.onGround = true; }
     }
     function pickNetState(s) {
-      return { x:s.x,y:s.y,hp:s.hp,dir:s.dir,attacking:s.attacking,attackFrame:s.attackFrame,
+      return { x:s.x,y:s.y,vy:s.vy,onGround:s.onGround,hp:s.hp,dir:s.dir,
+               attacking:s.attacking,attackFrame:s.attackFrame,
                hitFlash:s.hitFlash,walkPhase:s.walkPhase,walkBlend:s.walkBlend,moveDir:s.moveDir,
                isUltra:s.isUltra,ultraFlash:s.ultraFlash,weapon:s.weapon,color:s.color };
     }
@@ -2399,6 +2453,9 @@
       gameOver   = state.gameOver;
       winner     = state.winner;
       shake      = state.shake || 0;
+      if (state.ball)      ball      = state.ball;
+      if (state.score)     score     = state.score;
+      if (state.goalFlash !== undefined) goalFlash = state.goalFlash;
     }
 
     function update() {
@@ -2422,6 +2479,29 @@
         updateParticles();
         if (shake > 0) shake *= 0.85;
         if (shake < 0.3) shake = 0;
+        return;
+      }
+
+      // Online soccer: host runs full soccer loop, client just renders
+      if (mode === 'online' && onlineSoccer) {
+        updatePlayer();
+        updatePlayer2Online();
+        stepWalk(player);
+        stepWalk(ai);
+        updateBall();
+        kickBall(player);
+        kickBall(ai);
+        checkGoal();
+        if (goalFlash > 0) goalFlash--;
+        updateParticles();
+        if (shake > 0) shake *= 0.85;
+        if (shake < 0.3) shake = 0;
+        if (onlineConn && onlineConn.open) {
+          onlineConn.send({ type:'state', player:pickNetState(player), ai:pickNetState(ai),
+            particles: particles.slice(-20), gameOver, winner, shake: Math.round(shake),
+            ball: ball ? {x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy,r:ball.r,rot:ball.rot} : null,
+            score, goalFlash });
+        }
         return;
       }
 
@@ -2574,18 +2654,19 @@
       if (shake > 0) {
         ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
       }
+      const isSoccer = mode === 'soccer' || onlineSoccer;
       drawBackground();
-      if (mode === 'soccer') { drawGoal(-1); drawGoal(1); }
+      if (isSoccer) { drawGoal(-1); drawGoal(1); }
       drawParticles();
       drawBullets();
       drawStickman(player);
       drawStickman(ai);
-      if (mode === 'soccer') drawBall();
+      if (isSoccer) drawBall();
       ctx.restore();
       drawUI();
       drawUltraBanner(player);
       drawUltraBanner(ai);
-      if (mode === 'soccer' && goalFlash > 0 && !gameOver) drawGoalBanner();
+      if (isSoccer && goalFlash > 0 && !gameOver) drawGoalBanner();
       if (gameOver) drawGameOver();
     }
 
