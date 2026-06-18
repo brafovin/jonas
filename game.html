@@ -238,34 +238,60 @@
       background: rgba(5,5,5,0.94);
       display: none; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 12px; z-index: 10; backdrop-filter: blur(2px);
-      overflow-y: auto; padding: 14px 20px 18px;
+      gap: 14px; z-index: 10; backdrop-filter: blur(2px);
+      overflow: visible; padding: 16px 24px;
     }
     #weapon-select.visible { display: flex; }
-    #weapon-select h2 { font-family:'Bangers',cursive; font-size:clamp(20px,3.5vw,34px); color:#fff; letter-spacing:.06em; text-shadow:0 0 16px rgba(255,61,0,.5); margin-bottom:2px; }
-    #ws-columns { display:flex; gap:24px; justify-content:center; align-items:flex-start; flex-wrap:wrap; width:100%; }
-    .ws-col { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
-    .weapon-player-label { font-family:'Bangers',cursive; font-size:clamp(15px,2.5vw,22px); letter-spacing:.06em; }
-    .weapon-grid { display:flex; gap:7px; flex-wrap:nowrap; }
-    .weapon-btn {
-      background:rgba(255,255,255,.04); border:2px solid rgba(255,255,255,.2);
-      color:#fff; font-family:'Bangers',cursive; font-size:clamp(12px,1.8vw,17px);
-      letter-spacing:.04em; padding:9px 10px; border-radius:10px; cursor:pointer;
-      min-width:96px; text-align:center;
-      transition: transform .12s, background .12s, border-color .12s, box-shadow .12s;
+    #weapon-select h2 { font-family:'Bangers',cursive; font-size:clamp(22px,3.8vw,36px); color:#fff; letter-spacing:.06em; text-shadow:0 0 16px rgba(255,61,0,.5); margin-bottom:4px; }
+    #ws-columns { display:flex; gap:32px; justify-content:center; align-items:flex-start; flex-wrap:wrap; width:100%; }
+    .ws-col { display:flex; flex-direction:column; align-items:flex-start; gap:10px; }
+    .weapon-player-label { font-family:'Bangers',cursive; font-size:clamp(15px,2.5vw,22px); letter-spacing:.06em; margin-bottom:2px; }
+
+    /* ── Weapon Dropdown ── */
+    .weapon-dropdown { position:relative; width:230px; }
+    .wdrop-trigger {
+      display:flex; align-items:center; gap:10px; width:100%;
+      background:rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.2);
+      color:#fff; font-family:'Bangers',cursive; font-size:20px; letter-spacing:.06em;
+      padding:10px 14px; border-radius:10px; cursor:pointer;
+      transition:border-color .15s, background .15s, box-shadow .15s;
     }
-    .weapon-btn:hover { transform:scale(1.06); background:rgba(255,255,255,.1); }
-    .weapon-btn.selected-p1 { border-color:#FF3D00; box-shadow:0 0 22px rgba(255,61,0,.55); background:rgba(255,61,0,.14); }
-    .weapon-btn.selected-p2 { border-color:#0088FF; box-shadow:0 0 22px rgba(0,136,255,.55); background:rgba(0,136,255,.14); }
-    .weapon-btn .w-icon { font-size:1.4em; display:block; margin-bottom:3px; }
-    .weapon-btn .w-sub { display:block; font-family:'Inter',sans-serif; font-size:9px; color:rgba(255,255,255,.45); margin-top:3px; font-weight:600; }
+    .wdrop-trigger .wdrop-icon { font-size:1.35em; line-height:1; }
+    .wdrop-trigger .wdrop-name { flex:1; text-align:left; }
+    .wdrop-trigger .wdrop-arrow { font-size:11px; opacity:.6; transition:transform .2s; }
+    .wdrop-p1 .wdrop-trigger { border-color:rgba(255,61,0,.45); }
+    .wdrop-p1 .wdrop-trigger:hover, .wdrop-p1.open .wdrop-trigger { border-color:#FF3D00; background:rgba(255,61,0,.1); box-shadow:0 0 16px rgba(255,61,0,.3); }
+    .wdrop-p2 .wdrop-trigger { border-color:rgba(0,136,255,.45); }
+    .wdrop-p2 .wdrop-trigger:hover, .wdrop-p2.open .wdrop-trigger { border-color:#0088FF; background:rgba(0,136,255,.1); box-shadow:0 0 16px rgba(0,136,255,.3); }
+    .weapon-dropdown.open .wdrop-trigger .wdrop-arrow { transform:rotate(180deg); }
+    .wdrop-list {
+      position:absolute; top:calc(100% + 5px); left:0; width:100%;
+      background:rgba(8,8,14,.97); border:2px solid rgba(255,255,255,.18);
+      border-radius:10px; overflow:hidden; z-index:30;
+      display:none; flex-direction:column;
+      box-shadow:0 10px 30px rgba(0,0,0,.8);
+    }
+    .weapon-dropdown.open .wdrop-list { display:flex; }
+    .wdrop-item {
+      display:flex; align-items:center; gap:10px; width:100%;
+      padding:10px 14px; background:none; border:none;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      color:rgba(255,255,255,.78); font-family:'Bangers',cursive; font-size:18px; letter-spacing:.05em;
+      cursor:pointer; text-align:left; transition:background .1s, color .1s;
+    }
+    .wdrop-item:last-child { border-bottom:none; }
+    .wdrop-item:hover { background:rgba(255,255,255,.1); color:#fff; }
+    .wdrop-item.active-p1 { color:#FF3D00; background:rgba(255,61,0,.13); }
+    .wdrop-item.active-p2 { color:#0088FF; background:rgba(0,136,255,.13); }
+    .wdrop-item .wi { font-size:1.25em; line-height:1; }
+    .wdrop-item .wsub { font-family:'Inter',sans-serif; font-size:9px; color:rgba(255,255,255,.38); margin-left:auto; font-weight:600; }
 
     /* ===== Color select ===== */
-    .color-row { display:flex; align-items:center; gap:8px; margin-top:4px; }
-    .color-row-label { font-family:'Bangers',cursive; font-size:14px; letter-spacing:.06em; color:rgba(255,255,255,.55); white-space:nowrap; }
-    .color-grid { display:flex; gap:6px; }
+    .color-row { display:flex; align-items:center; gap:8px; }
+    .color-row-label { font-family:'Bangers',cursive; font-size:15px; letter-spacing:.06em; color:rgba(255,255,255,.5); white-space:nowrap; }
+    .color-grid { display:flex; gap:7px; }
     .color-btn {
-      width:58px; height:34px; border-radius:7px; border:3px solid transparent;
+      width:56px; height:34px; border-radius:7px; border:3px solid transparent;
       cursor:pointer; font-family:'Bangers',cursive; font-size:14px; letter-spacing:.06em;
       color:rgba(255,255,255,.95); text-shadow:0 1px 3px rgba(0,0,0,.85);
       background:var(--c,#fff); box-shadow:0 0 8px rgba(0,0,0,.4);
@@ -368,38 +394,54 @@
     <div id="weapon-select">
       <h2>WAFFE &amp; FARBE WÄHLEN</h2>
       <div id="ws-columns">
+        <!-- Spieler 1 -->
         <div class="ws-col">
           <p class="weapon-player-label" style="color:#FF2200">⚔ SPIELER 1</p>
-          <div class="weapon-grid" id="wgrid-p1">
-            <button class="weapon-btn selected-p1" data-weapon="sword" data-player="1"><span class="w-icon">⚔️</span>SCHWERT<span class="w-sub">Ausgewogen</span></button>
-            <button class="weapon-btn" data-weapon="hammer" data-player="1"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
-            <button class="weapon-btn" data-weapon="spear" data-player="1"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
-            <button class="weapon-btn" data-weapon="pistol" data-player="1"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf</span></button>
+          <div class="weapon-dropdown wdrop-p1" id="wdrop-p1">
+            <button class="wdrop-trigger" id="wdrop-trigger-p1">
+              <span class="wdrop-icon">⚔️</span>
+              <span class="wdrop-name">SCHWERT</span>
+              <span class="wdrop-arrow">▼</span>
+            </button>
+            <div class="wdrop-list">
+              <button class="wdrop-item active-p1" data-weapon="sword" data-player="1"><span class="wi">⚔️</span>SCHWERT<span class="wsub">Ausgewogen</span></button>
+              <button class="wdrop-item" data-weapon="hammer" data-player="1"><span class="wi">🔨</span>HAMMER<span class="wsub">Stark · Rückstoß</span></button>
+              <button class="wdrop-item" data-weapon="spear" data-player="1"><span class="wi">🔱</span>SPEER<span class="wsub">Große Reichweite</span></button>
+              <button class="wdrop-item" data-weapon="pistol" data-player="1"><span class="wi">🔫</span>PISTOLE<span class="wsub">Fernkampf</span></button>
+            </div>
           </div>
           <div class="color-row">
             <span class="color-row-label">FARBE:</span>
             <div class="color-grid">
               <button class="color-btn selected-c1" data-color="#FF2200" data-player="1" style="--c:#FF2200">ROT</button>
               <button class="color-btn" data-color="#0088FF" data-player="1" style="--c:#0088FF">BLAU</button>
-              <button class="color-btn" data-color="#FF7700" data-player="1" style="--c:#FF7700">ORANGE</button>
+              <button class="color-btn" data-color="#22CC22" data-player="1" style="--c:#22CC22">GRÜN</button>
               <button class="color-btn" data-color="#FFD700" data-player="1" style="--c:#FFD700">GELB</button>
             </div>
           </div>
         </div>
+        <!-- Spieler 2 -->
         <div class="ws-col" id="weapon-p2-section">
           <p class="weapon-player-label" style="color:#0088FF">⚔ SPIELER 2</p>
-          <div class="weapon-grid" id="wgrid-p2">
-            <button class="weapon-btn" data-weapon="sword" data-player="2"><span class="w-icon">⚔️</span>SCHWERT<span class="w-sub">Ausgewogen</span></button>
-            <button class="weapon-btn selected-p2" data-weapon="hammer" data-player="2"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
-            <button class="weapon-btn" data-weapon="spear" data-player="2"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
-            <button class="weapon-btn" data-weapon="pistol" data-player="2"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf</span></button>
+          <div class="weapon-dropdown wdrop-p2" id="wdrop-p2">
+            <button class="wdrop-trigger" id="wdrop-trigger-p2">
+              <span class="wdrop-icon">🔨</span>
+              <span class="wdrop-name">HAMMER</span>
+              <span class="wdrop-arrow">▼</span>
+            </button>
+            <div class="wdrop-list">
+              <button class="wdrop-item" data-weapon="sword" data-player="2"><span class="wi">⚔️</span>SCHWERT<span class="wsub">Ausgewogen</span></button>
+              <button class="wdrop-item active-p2" data-weapon="hammer" data-player="2"><span class="wi">🔨</span>HAMMER<span class="wsub">Stark · Rückstoß</span></button>
+              <button class="wdrop-item" data-weapon="spear" data-player="2"><span class="wi">🔱</span>SPEER<span class="wsub">Große Reichweite</span></button>
+              <button class="wdrop-item" data-weapon="pistol" data-player="2"><span class="wi">🔫</span>PISTOLE<span class="wsub">Fernkampf</span></button>
+            </div>
           </div>
           <div class="color-row">
             <span class="color-row-label">FARBE:</span>
             <div class="color-grid">
               <button class="color-btn" data-color="#FF2200" data-player="2" style="--c:#FF2200">ROT</button>
               <button class="color-btn selected-c2" data-color="#0088FF" data-player="2" style="--c:#0088FF">BLAU</button>
-              <button class="color-btn" data-color="#FF7700" data-player="2" style="--c:#FF7700">ORANGE</button>
+              <button class="color-btn" data-color="#22CC22" data-player="2" style="--c:#22CC22">GRÜN</button>
               <button class="color-btn" data-color="#FFD700" data-player="2" style="--c:#FFD700">GELB</button>
             </div>
           </div>
@@ -542,7 +584,7 @@
     // Colors
     let player1Color = '#FF2200';
     let player2Color = '#0088FF';
-    const AI_CONTRAST = { '#FF2200':'#0088FF', '#0088FF':'#FF2200', '#FF7700':'#0088FF', '#FFD700':'#0088FF' };
+    const AI_CONTRAST = { '#FF2200':'#0088FF', '#0088FF':'#FF2200', '#22CC22':'#FF2200', '#FFD700':'#0088FF' };
 
     // Online state
     let peer = null, onlineConn = null, onlineRole = null;
@@ -619,22 +661,45 @@
     document.getElementById('map-castle').addEventListener('click', () => startGame('castle'));
     document.getElementById('map-back').addEventListener('click', () => { mapSelEl.classList.remove('visible'); showWeaponSelect(); });
 
-    // Weapon select buttons
-    document.querySelectorAll('.weapon-btn[data-player="1"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.weapon-btn[data-player="1"]').forEach(b => b.classList.remove('selected-p1'));
-        btn.classList.add('selected-p1');
-        playerWeapon = btn.dataset.weapon;
+    // ── Weapon dropdown logic ──
+    const WEAPON_ICONS = { sword:'⚔️', hammer:'🔨', spear:'🔱', pistol:'🔫' };
+    const WEAPON_NAMES = { sword:'SCHWERT', hammer:'HAMMER', spear:'SPEER', pistol:'PISTOLE' };
+
+    function setupDropdown(pid) {
+      const dropEl    = document.getElementById('wdrop-p' + pid);
+      const triggerEl = document.getElementById('wdrop-trigger-p' + pid);
+      triggerEl.addEventListener('click', e => {
+        e.stopPropagation();
+        dropEl.classList.toggle('open');
       });
-    });
-    document.querySelectorAll('.weapon-btn[data-player="2"]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.weapon-btn[data-player="2"]').forEach(b => b.classList.remove('selected-p2'));
-        btn.classList.add('selected-p2');
-        aiWeapon = btn.dataset.weapon;
-      });
+      dropEl.addEventListener('click', e => e.stopPropagation());
+    }
+    document.addEventListener('click', () => {
+      document.getElementById('wdrop-p1').classList.remove('open');
+      document.getElementById('wdrop-p2').classList.remove('open');
     });
 
+    function selectWeapon(weapon, pid) {
+      if (pid === '1') playerWeapon = weapon; else aiWeapon = weapon;
+      const triggerEl = document.getElementById('wdrop-trigger-p' + pid);
+      triggerEl.querySelector('.wdrop-icon').textContent = WEAPON_ICONS[weapon];
+      triggerEl.querySelector('.wdrop-name').textContent = WEAPON_NAMES[weapon];
+      const cls = 'active-p' + pid;
+      document.querySelectorAll('.wdrop-item[data-player="' + pid + '"]').forEach(b => b.classList.remove(cls));
+      document.querySelector('.wdrop-item[data-weapon="' + weapon + '"][data-player="' + pid + '"]').classList.add(cls);
+      document.getElementById('wdrop-p' + pid).classList.remove('open');
+    }
+
+    setupDropdown('1');
+    setupDropdown('2');
+    document.querySelectorAll('.wdrop-item[data-player="1"]').forEach(btn =>
+      btn.addEventListener('click', () => selectWeapon(btn.dataset.weapon, '1'))
+    );
+    document.querySelectorAll('.wdrop-item[data-player="2"]').forEach(btn =>
+      btn.addEventListener('click', () => selectWeapon(btn.dataset.weapon, '2'))
+    );
+
+    // ── Color buttons ──
     document.querySelectorAll('.color-btn[data-player="1"]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.color-btn[data-player="1"]').forEach(b => b.classList.remove('selected-c1'));
