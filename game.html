@@ -259,6 +259,25 @@
     .weapon-btn .w-icon { font-size:1.6em; display:block; margin-bottom:4px; }
     .weapon-btn .w-sub { display:block; font-family:'Inter',sans-serif; font-size:10px; color:rgba(255,255,255,.45); margin-top:4px; font-weight:600; }
 
+    /* ===== Color select ===== */
+    .color-row { display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
+    .color-row-label { font-family:'Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:.06em; color:rgba(255,255,255,.45); white-space:nowrap; }
+    .color-grid { display:flex; gap:8px; }
+    .color-btn {
+      width:64px; height:36px; border-radius:8px; border:3px solid transparent;
+      cursor:pointer; font-family:'Bangers',cursive; font-size:15px; letter-spacing:.06em;
+      color:rgba(255,255,255,.95); text-shadow:0 1px 3px rgba(0,0,0,.85);
+      background:var(--c,#fff); box-shadow:0 0 8px rgba(0,0,0,.4);
+      transition:transform .1s, border-color .1s, box-shadow .1s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .color-btn:hover { transform:scale(1.1); border-color:rgba(255,255,255,.6); }
+    .color-btn.selected-c1, .color-btn.selected-c2 {
+      border-color:#FFFFFF;
+      box-shadow:0 0 0 2px var(--c), 0 0 16px var(--c);
+      transform:scale(1.08);
+    }
+
     /* ===== Online lobby ===== */
     #online-lobby {
       position: absolute; inset: 0;
@@ -346,7 +365,7 @@
 
     <!-- Weapon Select Overlay -->
     <div id="weapon-select">
-      <h2>WÄHLE DEINE WAFFE</h2>
+      <h2>WAFFE &amp; FARBE WÄHLEN</h2>
       <div class="weapon-section">
         <p class="weapon-player-label" style="color:#FF2200">⚔ SPIELER 1</p>
         <div class="weapon-grid" id="wgrid-p1">
@@ -354,6 +373,15 @@
           <button class="weapon-btn" data-weapon="hammer" data-player="1"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
           <button class="weapon-btn" data-weapon="spear" data-player="1"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
           <button class="weapon-btn" data-weapon="pistol" data-player="1"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf · Projektil</span></button>
+        </div>
+        <div class="color-row">
+          <span class="color-row-label">FARBE:</span>
+          <div class="color-grid">
+            <button class="color-btn selected-c1" data-color="#FF2200" data-player="1" style="--c:#FF2200">ROT</button>
+            <button class="color-btn" data-color="#0088FF" data-player="1" style="--c:#0088FF">BLAU</button>
+            <button class="color-btn" data-color="#FF7700" data-player="1" style="--c:#FF7700">ORANGE</button>
+            <button class="color-btn" data-color="#FFD700" data-player="1" style="--c:#FFD700">GELB</button>
+          </div>
         </div>
       </div>
       <div class="weapon-section" id="weapon-p2-section">
@@ -363,6 +391,15 @@
           <button class="weapon-btn selected-p2" data-weapon="hammer" data-player="2"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
           <button class="weapon-btn" data-weapon="spear" data-player="2"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
           <button class="weapon-btn" data-weapon="pistol" data-player="2"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf · Projektil</span></button>
+        </div>
+        <div class="color-row">
+          <span class="color-row-label">FARBE:</span>
+          <div class="color-grid">
+            <button class="color-btn" data-color="#FF2200" data-player="2" style="--c:#FF2200">ROT</button>
+            <button class="color-btn selected-c2" data-color="#0088FF" data-player="2" style="--c:#0088FF">BLAU</button>
+            <button class="color-btn" data-color="#FF7700" data-player="2" style="--c:#FF7700">ORANGE</button>
+            <button class="color-btn" data-color="#FFD700" data-player="2" style="--c:#FFD700">GELB</button>
+          </div>
         </div>
       </div>
       <button class="mode-btn" id="weapon-confirm" style="min-width:200px;font-size:clamp(18px,3vw,26px);padding:12px 28px">WEITER →</button>
@@ -499,6 +536,11 @@
     let aiWeapon     = 'hammer';
     const WEAPON_LIST = ['sword','hammer','spear','pistol'];
 
+    // Colors
+    let player1Color = '#FF2200';
+    let player2Color = '#0088FF';
+    const AI_CONTRAST = { '#FF2200':'#0088FF', '#0088FF':'#FF2200', '#FF7700':'#0088FF', '#FFD700':'#0088FF' };
+
     // Online state
     let peer = null, onlineConn = null, onlineRole = null;
     let remoteKeys = {};
@@ -545,7 +587,7 @@
         (mode === 'pvp' || mode === 'soccer' || mode === 'online') ? 'flex' : 'none';
       // Tell client to start
       if (mode === 'online' && onlineRole === 'host' && onlineConn && onlineConn.open) {
-        onlineConn.send({ type:'start', map: selectedMap, hostWeapon: playerWeapon });
+        onlineConn.send({ type:'start', map: selectedMap, hostWeapon: playerWeapon, hostColor: player1Color });
       }
       init();
     }
@@ -589,11 +631,26 @@
         aiWeapon = btn.dataset.weapon;
       });
     });
+
+    document.querySelectorAll('.color-btn[data-player="1"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-btn[data-player="1"]').forEach(b => b.classList.remove('selected-c1'));
+        btn.classList.add('selected-c1');
+        player1Color = btn.dataset.color;
+      });
+    });
+    document.querySelectorAll('.color-btn[data-player="2"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.color-btn[data-player="2"]').forEach(b => b.classList.remove('selected-c2'));
+        btn.classList.add('selected-c2');
+        player2Color = btn.dataset.color;
+      });
+    });
     document.getElementById('weapon-confirm').addEventListener('click', () => {
       if (mode === 'online') {
         // Exchange weapons online, then host shows map select
         if (onlineConn && onlineConn.open) {
-          onlineConn.send({ type: 'weapon', weapon: playerWeapon });
+          onlineConn.send({ type: 'weapon', weapon: playerWeapon, color: player1Color });
         }
         if (onlineRole === 'host') {
           weaponSelEl.classList.remove('visible');
@@ -666,7 +723,7 @@
           });
           conn.on('data', (data) => {
             if (data.type === 'keys')   remoteKeys = data.keys || {};
-            if (data.type === 'weapon') aiWeapon = data.weapon;
+            if (data.type === 'weapon') { aiWeapon = data.weapon; player2Color = data.color || player2Color; }
           });
           conn.on('close', () => { if (started) showMenu(); });
         });
@@ -699,6 +756,8 @@
             if (data.type === 'start')  {
               aiWeapon = playerWeapon; // swap: our local pick becomes ai.weapon
               playerWeapon = data.hostWeapon;
+              player2Color = player1Color;
+              player1Color = data.hostColor || '#FF2200';
               const waitEl = document.getElementById('ol-map-wait');
               if (waitEl) waitEl.remove();
               startGame(data.map);
@@ -748,7 +807,9 @@
 
     function init() {
       player = createStickman(150, true,  playerWeapon);
+      player.color = player1Color;
       ai     = createStickman(750, false, aiWeapon);
+      ai.color = (mode === 'pvp' || mode === 'online') ? player2Color : (AI_CONTRAST[player1Color] || '#0088FF');
       gameOver = false;
       gameOverTimer = 0;
       winner = null;
@@ -833,7 +894,7 @@
         y: s.y - 130,
         vx: s.dir * 18,
         owner: s.isPlayer ? 'player' : 'ai',
-        color: s.isPlayer ? '#FF2200' : '#0088FF',
+        color: s.color || (s.isPlayer ? '#FF2200' : '#0088FF'),
         isUltra: s.isUltra,
         life: 65,
       });
@@ -1023,7 +1084,7 @@
 
     function drawStickman(s) {
       const x = s.x;
-      const color = s.isPlayer ? '#FF2200' : '#0088FF';
+      const color = s.color || (s.isPlayer ? '#FF2200' : '#0088FF');
       const glow  = s.hitFlash > 0 ? '#FFFFFF' : color;
       const fc    = s.hitFlash > 0 ? '#FFFFFF' : color;  // fill color
       const out   = 'rgba(0,0,0,0.5)';                    // dark outline
@@ -1869,10 +1930,10 @@
       }
 
       // Player 1 health bar (left)
-      drawHealthBar(18, 20, player.hp, '#FF2200', 'SPIELER 1');
+      drawHealthBar(18, 20, player.hp, player.color || '#FF2200', 'SPIELER 1');
 
       // Opponent health bar (right-aligned)
-      drawHealthBar(W - 218, 20, ai.hp, '#0088FF', mode === 'pvp' ? 'SPIELER 2' : 'KI');
+      drawHealthBar(W - 218, 20, ai.hp, ai.color || '#0088FF', mode === 'pvp' ? 'SPIELER 2' : 'KI');
 
       // Controls hint
       ctx.save();
@@ -2109,8 +2170,8 @@
         if (ult) { shake = 16; spawnParticles(target.x, GROUND - 80, '#FF3D00', 20); }
         if (!ult && attacker.weapon === 'hammer') shake = Math.max(shake, 6);
       }
-      if (checkHit(player, ai))     applyHit(player, ai,     '#0088FF');
-      if (checkHit(ai,     player)) applyHit(ai,     player, '#FF2200');
+      if (checkHit(player, ai))     applyHit(player, ai,     ai.color     || '#0088FF');
+      if (checkHit(ai,     player)) applyHit(ai,     player, player.color || '#FF2200');
     }
 
     // ===== Soccer logic =====
@@ -2220,7 +2281,7 @@
     function pickNetState(s) {
       return { x:s.x,y:s.y,hp:s.hp,dir:s.dir,attacking:s.attacking,attackFrame:s.attackFrame,
                hitFlash:s.hitFlash,walkPhase:s.walkPhase,walkBlend:s.walkBlend,moveDir:s.moveDir,
-               isUltra:s.isUltra,ultraFlash:s.ultraFlash,weapon:s.weapon };
+               isUltra:s.isUltra,ultraFlash:s.ultraFlash,weapon:s.weapon,color:s.color };
     }
     function applyNetState(state) {
       if (!state) return;
