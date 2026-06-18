@@ -650,7 +650,7 @@
 
     document.getElementById('mode-ai').addEventListener('click', () => { mode = 'ai'; showWeaponSelect(); });
     document.getElementById('mode-pvp').addEventListener('click', () => { mode = 'pvp'; showWeaponSelect(); });
-    document.getElementById('mode-soccer').addEventListener('click', () => { mode = 'soccer'; startGame('grass'); });
+    document.getElementById('mode-soccer').addEventListener('click', () => { mode = 'soccer'; menuEl.classList.add('hidden'); startGame('grass'); });
     document.getElementById('mode-online').addEventListener('click', () => {
       menuEl.classList.add('hidden');
       onlineLobbyEl.classList.add('visible');
@@ -880,7 +880,7 @@
       player = createStickman(150, true,  playerWeapon);
       player.color = player1Color;
       ai     = createStickman(750, false, aiWeapon);
-      ai.color = (mode === 'pvp' || mode === 'online') ? player2Color : (AI_CONTRAST[player1Color] || '#0088FF');
+      ai.color = (mode === 'pvp' || mode === 'soccer' || mode === 'online') ? player2Color : (AI_CONTRAST[player1Color] || '#0088FF');
       gameOver = false;
       gameOverTimer = 0;
       winner = null;
@@ -2059,6 +2059,7 @@
 
     function updatePlayer() {
       player.moving = false;
+      player.moveDir = 0;
       const left  = keys['a'] || keys['A'];
       const right = keys['d'] || keys['D'];
       const both  = left && right;
@@ -2177,6 +2178,7 @@
     function updatePlayer2() {
       // Player 2 controls the blue stickman: ←=left, →=right, Enter=attack, ←+→=ultra
       ai.moving = false;
+      ai.moveDir = 0;
       const left  = keys['ArrowLeft'];
       const right = keys['ArrowRight'];
       const both  = left && right;
@@ -2440,37 +2442,90 @@
 
     function drawBall() {
       if (!ball) return;
+      const r = ball.r;
+
       // Ground shadow
       ctx.save();
-      ctx.fillStyle = 'rgba(0,0,0,0.35)';
-      const sc = Math.max(0.3, 1 - (GROUND - ball.y) / 400);
+      const sc = Math.max(0.25, 1 - (GROUND - ball.y) / 380);
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
       ctx.beginPath();
-      ctx.ellipse(ball.x, GROUND - 2, ball.r * sc, 5 * sc, 0, 0, Math.PI * 2);
+      ctx.ellipse(ball.x, GROUND - 1, r * sc * 1.1, 4 * sc, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
       ctx.save();
       ctx.translate(ball.x, ball.y);
-      ctx.rotate(ball.rot);
-      ctx.shadowColor = '#FFD23D';
-      ctx.shadowBlur = 14;
-      // White ball
-      ctx.fillStyle = '#FFFFFF';
+
+      // Outer glow
+      ctx.shadowColor = '#FFE566';
+      ctx.shadowBlur = 18;
+
+      // 3D sphere: radial gradient (light top-left)
+      const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.05, 0, 0, r);
+      grad.addColorStop(0,   '#FFFFFF');
+      grad.addColorStop(0.45, '#F0F0F0');
+      grad.addColorStop(0.85, '#D8D8D8');
+      grad.addColorStop(1,   '#B8B8B8');
       ctx.beginPath();
-      ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
       ctx.fill();
-      // Classic black pentagons
+
+      // Clip all pattern drawing to the ball circle
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#141414';
+      ctx.save();
       ctx.beginPath();
-      ctx.arc(0, 0, ball.r * 0.42, 0, Math.PI * 2);
-      ctx.fill();
-      for (let i = 0; i < 5; i++) {
-        const a = i / 5 * Math.PI * 2;
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Rotate with ball spin
+      ctx.rotate(ball.rot);
+
+      // Draw pentagons function
+      function pentagon(cx, cy, pr, angle) {
         ctx.beginPath();
-        ctx.arc(Math.cos(a) * ball.r * 0.72, Math.sin(a) * ball.r * 0.72, ball.r * 0.16, 0, Math.PI * 2);
+        for (let i = 0; i < 5; i++) {
+          const a = angle + (i / 5) * Math.PI * 2 - Math.PI / 2;
+          const px = cx + Math.cos(a) * pr;
+          const py = cy + Math.sin(a) * pr;
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+      }
+
+      ctx.fillStyle = '#1a1a1a';
+      ctx.strokeStyle = '#1a1a1a';
+      ctx.lineWidth = 0.8;
+
+      // Central pentagon
+      pentagon(0, 0, r * 0.38, Math.PI / 10);
+      ctx.fill();
+
+      // 5 surrounding pentagons
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2;
+        const dist = r * 0.7;
+        pentagon(
+          Math.cos(a) * dist,
+          Math.sin(a) * dist,
+          r * 0.32,
+          a + Math.PI / 10
+        );
         ctx.fill();
       }
+
+      ctx.restore(); // remove clip
+
+      // Specular highlight (top-left sheen)
+      const shine = ctx.createRadialGradient(-r * 0.28, -r * 0.32, 0, -r * 0.28, -r * 0.32, r * 0.42);
+      shine.addColorStop(0,   'rgba(255,255,255,0.72)');
+      shine.addColorStop(0.5, 'rgba(255,255,255,0.18)');
+      shine.addColorStop(1,   'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fillStyle = shine;
+      ctx.fill();
+
       ctx.restore();
     }
 
