@@ -239,13 +239,6 @@
 
   <div id="canvas-wrapper">
     <canvas id="game" width="900" height="500"></canvas>
-    <input type="file" id="grassImgInput" accept="image/*" style="display:none">
-    <button id="grass-img-btn" title="Hintergrundbild für Grasland laden" style="
-      display:none; position:absolute; bottom:44px; right:8px;
-      background:rgba(0,0,0,0.55); color:#fff; border:1px solid rgba(255,255,255,0.3);
-      border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer;
-      font-family:'Inter',sans-serif; z-index:10; backdrop-filter:blur(4px);
-    ">🖼️ Bild laden</button>
 
     <!-- Map Selection -->
     <div id="map-select">
@@ -332,8 +325,7 @@
     const GROUND = 420;
 
     const grassImg = new Image();
-    const _savedBg = localStorage.getItem('grasslandBg');
-    grassImg.src = _savedBg || 'images/grassland.png';
+    grassImg.src = 'images/grassland.png';
 
     const PLAYER_SPEED = 4;
     const AI_SPEED = 2.5;
@@ -417,27 +409,11 @@
       mapSelEl.classList.remove('visible');
       started = true;
       snow = [];
+      // Show Player 2 touch controls in PvP and Soccer (both are 2-player)
       document.getElementById('touch-p2').style.display =
         (mode === 'pvp' || mode === 'soccer') ? 'flex' : 'none';
-      document.getElementById('grass-img-btn').style.display =
-        selectedMap === 'grass' ? 'block' : 'none';
       init();
     }
-
-    // Grassland background image upload
-    document.getElementById('grass-img-btn').addEventListener('click', () => {
-      document.getElementById('grassImgInput').click();
-    });
-    document.getElementById('grassImgInput').addEventListener('change', function() {
-      const file = this.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        localStorage.setItem('grasslandBg', ev.target.result);
-        grassImg.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
 
     // Z key → back to menu anytime (but don't let keydown propagate as 'z' movement)
     document.addEventListener('keydown', e => {
