@@ -237,35 +237,36 @@
       position: absolute; inset: 0;
       background: rgba(5,5,5,0.94);
       display: none; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      gap: 10px; z-index: 10; backdrop-filter: blur(2px);
-      overflow-y: auto; padding: 14px 8px 18px;
+      align-items: center; justify-content: center;
+      gap: 12px; z-index: 10; backdrop-filter: blur(2px);
+      overflow-y: auto; padding: 14px 20px 18px;
     }
     #weapon-select.visible { display: flex; }
-    #weapon-select h2 { font-family:'Bangers',cursive; font-size:clamp(22px,4vw,38px); color:#fff; letter-spacing:.06em; text-shadow:0 0 16px rgba(255,61,0,.5); }
-    .weapon-section { display:flex; flex-direction:column; align-items:center; gap:8px; }
-    .weapon-player-label { font-family:'Bangers',cursive; font-size:clamp(16px,3vw,24px); letter-spacing:.06em; }
-    .weapon-grid { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+    #weapon-select h2 { font-family:'Bangers',cursive; font-size:clamp(20px,3.5vw,34px); color:#fff; letter-spacing:.06em; text-shadow:0 0 16px rgba(255,61,0,.5); margin-bottom:2px; }
+    #ws-columns { display:flex; gap:24px; justify-content:center; align-items:flex-start; flex-wrap:wrap; width:100%; }
+    .ws-col { display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+    .weapon-player-label { font-family:'Bangers',cursive; font-size:clamp(15px,2.5vw,22px); letter-spacing:.06em; }
+    .weapon-grid { display:flex; gap:7px; flex-wrap:nowrap; }
     .weapon-btn {
       background:rgba(255,255,255,.04); border:2px solid rgba(255,255,255,.2);
-      color:#fff; font-family:'Bangers',cursive; font-size:clamp(14px,2.2vw,20px);
-      letter-spacing:.04em; padding:12px 16px; border-radius:12px; cursor:pointer;
-      min-width:120px; text-align:center;
+      color:#fff; font-family:'Bangers',cursive; font-size:clamp(12px,1.8vw,17px);
+      letter-spacing:.04em; padding:9px 10px; border-radius:10px; cursor:pointer;
+      min-width:96px; text-align:center;
       transition: transform .12s, background .12s, border-color .12s, box-shadow .12s;
     }
     .weapon-btn:hover { transform:scale(1.06); background:rgba(255,255,255,.1); }
     .weapon-btn.selected-p1 { border-color:#FF3D00; box-shadow:0 0 22px rgba(255,61,0,.55); background:rgba(255,61,0,.14); }
     .weapon-btn.selected-p2 { border-color:#0088FF; box-shadow:0 0 22px rgba(0,136,255,.55); background:rgba(0,136,255,.14); }
-    .weapon-btn .w-icon { font-size:1.6em; display:block; margin-bottom:4px; }
-    .weapon-btn .w-sub { display:block; font-family:'Inter',sans-serif; font-size:10px; color:rgba(255,255,255,.45); margin-top:4px; font-weight:600; }
+    .weapon-btn .w-icon { font-size:1.4em; display:block; margin-bottom:3px; }
+    .weapon-btn .w-sub { display:block; font-family:'Inter',sans-serif; font-size:9px; color:rgba(255,255,255,.45); margin-top:3px; font-weight:600; }
 
     /* ===== Color select ===== */
-    .color-row { display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
-    .color-row-label { font-family:'Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:.06em; color:rgba(255,255,255,.45); white-space:nowrap; }
-    .color-grid { display:flex; gap:8px; }
+    .color-row { display:flex; align-items:center; gap:8px; margin-top:4px; }
+    .color-row-label { font-family:'Bangers',cursive; font-size:14px; letter-spacing:.06em; color:rgba(255,255,255,.55); white-space:nowrap; }
+    .color-grid { display:flex; gap:6px; }
     .color-btn {
-      width:64px; height:36px; border-radius:8px; border:3px solid transparent;
-      cursor:pointer; font-family:'Bangers',cursive; font-size:15px; letter-spacing:.06em;
+      width:58px; height:34px; border-radius:7px; border:3px solid transparent;
+      cursor:pointer; font-family:'Bangers',cursive; font-size:14px; letter-spacing:.06em;
       color:rgba(255,255,255,.95); text-shadow:0 1px 3px rgba(0,0,0,.85);
       background:var(--c,#fff); box-shadow:0 0 8px rgba(0,0,0,.4);
       transition:transform .1s, border-color .1s, box-shadow .1s;
@@ -274,7 +275,7 @@
     .color-btn:hover { transform:scale(1.1); border-color:rgba(255,255,255,.6); }
     .color-btn.selected-c1, .color-btn.selected-c2 {
       border-color:#FFFFFF;
-      box-shadow:0 0 0 2px var(--c), 0 0 16px var(--c);
+      box-shadow:0 0 0 2px var(--c), 0 0 14px var(--c);
       transform:scale(1.08);
     }
 
@@ -366,39 +367,41 @@
     <!-- Weapon Select Overlay -->
     <div id="weapon-select">
       <h2>WAFFE &amp; FARBE WÄHLEN</h2>
-      <div class="weapon-section">
-        <p class="weapon-player-label" style="color:#FF2200">⚔ SPIELER 1</p>
-        <div class="weapon-grid" id="wgrid-p1">
-          <button class="weapon-btn selected-p1" data-weapon="sword" data-player="1"><span class="w-icon">⚔️</span>SCHWERT<span class="w-sub">Ausgewogen · Mittelweit</span></button>
-          <button class="weapon-btn" data-weapon="hammer" data-player="1"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
-          <button class="weapon-btn" data-weapon="spear" data-player="1"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
-          <button class="weapon-btn" data-weapon="pistol" data-player="1"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf · Projektil</span></button>
-        </div>
-        <div class="color-row">
-          <span class="color-row-label">FARBE:</span>
-          <div class="color-grid">
-            <button class="color-btn selected-c1" data-color="#FF2200" data-player="1" style="--c:#FF2200">ROT</button>
-            <button class="color-btn" data-color="#0088FF" data-player="1" style="--c:#0088FF">BLAU</button>
-            <button class="color-btn" data-color="#FF7700" data-player="1" style="--c:#FF7700">ORANGE</button>
-            <button class="color-btn" data-color="#FFD700" data-player="1" style="--c:#FFD700">GELB</button>
+      <div id="ws-columns">
+        <div class="ws-col">
+          <p class="weapon-player-label" style="color:#FF2200">⚔ SPIELER 1</p>
+          <div class="weapon-grid" id="wgrid-p1">
+            <button class="weapon-btn selected-p1" data-weapon="sword" data-player="1"><span class="w-icon">⚔️</span>SCHWERT<span class="w-sub">Ausgewogen</span></button>
+            <button class="weapon-btn" data-weapon="hammer" data-player="1"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
+            <button class="weapon-btn" data-weapon="spear" data-player="1"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
+            <button class="weapon-btn" data-weapon="pistol" data-player="1"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf</span></button>
+          </div>
+          <div class="color-row">
+            <span class="color-row-label">FARBE:</span>
+            <div class="color-grid">
+              <button class="color-btn selected-c1" data-color="#FF2200" data-player="1" style="--c:#FF2200">ROT</button>
+              <button class="color-btn" data-color="#0088FF" data-player="1" style="--c:#0088FF">BLAU</button>
+              <button class="color-btn" data-color="#FF7700" data-player="1" style="--c:#FF7700">ORANGE</button>
+              <button class="color-btn" data-color="#FFD700" data-player="1" style="--c:#FFD700">GELB</button>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="weapon-section" id="weapon-p2-section">
-        <p class="weapon-player-label" style="color:#0088FF">⚔ SPIELER 2</p>
-        <div class="weapon-grid" id="wgrid-p2">
-          <button class="weapon-btn" data-weapon="sword" data-player="2"><span class="w-icon">⚔️</span>SCHWERT<span class="w-sub">Ausgewogen · Mittelweit</span></button>
-          <button class="weapon-btn selected-p2" data-weapon="hammer" data-player="2"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
-          <button class="weapon-btn" data-weapon="spear" data-player="2"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
-          <button class="weapon-btn" data-weapon="pistol" data-player="2"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf · Projektil</span></button>
-        </div>
-        <div class="color-row">
-          <span class="color-row-label">FARBE:</span>
-          <div class="color-grid">
-            <button class="color-btn" data-color="#FF2200" data-player="2" style="--c:#FF2200">ROT</button>
-            <button class="color-btn selected-c2" data-color="#0088FF" data-player="2" style="--c:#0088FF">BLAU</button>
-            <button class="color-btn" data-color="#FF7700" data-player="2" style="--c:#FF7700">ORANGE</button>
-            <button class="color-btn" data-color="#FFD700" data-player="2" style="--c:#FFD700">GELB</button>
+        <div class="ws-col" id="weapon-p2-section">
+          <p class="weapon-player-label" style="color:#0088FF">⚔ SPIELER 2</p>
+          <div class="weapon-grid" id="wgrid-p2">
+            <button class="weapon-btn" data-weapon="sword" data-player="2"><span class="w-icon">⚔️</span>SCHWERT<span class="w-sub">Ausgewogen</span></button>
+            <button class="weapon-btn selected-p2" data-weapon="hammer" data-player="2"><span class="w-icon">🔨</span>HAMMER<span class="w-sub">Stark · Rückstoß</span></button>
+            <button class="weapon-btn" data-weapon="spear" data-player="2"><span class="w-icon">🔱</span>SPEER<span class="w-sub">Große Reichweite</span></button>
+            <button class="weapon-btn" data-weapon="pistol" data-player="2"><span class="w-icon">🔫</span>PISTOLE<span class="w-sub">Fernkampf</span></button>
+          </div>
+          <div class="color-row">
+            <span class="color-row-label">FARBE:</span>
+            <div class="color-grid">
+              <button class="color-btn" data-color="#FF2200" data-player="2" style="--c:#FF2200">ROT</button>
+              <button class="color-btn selected-c2" data-color="#0088FF" data-player="2" style="--c:#0088FF">BLAU</button>
+              <button class="color-btn" data-color="#FF7700" data-player="2" style="--c:#FF7700">ORANGE</button>
+              <button class="color-btn" data-color="#FFD700" data-player="2" style="--c:#FFD700">GELB</button>
+            </div>
           </div>
         </div>
       </div>
