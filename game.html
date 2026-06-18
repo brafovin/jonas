@@ -958,6 +958,7 @@
         vx: dir ? dir * 3 : (Math.random() < 0.5 ? -3 : 3),
         vy: 0,
         rot: 0,
+        kickLock: 0,
       };
       // Put players back to their halves
       player.x = 150; ai.x = 750;
@@ -2331,6 +2332,7 @@
 
     // ===== Soccer logic =====
     function updateBall() {
+      if (ball.kickLock > 0) ball.kickLock--;
       ball.vy += 0.45;                 // gravity
       ball.x += ball.vx;
       ball.y += ball.vy;
@@ -2356,6 +2358,7 @@
     }
 
     function kickBall(s) {
+      if (ball.kickLock > 0) return;   // ball was already kicked this frame or recently
       const dx = ball.x - s.x;
       const bodyTop = s.y - 175;
       if (Math.abs(dx) < ball.r + 20 && ball.y > bodyTop && ball.y < s.y + 6) {
@@ -2372,7 +2375,8 @@
         }
         ball.vx = dir * power + (s.moveDir || 0) * 1.5;
         ball.vy = -lift;
-        ball.x = s.x + dir * (ball.r + 21);           // unstick
+        ball.x = s.x + dir * (ball.r + 24);  // push far enough outside collision zone
+        ball.kickLock = 5;                    // ~83ms cooldown prevents double-kick
       }
     }
 
