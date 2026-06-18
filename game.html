@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>www.Stickman.Fight.Legacy.com</title>
+  <title>Stickman Fight Legacy</title>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -235,7 +235,7 @@
 </head>
 <body>
   <a id="back-btn" href="index.html">&#8592; Zur&uuml;ck</a>
-  <div id="game-title">www.Stickman.Fight.Legacy.com</div>
+  <div id="game-title">Stickman Fight Legacy</div>
 
   <div id="canvas-wrapper">
     <canvas id="game" width="900" height="500"></canvas>
@@ -1083,229 +1083,232 @@
         drawSnow();
 
       } else if (map === 'grass') {
-        // === ANIME GRASSLAND ===
-        const HORIZ = 268;
+        // === ANIME GRASSLAND (cel-shaded) ===
+        const HORIZ = 265;
 
-        // Sky gradient — bright anime blue
+        // Sky — vivid saturated anime blue
         const skyG = ctx.createLinearGradient(0, 0, 0, HORIZ);
-        skyG.addColorStop(0,    '#1A8FD8');
-        skyG.addColorStop(0.45, '#3AAFE8');
-        skyG.addColorStop(0.8,  '#72CCF2');
-        skyG.addColorStop(1,    '#A8E0FA');
+        skyG.addColorStop(0,    '#0D7EC8');
+        skyG.addColorStop(0.38, '#2AAAE0');
+        skyG.addColorStop(0.72, '#60C8F0');
+        skyG.addColorStop(1,    '#A0DCFA');
         ctx.fillStyle = skyG;
-        ctx.fillRect(0, 0, W, HORIZ + 15);
+        ctx.fillRect(0, 0, W, HORIZ + 20);
+
+        // Horizon atmospheric glow
+        ctx.save();
+        const hgG = ctx.createLinearGradient(0, HORIZ - 30, 0, HORIZ + 10);
+        hgG.addColorStop(0, 'rgba(220,242,255,0)');
+        hgG.addColorStop(1, 'rgba(220,242,255,0.55)');
+        ctx.fillStyle = hgG;
+        ctx.fillRect(0, HORIZ - 30, W, 40);
+        ctx.restore();
 
         // Wispy cloud streaks
         ctx.save();
-        const wisps = [
-          [110, 52, 160, 7], [290, 68, 130, 6], [460, 44, 190, 8],
-          [670, 60, 150, 7], [830, 82, 110, 5], [560, 108, 100, 5]
-        ];
-        wisps.forEach(([cx, cy, rw, rh]) => {
-          const wg = ctx.createLinearGradient(cx - rw, cy, cx + rw, cy);
+        [[120,48,155,7],[310,62,125,5],[470,38,185,8],
+         [680,56,145,6],[840,76,105,5],[570,102,95,4]].forEach(([cx,cy,rw,rh]) => {
+          const wg = ctx.createLinearGradient(cx-rw, cy, cx+rw, cy);
           wg.addColorStop(0,   'rgba(255,255,255,0)');
-          wg.addColorStop(0.3, 'rgba(255,255,255,0.75)');
-          wg.addColorStop(0.7, 'rgba(255,255,255,0.75)');
+          wg.addColorStop(0.28,'rgba(255,255,255,0.82)');
+          wg.addColorStop(0.72,'rgba(255,255,255,0.82)');
           wg.addColorStop(1,   'rgba(255,255,255,0)');
           ctx.fillStyle = wg;
-          ctx.beginPath();
-          ctx.ellipse(cx, cy, rw, rh, 0, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.beginPath(); ctx.ellipse(cx, cy, rw, rh, 0, 0, Math.PI*2); ctx.fill();
         });
         ctx.restore();
 
-        // Fluffy anime clouds
+        // Cel-shaded anime clouds
         function animeCloud(cx, cy, s) {
-          // shadow base
-          ctx.fillStyle = 'rgba(160,205,238,0.45)';
+          // Step 1 — cast shadow below cloud
+          ctx.fillStyle = '#9EC8E8';
           ctx.beginPath();
-          ctx.ellipse(cx, cy + s * 10, s * 68, s * 18, 0, 0, Math.PI * 2);
+          ctx.ellipse(cx, cy + s*24, s*66, s*13, 0, 0, Math.PI*2);
           ctx.fill();
-          // blob positions [dx, dy, r]
-          const blobs = [
-            [0, 0, s*38], [-s*28, s*10, s*30], [s*30, s*8, s*33],
-            [-s*14, -s*17, s*27], [s*16, -s*19, s*28],
-            [-s*48, s*17, s*22], [s*50, s*14, s*24], [s*2, -s*28, s*20]
-          ];
-          // blue-gray undertone
-          ctx.fillStyle = 'rgba(190,220,242,0.55)';
-          blobs.forEach(([dx, dy, r]) => {
-            ctx.beginPath(); ctx.arc(cx+dx, cy+dy+s*5, r, 0, Math.PI*2); ctx.fill();
-          });
-          // main white
-          ctx.fillStyle = '#FEFEFF';
-          blobs.forEach(([dx, dy, r]) => {
+          // Step 2 — blue-gray shadow layer (bottom of cloud body)
+          ctx.fillStyle = '#BDD8EE';
+          [[-s*26,s*13,s*28],[0,s*16,s*34],[s*28,s*12,s*30],
+           [-s*46,s*18,s*20],[s*48,s*16,s*22]].forEach(([dx,dy,r]) => {
             ctx.beginPath(); ctx.arc(cx+dx, cy+dy, r, 0, Math.PI*2); ctx.fill();
           });
-          // bright top highlights
+          // Step 3 — main off-white body
+          ctx.fillStyle = '#EEF6FF';
+          [[0,0,s*36],[-s*26,s*9,s*28],[s*28,s*7,s*31],
+           [-s*12,-s*14,s*25],[s*14,-s*16,s*26],
+           [-s*46,s*15,s*20],[s*48,s*13,s*22],[s*1,-s*25,s*19]].forEach(([dx,dy,r]) => {
+            ctx.beginPath(); ctx.arc(cx+dx, cy+dy, r, 0, Math.PI*2); ctx.fill();
+          });
+          // Step 4 — pure white highlights on top
           ctx.fillStyle = '#FFFFFF';
-          ctx.beginPath(); ctx.arc(cx - s*11, cy - s*20, s*16, 0, Math.PI*2); ctx.fill();
-          ctx.beginPath(); ctx.arc(cx + s*9,  cy - s*17, s*14, 0, Math.PI*2); ctx.fill();
+          [[-s*10,-s*16,s*17],[s*9,-s*14,s*15],[0,-s*6,s*20],
+           [-s*23,s*2,s*13],[s*24,s*1,s*14]].forEach(([dx,dy,r]) => {
+            ctx.beginPath(); ctx.arc(cx+dx, cy+dy, r, 0, Math.PI*2); ctx.fill();
+          });
         }
-        // Right large cluster (matches image)
-        animeCloud(700, 78,  1.25);
-        animeCloud(850, 55,  1.0);
-        animeCloud(560, 60,  0.95);
-        // Left cluster
-        animeCloud(150, 90,  1.05);
-        animeCloud(50,  130, 0.75);
-        // Mid scattered
-        animeCloud(370, 115, 0.82);
-        animeCloud(240, 148, 0.65);
-        animeCloud(640, 148, 0.70);
+        animeCloud(710, 72, 1.28);
+        animeCloud(858, 50, 1.02);
+        animeCloud(568, 55, 0.98);
+        animeCloud(148, 84, 1.08);
+        animeCloud(44,  126, 0.78);
+        animeCloud(375, 110, 0.85);
+        animeCloud(248, 144, 0.66);
+        animeCloud(645, 144, 0.72);
 
-        // Far hills (darkest, most distant)
+        // Far distant hills — blue-green silhouette
         ctx.save();
-        ctx.fillStyle = '#2E6640';
+        ctx.fillStyle = '#2A5E38';
         ctx.beginPath();
-        ctx.moveTo(0, HORIZ + 5);
-        ctx.bezierCurveTo(120, HORIZ - 32, 280, HORIZ - 28, 440, HORIZ - 22);
-        ctx.bezierCurveTo(580, HORIZ - 16, 700, HORIZ - 30, 830, HORIZ - 25);
-        ctx.bezierCurveTo(870, HORIZ - 22, 890, HORIZ - 18, W, HORIZ - 20);
-        ctx.lineTo(W, HORIZ + 5); ctx.closePath(); ctx.fill(); ctx.restore();
+        ctx.moveTo(0, HORIZ + 8);
+        ctx.bezierCurveTo(110, HORIZ-30, 270, HORIZ-26, 430, HORIZ-18);
+        ctx.bezierCurveTo(570, HORIZ-12, 695, HORIZ-28, 820, HORIZ-22);
+        ctx.bezierCurveTo(865, HORIZ-18, 888, HORIZ-14, W, HORIZ-16);
+        ctx.lineTo(W, HORIZ+8); ctx.closePath(); ctx.fill(); ctx.restore();
 
-        // Mid hills (lighter)
+        // Closer hills — medium green
         ctx.save();
-        const hillG = ctx.createLinearGradient(0, HORIZ - 10, 0, HORIZ + 20);
-        hillG.addColorStop(0, '#3E8030'); hillG.addColorStop(1, '#2E6020');
-        ctx.fillStyle = hillG;
+        ctx.fillStyle = '#388528';
         ctx.beginPath();
-        ctx.moveTo(0, HORIZ + 12);
-        ctx.bezierCurveTo(80, HORIZ - 10, 200, HORIZ - 8, 360, HORIZ - 2);
-        ctx.bezierCurveTo(480, HORIZ + 4, 620, HORIZ - 12, 760, HORIZ - 6);
-        ctx.bezierCurveTo(840, HORIZ - 2, 880, HORIZ + 2, W, HORIZ);
-        ctx.lineTo(W, HORIZ + 12); ctx.closePath(); ctx.fill(); ctx.restore();
+        ctx.moveTo(0, HORIZ+14);
+        ctx.bezierCurveTo(75, HORIZ-8, 195, HORIZ-6, 355, HORIZ);
+        ctx.bezierCurveTo(475, HORIZ+6, 615, HORIZ-10, 755, HORIZ-4);
+        ctx.bezierCurveTo(835, HORIZ, 878, HORIZ+4, W, HORIZ+2);
+        ctx.lineTo(W, HORIZ+14); ctx.closePath(); ctx.fill(); ctx.restore();
 
-        // Meadow ground — wide flat green
+        // Meadow — vivid saturated green with cel-shading bands
         const meadG = ctx.createLinearGradient(0, HORIZ, 0, H);
-        meadG.addColorStop(0,    '#7EC832');
-        meadG.addColorStop(0.12, '#68B825');
-        meadG.addColorStop(0.35, '#58A81E');
-        meadG.addColorStop(0.65, '#4A9818');
-        meadG.addColorStop(1,    '#3A8010');
+        meadG.addColorStop(0,    '#8CD835');
+        meadG.addColorStop(0.08, '#74C428');
+        meadG.addColorStop(0.28, '#60B020');
+        meadG.addColorStop(0.55, '#50A018');
+        meadG.addColorStop(0.8,  '#408A10');
+        meadG.addColorStop(1,    '#307808');
         ctx.fillStyle = meadG;
         ctx.fillRect(0, HORIZ, W, H - HORIZ);
 
-        // Subtle perspective light bands on meadow
+        // Anime-style color bands on grass (cel shading stripes)
         ctx.save();
-        ctx.globalAlpha = 0.12;
-        [[HORIZ+18, 14], [HORIZ+40, 12], [HORIZ+68, 10], [HORIZ+100, 9]].forEach(([y, bh]) => {
-          const bG = ctx.createLinearGradient(0, y, 0, y + bh);
-          bG.addColorStop(0, '#A8E050'); bG.addColorStop(1, 'rgba(168,224,80,0)');
-          ctx.fillStyle = bG;
+        [[HORIZ+20, 12, 'rgba(160,236,80,0.22)'],
+         [HORIZ+48, 10, 'rgba(140,218,60,0.18)'],
+         [HORIZ+82, 8,  'rgba(120,200,50,0.14)'],
+         [HORIZ+130, 7, 'rgba(100,180,40,0.10)']].forEach(([y, bh, col]) => {
+          ctx.fillStyle = col;
           ctx.fillRect(0, y, W, bh);
         });
         ctx.restore();
 
-        // Tree on the left (same as image — tall with round canopy)
-        const TX = 85, TBASE = HORIZ + 90, TTOP = HORIZ - 160;
+        // Tree — left side, stylized anime with layered leaf clusters
+        const TX = 88, TBASE = HORIZ + 95, TTOP = HORIZ - 155;
+        ctx.save();
         // Trunk
-        ctx.save();
-        ctx.fillStyle = '#5A3618';
+        ctx.fillStyle = '#4A2E10';
         ctx.beginPath();
-        ctx.moveTo(TX - 8, TBASE);
-        ctx.bezierCurveTo(TX - 10, TBASE - 60, TX - 7, TTOP + 80, TX - 5, TTOP + 30);
-        ctx.lineTo(TX + 5, TTOP + 30);
-        ctx.bezierCurveTo(TX + 7, TTOP + 80, TX + 10, TBASE - 60, TX + 8, TBASE);
+        ctx.moveTo(TX-9, TBASE);
+        ctx.bezierCurveTo(TX-11, TBASE-55, TX-7, TTOP+75, TX-5, TTOP+28);
+        ctx.lineTo(TX+5, TTOP+28);
+        ctx.bezierCurveTo(TX+7, TTOP+75, TX+11, TBASE-55, TX+9, TBASE);
         ctx.closePath(); ctx.fill();
-        // Branch left
-        ctx.strokeStyle = '#5A3618'; ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.moveTo(TX - 4, TTOP + 80);
-        ctx.bezierCurveTo(TX - 30, TTOP + 60, TX - 52, TTOP + 58, TX - 65, TTOP + 50);
-        ctx.stroke();
-        // Branch right
-        ctx.beginPath(); ctx.moveTo(TX + 4, TTOP + 70);
-        ctx.bezierCurveTo(TX + 35, TTOP + 48, TX + 58, TTOP + 45, TX + 72, TTOP + 38);
-        ctx.stroke();
-        ctx.restore();
-        // Canopy layers
-        ctx.save();
-        [[TX,       TTOP-10, 72, '#256818'],
-         [TX-8,     TTOP-12, 62, '#308820'],
-         [TX+10,    TTOP-8,  55, '#3A9825'],
-         [TX-18,    TTOP-5,  44, '#46AA2E'],
-         [TX-5,     TTOP-25, 40, '#50BB35'],
-         // branch foliage
-         [TX-68,    TTOP+42, 26, '#308820'],
-         [TX+74,    TTOP+30, 22, '#308820']
+        // Branches
+        ctx.strokeStyle = '#4A2E10'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(TX-4, TTOP+78);
+        ctx.bezierCurveTo(TX-28, TTOP+58, TX-54, TTOP+55, TX-68, TTOP+46); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(TX+4, TTOP+68);
+        ctx.bezierCurveTo(TX+33, TTOP+46, TX+57, TTOP+43, TX+72, TTOP+34); ctx.stroke();
+        // Leaf clusters — dark to bright, staggered for volume
+        [// shadow clusters
+         [TX,    TTOP-8,  70, '#1E5812'],
+         [TX-6,  TTOP-10, 60, '#287018'],
+         // main body
+         [TX+8,  TTOP-6,  52, '#328A20'],
+         [TX-16, TTOP-4,  42, '#3A9826'],
+         [TX-4,  TTOP-22, 38, '#44A82E'],
+         // bright top highlights
+         [TX-14, TTOP-28, 28, '#52BE38'],
+         [TX+6,  TTOP-30, 24, '#5ACC40'],
+         // branch clusters
+         [TX-70, TTOP+38, 24, '#287018'],
+         [TX+74, TTOP+26, 20, '#287018']
         ].forEach(([cx, cy, r, col]) => {
           ctx.fillStyle = col;
           ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
         });
         ctx.restore();
 
-        // Scattered mid-ground daisies (small, perspective)
+        // Mid-ground small daisies (distant, perspective)
         function daisy(x, y, r, n) {
           ctx.fillStyle = '#FFFFFF';
           for (let i = 0; i < n; i++) {
             const a = (i / n) * Math.PI * 2;
             ctx.beginPath();
-            ctx.ellipse(x + Math.cos(a)*r*1.6, y + Math.sin(a)*r*1.6, r*0.85, r*0.45, a, 0, Math.PI*2);
+            ctx.ellipse(x + Math.cos(a)*r*1.65, y + Math.sin(a)*r*1.65, r*0.88, r*0.44, a, 0, Math.PI*2);
             ctx.fill();
           }
-          ctx.fillStyle = '#E8C808';
-          ctx.beginPath(); ctx.arc(x, y, r * 0.9, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#F0D010';
+          ctx.beginPath(); ctx.arc(x, y, r*0.92, 0, Math.PI*2); ctx.fill();
         }
-        const midDaisies = [
-          [200,318,2.2,6],[265,310,2,6],[340,320,2.2,6],[420,312,2,6],
-          [500,318,2.2,6],[580,310,2,6],[660,320,2,6],[740,314,2.2,6],[820,316,2,6]
-        ];
-        midDaisies.forEach(d => daisy(...d));
+        [[195,316,2.1,6],[262,308,1.9,6],[338,318,2.1,6],[418,310,1.9,6],
+         [498,316,2.1,6],[578,308,1.9,6],[658,318,2.1,6],[738,312,2.1,6],
+         [818,314,1.9,6]].forEach(d => daisy(...d));
 
-        // Tall foreground grass blades
+        // Tall foreground grass blades — vivid bright green
         ctx.save();
-        for (let gx = 0; gx <= W; gx += 5) {
-          const lean = Math.sin(gx * 0.12) * 8 + Math.cos(gx * 0.25) * 4;
-          const gh   = 22 + Math.sin(gx * 0.38) * 10 + Math.cos(gx * 0.63) * 6;
-          const t    = Math.floor(gx / 5) % 3;
-          ctx.strokeStyle = t === 0 ? '#4EC820' : t === 1 ? '#3AB810' : '#5CD830';
-          ctx.lineWidth = 1.8;
+        for (let gx = 0; gx <= W; gx += 4) {
+          const lean = Math.sin(gx * 0.115) * 9 + Math.cos(gx * 0.24) * 5;
+          const gh   = 24 + Math.sin(gx * 0.36) * 11 + Math.cos(gx * 0.61) * 7;
+          const t    = Math.floor(gx / 4) % 4;
+          ctx.strokeStyle = ['#52D820','#40C810','#64E82A','#38B808'][t];
+          ctx.lineWidth = 1.9;
           ctx.beginPath();
-          ctx.moveTo(gx, GROUND + 8);
-          ctx.quadraticCurveTo(gx + lean * 0.55, GROUND - gh * 0.45, gx + lean * 1.3, GROUND - gh);
+          ctx.moveTo(gx, GROUND + 10);
+          ctx.quadraticCurveTo(gx + lean*0.5, GROUND - gh*0.48, gx + lean*1.35, GROUND - gh);
           ctx.stroke();
         }
         ctx.restore();
 
-        // Foreground daisies (larger)
-        const fgDaisies = [
-          [42,GROUND-12,5,8],[115,GROUND-8,4.5,8],[195,GROUND-14,5,8],
-          [285,GROUND-10,4.5,8],[370,GROUND-12,5,8],[455,GROUND-9,4.5,8],
-          [545,GROUND-13,5,8],[625,GROUND-10,4.5,8],[710,GROUND-12,5,8],
-          [795,GROUND-9,4.5,8],[870,GROUND-11,5,8]
-        ];
-        fgDaisies.forEach(d => daisy(...d));
+        // Large foreground daisies
+        [[38,GROUND-14,5.5,8],[112,GROUND-10,5,8],[192,GROUND-15,5.5,8],
+         [282,GROUND-11,5,8],[368,GROUND-13,5.5,8],[452,GROUND-10,5,8],
+         [542,GROUND-14,5.5,8],[622,GROUND-11,5,8],[708,GROUND-13,5.5,8],
+         [792,GROUND-10,5,8],[866,GROUND-12,5.5,8]
+        ].forEach(d => daisy(...d));
 
-        // Red poppies
+        // Red poppies — vivid saturated
         function poppy(x, y, r) {
-          ctx.fillStyle = '#D01010';
+          ctx.fillStyle = '#E01818';
           for (let i = 0; i < 4; i++) {
-            const a = (i / 4) * Math.PI * 2 + Math.PI / 8;
+            const a = (i/4)*Math.PI*2 + Math.PI/8;
             ctx.beginPath();
-            ctx.ellipse(x + Math.cos(a)*r, y + Math.sin(a)*r, r*1.15, r*0.9, a, 0, Math.PI*2);
+            ctx.ellipse(x+Math.cos(a)*r, y+Math.sin(a)*r, r*1.2, r*0.92, a, 0, Math.PI*2);
             ctx.fill();
           }
-          ctx.fillStyle = '#180A0A';
-          ctx.beginPath(); ctx.arc(x, y, r * 0.32, 0, Math.PI * 2); ctx.fill();
+          // petal highlight
+          ctx.fillStyle = '#F84040';
+          for (let i = 0; i < 4; i++) {
+            const a = (i/4)*Math.PI*2 + Math.PI/8;
+            ctx.beginPath();
+            ctx.ellipse(x+Math.cos(a)*r*0.6, y+Math.sin(a)*r*0.6-r*0.3, r*0.5, r*0.35, a, 0, Math.PI*2);
+            ctx.fill();
+          }
+          ctx.fillStyle = '#0E0505';
+          ctx.beginPath(); ctx.arc(x, y, r*0.3, 0, Math.PI*2); ctx.fill();
         }
-        [[155,GROUND-16,6],[245,GROUND-12,5.5],[338,GROUND-15,6],
-         [488,GROUND-13,5.5],[572,GROUND-16,6],[672,GROUND-12,5.5],[798,GROUND-15,6]
+        [[152,GROUND-18,6.5],[242,GROUND-14,6],[335,GROUND-17,6.5],
+         [485,GROUND-15,6],[570,GROUND-18,6.5],[670,GROUND-14,6],[796,GROUND-17,6.5]
         ].forEach(p => poppy(...p));
 
-        // Small blue/purple flowers
+        // Blue/purple flowers
         ctx.save();
-        [[85,GROUND-5],[180,GROUND-8],[320,GROUND-6],[442,GROUND-9],
-         [555,GROUND-5],[638,GROUND-8],[748,GROUND-6],[848,GROUND-9]
+        [[82,GROUND-6],[178,GROUND-9],[318,GROUND-7],[440,GROUND-10],
+         [552,GROUND-6],[636,GROUND-9],[746,GROUND-7],[846,GROUND-10]
         ].forEach(([x, y]) => {
-          ctx.fillStyle = '#8888E8';
+          ctx.fillStyle = '#7070E0';
           for (let i = 0; i < 5; i++) {
-            const a = (i / 5) * Math.PI * 2;
+            const a = (i/5)*Math.PI*2;
             ctx.beginPath();
-            ctx.ellipse(x + Math.cos(a)*5, y + Math.sin(a)*5, 3, 4.5, a, 0, Math.PI*2);
+            ctx.ellipse(x+Math.cos(a)*5.5, y+Math.sin(a)*5.5, 3.2, 4.8, a, 0, Math.PI*2);
             ctx.fill();
           }
-          ctx.fillStyle = '#F4F4FF';
-          ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#C8C8FF';
+          ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI*2); ctx.fill();
         });
         ctx.restore();
 
