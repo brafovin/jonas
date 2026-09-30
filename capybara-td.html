@@ -275,18 +275,18 @@ const TOWERS = {
     base:{range:125, rate:.75, dmg:1, pierce:2, speed:460, shots:1, spread:0, kind:'dart', col:'#f4e3b0'},
     A:{name:'Schärfe', up:[
       {n:'Spitze Pfeile', c:140, d:'+3 Durchschlag', m:s=>{s.pierce+=3}},
-      {n:'Schwere Pfeile', c:320, d:'+2 Schaden', m:s=>{s.dmg+=2}},
+      {n:'Schwere Pfeile', c:320, d:'+2 Schaden, durchdringt Blei', m:s=>{s.dmg+=2; s.pierceLead=true}},
       {n:'Pfeilhagel', c:1100, d:'5 Pfeile im Fächer, +1 Schaden', m:s=>{s.shots=5; s.spread=.55; s.dmg+=1}},
       {n:'Speerregen', c:3600, d:'7 Speere, +3 Schaden, +6 Durchschlag', m:s=>{s.shots=7; s.spread=.7; s.dmg+=3; s.pierce+=6}},
       {n:'Kriegsgott', c:15000, d:'9 Speere, +10 Schaden, schneller', m:s=>{s.shots=9; s.spread=.9; s.dmg+=10; s.rate*=.7}}]},
     B:{name:'Tempo', up:[
-      {n:'Weitsicht', c:100, d:'+25 Reichweite', m:s=>{s.range+=25}},
+      {n:'Weitsicht', c:100, d:'+25 Reichweite, erkennt Tarnung', m:s=>{s.range+=25; s.detect=true}},
       {n:'Schnelle Hände', c:260, d:'40% schneller', m:s=>{s.rate*=.6}},
       {n:'Dauerfeuer', c:900, d:'Extrem schnell, +15 Reichweite', m:s=>{s.rate*=.4; s.range+=15}},
       {n:'Pfeilwerfer', c:3200, d:'40% schneller, +20 Reichweite', m:s=>{s.rate*=.6; s.range+=20}},
       {n:'Pfeilsturm', c:12000, d:'Doppelt so schnell, +2 Schaden, +4 Durchschlag', m:s=>{s.rate*=.5; s.dmg+=2; s.pierce+=4}}]}},
   sniper: { name:'Scharfschütze', cost:380, desc:'Trifft überall auf der Karte. Langsam, aber stark.',
-    base:{range:99999, rate:1.7, dmg:2, kind:'snipe'},
+    base:{range:99999, rate:1.7, dmg:2, kind:'snipe', detect:true},
     A:{name:'Kaliber', up:[
       {n:'Panzerbrechend', c:350, d:'+3 Schaden', m:s=>{s.dmg+=3}},
       {n:'Kaliber .50', c:1000, d:'+6 Schaden', m:s=>{s.dmg+=6}},
@@ -300,7 +300,7 @@ const TOWERS = {
       {n:'Schnellfeuer', c:7000, d:'Noch viel schneller', m:s=>{s.rate*=.6}},
       {n:'Minigun', c:20000, d:'Dauerfeuer über die ganze Karte', m:s=>{s.rate*=.5}}]}},
   mage: { name:'Magier', cost:480, desc:'Magische Geschosse durchschlagen viele Ballons.',
-    base:{range:130, rate:1, dmg:1, pierce:6, speed:340, shots:1, spread:0, splash:0, kind:'magic', col:'#b58cff'},
+    base:{range:130, rate:1, dmg:1, pierce:6, speed:340, shots:1, spread:0, splash:0, kind:'magic', col:'#b58cff', detect:true},
     A:{name:'Feuer', up:[
       {n:'Feuerball', c:400, d:'Explosion beim Treffer', m:s=>{s.splash=45; s.col='#ff8a3d'}},
       {n:'Inferno', c:1000, d:'Größere Explosion, +2 Schaden', m:s=>{s.splash=70; s.dmg+=2}},
@@ -314,10 +314,10 @@ const TOWERS = {
       {n:'Magiestrom', c:6500, d:'Schneller, +10 Durchschlag, +1 Schaden', m:s=>{s.rate*=.6; s.pierce+=10; s.dmg+=1}},
       {n:'Zauber-Sturm', c:20000, d:'9 Zauber, +2 Schaden, schneller', m:s=>{s.shots=9; s.spread=1; s.dmg+=2; s.rate*=.6}}]}},
   ninja: { name:'Ninja', cost:400, desc:'Blitzschnelle Shuriken-Würfe.',
-    base:{range:115, rate:.4, dmg:1, pierce:2, speed:520, shots:1, spread:0, kind:'dart', col:'#dde'},
+    base:{range:115, rate:.4, dmg:1, pierce:2, speed:520, shots:1, spread:0, kind:'dart', col:'#dde', detect:true},
     A:{name:'Waffen', up:[
       {n:'Doppelwurf', c:250, d:'2 Shuriken', m:s=>{s.shots=2; s.spread=.2}},
-      {n:'Kunai', c:600, d:'+1 Schaden, +2 Durchschlag', m:s=>{s.dmg+=1; s.pierce+=2}},
+      {n:'Kunai', c:600, d:'+1 Schaden, +2 Durchschlag, durchdringt Blei', m:s=>{s.dmg+=1; s.pierce+=2; s.pierceLead=true}},
       {n:'Shuriken-Sturm', c:1800, d:'6 Shuriken im Fächer', m:s=>{s.shots=6; s.spread=1.1}},
       {n:'Klingenwirbel', c:4500, d:'8 Shuriken, +2 Schaden, +4 Durchschlag', m:s=>{s.shots=8; s.spread=1.4; s.dmg+=2; s.pierce+=4}},
       {n:'Nachtsturm', c:15000, d:'12 Shuriken im Kreis, +3 Schaden', m:s=>{s.shots=12; s.spread=Math.PI; s.dmg+=3}}]},
@@ -337,7 +337,7 @@ const TOWERS = {
       {n:'Atombombe', c:25000, d:'+60 Schaden, Radius 220', m:s=>{s.dmg+=60; s.splash=220}}]},
     B:{name:'Logistik', up:[
       {n:'Kurze Lunte', c:300, d:'30% schneller', m:s=>{s.rate*=.7}},
-      {n:'Weitwurf', c:800, d:'+20 Reichweite, schneller', m:s=>{s.range+=20; s.rate*=.7}},
+      {n:'Weitwurf', c:800, d:'+20 Reichweite, schneller, erkennt Tarnung', m:s=>{s.range+=20; s.rate*=.7; s.detect=true}},
       {n:'Schnellfeuer', c:2400, d:'Extrem schnell', m:s=>{s.rate*=.4}},
       {n:'Nachladeautomat', c:6000, d:'Noch schneller', m:s=>{s.rate*=.6}},
       {n:'Bomber-Geschwader', c:18000, d:'Doppelt so schnell, +3 Schaden', m:s=>{s.rate*=.5; s.dmg+=3}}]}},
@@ -374,12 +374,12 @@ const TOWERS = {
     A:{name:'Gebiss', up:[
       {n:'Scharfe Zähne', c:250, d:'+2 Schaden', m:s=>{s.dmg+=2}},
       {n:'Doppelbiss', c:550, d:'Beißt 4 Ballons gleichzeitig', m:s=>{s.targets=4}},
-      {n:'Haizähne', c:1600, d:'+6 Schaden, 6 Ziele', m:s=>{s.dmg+=6; s.targets=6}},
+      {n:'Haizähne', c:1600, d:'+6 Schaden, 6 Ziele, durchbeißt Blei', m:s=>{s.dmg+=6; s.targets=6; s.pierceLead=true}},
       {n:'Kettenbiss', c:4200, d:'+10 Schaden, 10 Ziele', m:s=>{s.dmg+=10; s.targets=10}},
       {n:'Megalodon', c:15000, d:'+40 Schaden, 20 Ziele', m:s=>{s.dmg+=40; s.targets=20}}]},
     B:{name:'Jagd', up:[
       {n:'Flossenantrieb', c:200, d:'25% schneller', m:s=>{s.rate*=.75}},
-      {n:'Langer Atem', c:350, d:'+20 Reichweite', m:s=>{s.range+=20}},
+      {n:'Langer Atem', c:350, d:'+20 Reichweite, erkennt Tarnung', m:s=>{s.range+=20; s.detect=true}},
       {n:'Blutrausch', c:1200, d:'40% schneller', m:s=>{s.rate*=.6}},
       {n:'Tsunami', c:3500, d:'+40 Reichweite, schneller', m:s=>{s.range+=40; s.rate*=.6}},
       {n:'Ozean-Herrscher', c:12000, d:'Viel schneller, +10 Schaden, +6 Ziele', m:s=>{s.rate*=.4; s.dmg+=10; s.targets+=6}}]}},
@@ -387,12 +387,12 @@ const TOWERS = {
     base:{range:130, rate:1.1, dmg:1, pierce:5, speed:300, shots:1, spread:0, kind:'boomer', col:'#d9a441'},
     A:{name:'Klinge', up:[
       {n:'Glaive', c:250, d:'+3 Durchschlag', m:s=>{s.pierce+=3}},
-      {n:'Schwerer Bumerang', c:450, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+      {n:'Schwerer Bumerang', c:450, d:'+1 Schaden, durchdringt Blei', m:s=>{s.dmg+=1; s.pierceLead=true}},
       {n:'Zwillings-Rangs', c:1300, d:'2 Bumerangs', m:s=>{s.shots=2; s.spread=.25}},
       {n:'Sägeblatt', c:3800, d:'+3 Schaden, +10 Durchschlag', m:s=>{s.dmg+=3; s.pierce+=10}},
       {n:'Kugelblitz-Glaive', c:14000, d:'3 Bumerangs, +8 Schaden, +20 Durchschlag', m:s=>{s.shots=3; s.spread=.4; s.dmg+=8; s.pierce+=20}}]},
     B:{name:'Flug', up:[
-      {n:'Weitwurf', c:150, d:'+30 Reichweite', m:s=>{s.range+=30}},
+      {n:'Weitwurf', c:150, d:'+30 Reichweite, erkennt Tarnung', m:s=>{s.range+=30; s.detect=true}},
       {n:'Leichter Bumerang', c:350, d:'25% schneller', m:s=>{s.rate*=.75}},
       {n:'Turbo-Rückkehr', c:1000, d:'40% schneller, +20 Reichweite', m:s=>{s.rate*=.6; s.range+=20}},
       {n:'Wirbel', c:3200, d:'40% schneller', m:s=>{s.rate*=.6}},
@@ -407,12 +407,12 @@ const TOWERS = {
       {n:'Todestrank', c:16000, d:'15 Giftschaden, Radius 110', m:s=>{s.pdmg=15; s.splash=110}}]},
     B:{name:'Elixiere', up:[
       {n:'Schnelles Brauen', c:250, d:'25% schneller', m:s=>{s.rate*=.75}},
-      {n:'Wurfarm', c:400, d:'+20 Reichweite', m:s=>{s.range+=20}},
-      {n:'Stärkungstrank', c:1500, d:'Türme im Umkreis 110: +20% Tempo', m:s=>{s.aDist=110; s.aRate=1.2}},
+      {n:'Wurfarm', c:400, d:'+20 Reichweite, erkennt Tarnung', m:s=>{s.range+=20; s.detect=true}},
+      {n:'Stärkungstrank', c:1500, d:'Türme im Umkreis 110: +20% Tempo, Tarnungserkennung', m:s=>{s.aDist=110; s.aRate=1.2; s.aDetect=true}},
       {n:'Aufputschmittel', c:3800, d:'Umkreis 130: +35% Tempo, +10 Reichweite', m:s=>{s.aDist=130; s.aRate=1.35; s.aRange=10; s.rate*=.7}},
       {n:'Stein der Weisen', c:14000, d:'Umkreis 150: +50% Tempo, +1 Schaden, +$300/Runde', m:s=>{s.aDist=150; s.aRate=1.5; s.aDmg=1; s.income+=300}}]}},
   village: { name:'Capyteich', cost:900, desc:'Capybara-Dorf: Türme im Umkreis werden schneller. Später auch mit Einkommen.',
-    base:{range:0, kind:'village', income:0, aDist:100, aRate:1.1, aRange:0, aDmg:0},
+    base:{range:0, kind:'village', income:0, aDist:100, aRate:1.1, aRange:0, aDmg:0, aDetect:true},
     A:{name:'Dorfleben', up:[
       {n:'Große Siedlung', c:300, d:'+30 Umkreis', m:s=>{s.aDist+=30}},
       {n:'Schnellere Truppen', c:600, d:'+20% Tempo für Türme', m:s=>{s.aRate=1.2}},
@@ -500,9 +500,24 @@ for (const k in PATHC) TOWERS[k].C = PATHC[k];
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
 
 /* ---------- Ballons ---------- */
-const BCOL = ['', '#e53935','#1e88e5','#43a047','#fdd835','#ec407a','#23232b','#f2f2f2'];
-const BSPD = [0, 70, 85, 100, 125, 150, 110, 110];
-const BOSS_TIER = 8;
+const BCOL = ['', '#e53935','#1e88e5','#43a047','#fdd835','#ec407a','#23232b','#f2f2f2','#ffffff','#ff66cc','#d9b48a'];
+const BSPD = [0, 70, 85, 100, 125, 150, 110, 110, 120, 135, 100];
+const BVAL = [0, 1, 2, 3, 4, 5, 6, 7, 9, 11, 15];
+// Bosse: 20 = MOAB, 21 = BFB, 22 = DDT (getarnt, schnell)
+const BOSS = {
+  20:{name:'MOAB', spd:45, r:32, val:40, c:['#37474f','#90a4ae'], hp:300},
+  21:{name:'BFB', spd:30, r:42, val:100, c:['#7f1d1d','#e57373'], hp:1000},
+  22:{name:'DDT', spd:125, r:22, val:60, c:['#1b3d1b','#6aa84f'], hp:300, camo:true}
+};
+const isBoss = e => e.tier >= 20;
+const immExpl = e => e.tier === 6 || e.tier === 8 || e.tier === 22;   // explosionsimmun
+const immIce = e => e.tier === 7 || e.tier === 8;                     // eisimmun
+const baseSpd = e => isBoss(e) ? BOSS[e.tier].spd : BSPD[e.tier];
+const KIDS = {6:[5,5], 7:[5,5], 8:[6,7], 9:[8,8], 10:[8,8,8], 20:[6,6,7,7], 21:[20,20,20,20], 22:[]};
+const NEWS = {8:'Neu: Blei-Ballons – Pfeile, Shuriken, Bumerangs & Bisse prallen ab (Ausnahme: Upgrades mit „durchdringt Blei“)!',
+  10:'Boss: MOAB!', 12:'Neu: Tarn-Ballons – nur mit Tarnungserkennung angreifbar (Scharfschütze, Ninja, Magier, Capyteich…)!',
+  15:'Boss: DDT – schnell und getarnt!', 20:'Boss: BFB – zerfällt in 4 MOABs!', 22:'Neu: Zebras – immun gegen Explosionen UND Eis!',
+  28:'Neu: Regenbogen-Ballons!', 33:'Neu: Keramik-Ballons – zäh, mit Lebenspunkten!'};
 
 /* ---------- Spielzustand ---------- */
 let S;
@@ -522,9 +537,16 @@ function newGame(d, mi) {
   refreshAll(true);
 }
 
+const BOSS_WAVES = {10:[20], 15:[22], 20:[21], 25:[22,22], 30:[21,20], 35:[22,22,22], 40:[21,21]};
+const EXTRA = [
+  {tier:3, lead:true, st:8, base:3, step:2, cap:14}, {tier:5, lead:true, st:20, base:3, step:2, cap:14},
+  {tier:3, camo:true, st:12, base:4, step:2, cap:16}, {tier:5, camo:true, st:24, base:4, step:2, cap:16},
+  {tier:8, st:22, base:3, step:2, cap:20}, {tier:9, st:28, base:3, step:2, cap:16},
+  {tier:10, st:33, base:2, step:2, cap:12}, {tier:8, camo:true, st:36, base:3, step:2, cap:12}
+];
 function makeWave(r) {
   const starts = [1,3,6,10,14,19,25]; const ev = [];
-  const mult = DIFF[diffIdx].mult;
+  const mult = DIFF[diffIdx].mult, dm = mult > 1 ? 1.3 : mult < 1 ? .8 : 1;
   starts.forEach((st, t) => {
     const k = r - st; if (k < 0) return;
     let n = Math.min(6 + k*3, 12 + r);
@@ -535,20 +557,32 @@ function makeWave(r) {
     const off = t * .3;
     for (let i = 0; i < n; i++) ev.push({t:off + i*gap, tier:t+1});
   });
-  if (r % 10 === 0) ev.push({t:2, tier:BOSS_TIER, hp:Math.round(250 * Math.pow(r/10, 1.9) * (mult>1?1.3:mult<1?.8:1))});
+  EXTRA.forEach((g, gi) => {
+    const k = r - g.st; if (k < 0) return;
+    const n = Math.round(Math.min(g.base + k*g.step, g.cap) * mult); if (n <= 0) return;
+    const gap = Math.max(.3, .95 - n*.02), off = .4 + gi*.25;
+    for (let i = 0; i < n; i++) ev.push({t:off + i*gap, tier:g.tier, camo:!!g.camo, lead:!!g.lead, hp:g.tier === 10 ? Math.round(10*dm) : 0});
+  });
+  (BOSS_WAVES[r] || []).forEach((bt, i) => {
+    const hp = bt === 20 ? 250 * Math.pow(Math.max(r,10)/10, 1.9) : bt === 21 ? 1000 * Math.pow(r/20, 1.7) : 150 + r*10;
+    ev.push({t:2 + i*3.5, tier:bt, hp:Math.round(hp * dm)});
+  });
   ev.sort((a,b) => a.t - b.t);
-  ev.forEach((q, i) => { q.lane = q.tier === BOSS_TIER ? 0 : i % LANES.length; });
+  ev.forEach((q, i) => { q.lane = i % LANES.length; });
   return ev;
 }
 
-function spawn(tier, d, hp, lane) {
-  const e = {id:nextId++, d:d||0, lane:lane||0, tier, slow:0, freeze:0, dead:false, x:0, y:0};
-  if (tier === BOSS_TIER) { e.hp = e.maxhp = hp || 300; }
+function spawn(tier, d, hp, lane, camo, lead) {
+  const e = {id:nextId++, d:d||0, lane:lane||0, tier, slow:0, freeze:0, dead:false, x:0, y:0, camo:!!camo || !!(BOSS[tier] && BOSS[tier].camo), lead:!!lead};
+  if (tier >= 10) { e.hp = e.maxhp = hp || (tier === 10 ? 10 : BOSS[tier].hp); }
   const p = posAt(e.d, e.lane); e.x = p.x; e.y = p.y;
   S.enemies.push(e); return e;
 }
-const eRad = e => e.tier === BOSS_TIER ? 32 : 10 + e.tier * .9;
-const eVal = e => e.tier === BOSS_TIER ? 40 : e.tier;
+const eRad = e => isBoss(e) ? BOSS[e.tier].r : 10 + Math.min(e.tier, 10) * .9;
+const eVal = e => isBoss(e) ? BOSS[e.tier].val : BVAL[e.tier];
+function spawnKids(e) {
+  (KIDS[e.tier] || []).forEach((kt, i) => spawn(kt, e.d - i*12, kt === 20 ? 300 : 0, e.lane, e.camo));
+}
 
 function pop(e, col) {
   for (let i = 0; i < 5; i++) S.parts.push({x:e.x, y:e.y, vx:(Math.random()-.5)*160, vy:(Math.random()-.5)*160, life:.35, col});
@@ -557,30 +591,37 @@ function pop(e, col) {
 // Schaden an Ballon; gibt Anzahl geplatzter Schichten zurück
 function hit(e, dmg) {
   if (e.dead || dmg <= 0) return 0;
-  if (e.tier === BOSS_TIER) {
-    e.hp -= dmg; S.money += Math.max(1, Math.round(dmg*.25));
+  if (e.lead) { e.lead = false; dmg--; pop(e, '#9aa5b1'); S.money += 1 + (S.popBonus||0); if (dmg <= 0) return 1; }
+  if (e.tier >= 10) { // Keramik & Bosse: Lebenspunkte
+    const boss = isBoss(e);
+    e.hp -= dmg; S.money += Math.max(1, Math.round(dmg * (boss ? .25 : .5)));
     if (e.hp <= 0) {
-      e.dead = true; pop(e,'#89a'); S.money += 100;
-      for (let i = 0; i < 4; i++) spawn(6, e.d - i*14, 0, e.lane);
-      flash('Boss besiegt! +$100');
+      e.dead = true; pop(e, boss ? '#89a' : BCOL[10]);
+      if (boss) { S.money += 100; flash(BOSS[e.tier].name + ' besiegt! +$100'); } else S.money += 5;
+      spawnKids(e);
     }
     return 1;
   }
   let pops = 0;
   while (dmg > 0 && !e.dead) {
-    if (e.tier >= 6) { // Schwarz / Weiß platzen in zwei Rosa
-      e.dead = true; pop(e, BCOL[e.tier]); pops++; S.money += 2 + (S.popBonus||0);
-      spawn(5, e.d, 0, e.lane); spawn(5, e.d - 10, 0, e.lane); break;
+    if (e.tier >= 6) { // Schwarz / Weiß / Zebra / Regenbogen zerfallen in Kinder
+      e.dead = true; pop(e, BCOL[e.tier] === 'rainbow' ? '#f6c' : BCOL[e.tier]); pops++; S.money += 2 + (S.popBonus||0);
+      spawnKids(e); break;
     }
     pop(e, BCOL[e.tier]); e.tier--; pops++; dmg--; S.money += 1 + (S.popBonus||0);
     if (e.tier <= 0) e.dead = true;
   }
   return pops;
 }
+// Schaden eines Geschosses (spitze Waffen prallen an Blei ab)
+function pd(p, e) {
+  if (e.lead && p.sharp) { S.fx.push({type:'ping', x:e.x, y:e.y, life:.25, max:.25}); return 0; }
+  return p.dmg;
+}
 
 function onHitFx(p, e) {
   if (e.dead) return;
-  if (p.slow && e.tier !== 7) e.slow = Math.max(e.slow, p.slow);
+  if (p.slow && !immIce(e)) e.slow = Math.max(e.slow, p.slow);
   if (p.hp) { e.poison = Math.max(e.poison || 0, p.hpt); e.pdmg = Math.max(e.pdmg || 0, p.hp); e.ptick = e.ptick || .5; }
 }
 function poisonSplash(p) {
@@ -593,7 +634,7 @@ function poisonSplash(p) {
 function explode(x, y, r, dmg, skip) {
   S.fx.push({type:'boom', x, y, r, life:.3, max:.3});
   for (const e of S.enemies.slice()) {
-    if (e.dead || e === skip || e.tier === 6) continue; // Schwarz: Explosionsimmun
+    if (e.dead || e === skip || immExpl(e)) continue; // Schwarz/Zebra/DDT: Explosionsimmun
     if (Math.hypot(e.x - x, e.y - y) <= r + eRad(e)) hit(e, dmg);
   }
 }
@@ -614,7 +655,7 @@ function placeTower(type, x, y) {
   const def = TOWERS[type];
   if (S.money < def.cost || !canPlace(x, y)) return false;
   S.money -= def.cost;
-  const t = {type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
+  const t = {type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0,detect:false}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
   computeStats(t); S.towers.push(t); S.sel = t; S.place = null;
   refreshAll(true); return true;
 }
@@ -637,6 +678,7 @@ function sellTower(t) {
   S.money += Math.round(t.spent * .7);
   S.towers.splice(S.towers.indexOf(t), 1); S.sel = null; refreshAll(true);
 }
+const canSee = t => t.s.detect || t.bf.detect;
 const rng = t => t.s.range > 5000 ? t.s.range : t.s.range + t.bf.range;
 function pickTarget(t) {
   let best = null, bv = 0;
@@ -644,11 +686,12 @@ function pickTarget(t) {
     if (e.dead) continue;
     const dist = Math.hypot(e.x - t.x, e.y - t.y);
     if (dist > rng(t) + eRad(e)) continue;
+    if (e.camo && !canSee(t)) continue;
     let v;
     switch (t.mode) {
       case 0: v = e.d; break;
       case 1: v = -e.d; break;
-      case 2: v = e.tier === BOSS_TIER ? 1000 + e.hp : e.tier * 10 + e.d/10000; break;
+      case 2: v = isBoss(e) ? 1000 + e.hp : e.tier * 10 + (e.hp||0)/100 + e.d/10000; break;
       default: v = -dist;
     }
     if (best === null || v > bv) { best = e; bv = v; }
@@ -660,7 +703,7 @@ function lead(t, e, speed) {
   let p = {x:e.x, y:e.y};
   for (let i = 0; i < 2; i++) {
     const time = dist / speed;
-    p = posAt(e.d + BSPD[Math.min(e.tier,7)] * (e.tier === BOSS_TIER ? .55 : 1) * time * (e.slow>0?.5:1), e.lane);
+    p = posAt(e.d + baseSpd(e) * time * (e.slow>0?.5:1), e.lane);
     dist = Math.hypot(p.x - t.x, p.y - t.y);
   }
   return p;
@@ -673,7 +716,7 @@ function fire(t, e) {
       for (let i = 0; i < s.shots; i++) {
         const a = base + (s.shots > 1 ? (i/(s.shots-1) - .5) * s.spread * 2 : 0);
         S.projs.push({x:t.x+Math.cos(a)*14, y:t.y-2+Math.sin(a)*14, vx:Math.cos(a)*s.speed, vy:Math.sin(a)*s.speed,
-          dmg:s.dmg, pierce:s.pierce, splash:s.splash||0, life:(s.range*1.5)/s.speed, hit:new Set(), col:s.col, magic:s.kind==='magic', a, slow:s.slowHit||0, hp:s.hp||0, hpt:s.hpt||0});
+          dmg:s.dmg, pierce:s.pierce, splash:s.splash||0, life:(s.range*1.5)/s.speed, hit:new Set(), col:s.col, magic:s.kind==='magic', sharp:s.kind==='dart' && !s.pierceLead, a, slow:s.slowHit||0, hp:s.hp||0, hpt:s.hpt||0});
       }
       break; }
     case 'boomer': {
@@ -681,13 +724,14 @@ function fire(t, e) {
       for (let i = 0; i < s.shots; i++) {
         const a = base + (s.shots > 1 ? (i/(s.shots-1) - .5) * s.spread * 2 : 0);
         S.projs.push({boom:true, phase:0, x:t.x, y:t.y-2, ox:t.x, oy:t.y-2, vx:Math.cos(a)*s.speed, vy:Math.sin(a)*s.speed, speed:s.speed,
-          maxd:s.range*1.05, trav:0, dmg:s.dmg, pierce:s.pierce, pierce0:s.pierce, splash:0, hit:new Set(), col:s.col, a:0, life:99, slow:s.slowHit||0, hp:0, hpt:0});
+          maxd:s.range*1.05, trav:0, dmg:s.dmg, pierce:s.pierce, pierce0:s.pierce, splash:0, hit:new Set(), col:s.col, a:0, life:99, sharp:!s.pierceLead, slow:s.slowHit||0, hp:0, hpt:0});
       }
       break; }
     case 'bite': {
-      const list = S.enemies.filter(en => !en.dead && Math.hypot(en.x-t.x, en.y-t.y) <= s.range + eRad(en)).sort((a,b) => b.d - a.d).slice(0, s.targets);
+      const list = S.enemies.filter(en => !en.dead && (!en.camo || canSee(t)) && Math.hypot(en.x-t.x, en.y-t.y) <= s.range + eRad(en)).sort((a,b) => b.d - a.d).slice(0, s.targets);
       if (list.length) t.ang = Math.atan2(list[0].y - t.y, list[0].x - t.x);
-      for (const en of list) { S.fx.push({type:'bite', x:en.x, y:en.y, life:.25, max:.25}); hit(en, s.dmg); }
+      for (const en of list) { S.fx.push({type:'bite', x:en.x, y:en.y, life:.25, max:.25});
+        if (en.lead && !s.pierceLead) S.fx.push({type:'ping', x:en.x, y:en.y, life:.25, max:.25}); else hit(en, s.dmg); }
       break; }
     case 'potion': {
       const p = lead(t, e, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x);
@@ -696,7 +740,7 @@ function fire(t, e) {
     case 'snipe':
       t.ang = Math.atan2(e.y - t.y, e.x - t.x);
       { const list = [e]; const n = s.shots || 1;
-        if (n > 1) list.push(...S.enemies.filter(x => !x.dead && x !== e).sort((a, b) => b.d - a.d).slice(0, n - 1));
+        if (n > 1) list.push(...S.enemies.filter(x => !x.dead && x !== e && (!x.camo || canSee(t))).sort((a, b) => b.d - a.d).slice(0, n - 1));
         for (const en of list) { S.fx.push({type:'line', x1:t.x, y1:t.y, x2:en.x, y2:en.y, life:.12, max:.12}); hit(en, s.dmg); } }
       break;
     case 'bomb': {
@@ -707,9 +751,9 @@ function fire(t, e) {
       S.fx.push({type:'ring', x:t.x, y:t.y, r:s.range, life:.4, max:.4});
       for (const en of S.enemies) {
         if (en.dead || Math.hypot(en.x-t.x, en.y-t.y) > s.range + eRad(en)) continue;
-        if (en.tier === 7) continue;
+        if (immIce(en)) continue;
         en.slow = Math.max(en.slow, s.slow);
-        if (s.freeze && en.tier !== BOSS_TIER) en.freeze = Math.max(en.freeze, s.freeze);
+        if (s.freeze && !isBoss(en)) en.freeze = Math.max(en.freeze, s.freeze);
         if (s.dmg) hit(en, s.dmg);
       }
       break; }
@@ -734,7 +778,7 @@ function update(dt) {
       if (e.ptick <= 0) { e.ptick += .5; hit(e, e.pdmg); if (e.dead) continue; }
       if (e.poison <= 0) e.pdmg = 0;
     }
-    let sp = e.tier === BOSS_TIER ? 45 : BSPD[e.tier];
+    let sp = baseSpd(e);
     if (e.freeze > 0) { e.freeze -= dt; sp = 0; }
     else if (e.slow > 0) { e.slow -= dt; sp *= .5; }
     e.d += sp * dt;
@@ -748,10 +792,10 @@ function update(dt) {
   }
   // Tower
   S.popBonus = 0;
-  for (const t of S.towers) { t.bf = {rate:1, range:0, dmg:0}; S.popBonus += t.s.popBonus || 0; }
+  for (const t of S.towers) { t.bf = {rate:1, range:0, dmg:0, detect:false}; S.popBonus += t.s.popBonus || 0; }
   for (const a of S.towers) if (a.s.aDist > 0) for (const t of S.towers) {
     if (t === a || Math.hypot(t.x-a.x, t.y-a.y) > a.s.aDist) continue;
-    t.bf.rate = Math.max(t.bf.rate, a.s.aRate); t.bf.range = Math.max(t.bf.range, a.s.aRange); t.bf.dmg = Math.max(t.bf.dmg, a.s.aDmg);
+    t.bf.rate = Math.max(t.bf.rate, a.s.aRate); t.bf.range = Math.max(t.bf.range, a.s.aRange); t.bf.dmg = Math.max(t.bf.dmg, a.s.aDmg); if (a.s.aDetect) t.bf.detect = true;
   }
   for (const t of S.towers) {
     if (t.s.kind === 'bank' || t.s.kind === 'village') continue;
@@ -790,7 +834,7 @@ function update(dt) {
         }
         for (const e of S.enemies) {
           if (e.dead || p.hit.has(e.id) || p.pierce <= 0) continue;
-          if (Math.hypot(e.x - p.x, e.y - p.y) < eRad(e) + 6) { p.hit.add(e.id); hit(e, p.dmg); onHitFx(p, e); p.pierce--; }
+          if (Math.hypot(e.x - p.x, e.y - p.y) < eRad(e) + 6) { p.hit.add(e.id); hit(e, pd(p, e)); onHitFx(p, e); p.pierce--; }
         }
         if (p.pierce <= 0 && p.phase === 0) { p.phase = 1; p.hit.clear(); p.pierce = p.pierce0; }
       }
@@ -802,7 +846,7 @@ function update(dt) {
       for (const e of S.enemies) {
         if (e.dead || p.hit.has(e.id)) continue;
         if (Math.hypot(e.x - p.x, e.y - p.y) < eRad(e) + 4) {
-          p.hit.add(e.id); hit(e, p.dmg); onHitFx(p, e);
+          p.hit.add(e.id); hit(e, pd(p, e)); onHitFx(p, e);
           if (p.splash) explode(p.x, p.y, p.splash, Math.max(1, Math.ceil(p.dmg/2)), e);
           if (--p.pierce <= 0) { p.dead = true; break; }
         }
@@ -835,7 +879,7 @@ function endRound() {
 }
 function startRound() {
   if (S.active || S.over) return;
-  S.round++; S.queue = makeWave(S.round); S.qi = 0; S.qt = 0; S.active = true;
+  S.round++; S.queue = makeWave(S.round); if (NEWS[S.round]) flash(NEWS[S.round], 5000); S.qi = 0; S.qt = 0; S.active = true;
   refreshAll(true);
 }
 function endGame(win) {
@@ -852,19 +896,34 @@ function endGame(win) {
 function drawBalloon(e) {
   const r = eRad(e);
   ctx.save(); ctx.translate(e.x, e.y);
-  if (e.tier === BOSS_TIER) {
+  if (isBoss(e)) {
+    const B = BOSS[e.tier], k = r / 32;
     ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(4,r*.9,r,8,0,0,7); ctx.fill();
-    const g = ctx.createLinearGradient(-r,0,r,0); g.addColorStop(0,'#37474f'); g.addColorStop(.5,'#90a4ae'); g.addColorStop(1,'#37474f');
+    if (e.camo) ctx.globalAlpha = .7;
+    const g = ctx.createLinearGradient(-r,0,r,0); g.addColorStop(0,B.c[0]); g.addColorStop(.5,B.c[1]); g.addColorStop(1,B.c[0]);
     ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0,0,r*1.25,r*.8,0,0,7); ctx.fill();
-    ctx.fillStyle = '#263238'; ctx.beginPath(); ctx.moveTo(-r*1.25,0); ctx.lineTo(-r*1.6,-r*.5); ctx.lineTo(-r*1.6,r*.5); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('BOSS', 0, 5);
-    ctx.fillStyle = '#300'; ctx.fillRect(-28,-r-12,56,6); ctx.fillStyle = '#e53935'; ctx.fillRect(-28,-r-12,56*Math.max(0,e.hp/e.maxhp),6);
+    ctx.fillStyle = B.c[0]; ctx.beginPath(); ctx.moveTo(-r*1.25,0); ctx.lineTo(-r*1.6,-r*.5); ctx.lineTo(-r*1.6,r*.5); ctx.fill();
+    if (e.tier === 22) { ctx.fillStyle = 'rgba(30,60,20,.6)'; for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.arc(-r+i*r*.4, Math.sin(i*2)*r*.4, 5, 0, 7); ctx.fill(); } }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.round(11+3*k)}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText(B.name, 0, 5);
+    const bw = 56 * k + 10; ctx.fillStyle = '#300'; ctx.fillRect(-bw/2,-r-12,bw,6); ctx.fillStyle = '#e53935'; ctx.fillRect(-bw/2,-r-12,bw*Math.max(0,e.hp/e.maxhp),6);
   } else {
     ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0,r); ctx.lineTo(1,r+9); ctx.stroke();
-    ctx.fillStyle = BCOL[e.tier]; ctx.beginPath(); ctx.ellipse(0,0,r*.85,r,0,0,7); ctx.fill();
+    if (e.camo) ctx.globalAlpha = .6;
+    let fill = BCOL[e.tier];
+    if (e.lead) { const g = ctx.createLinearGradient(-r,-r,r,r); g.addColorStop(0,'#c5ccd4'); g.addColorStop(.5,'#6d7681'); g.addColorStop(1,'#3d434b'); fill = g; }
+    else if (e.tier === 9) { const g = ctx.createLinearGradient(0,-r,0,r); ['#f44','#fb3','#4d4','#4af','#a4f'].forEach((c,i)=>g.addColorStop(i/4,c)); fill = g; }
+    ctx.fillStyle = fill; ctx.beginPath(); ctx.ellipse(0,0,r*.85,r,0,0,7); ctx.fill();
     ctx.beginPath(); ctx.moveTo(-2.5,r-1); ctx.lineTo(2.5,r-1); ctx.lineTo(0,r+3); ctx.fill();
+    if (e.tier === 8 && !e.lead) { ctx.save(); ctx.beginPath(); ctx.ellipse(0,0,r*.85,r,0,0,7); ctx.clip(); ctx.fillStyle = '#111'; for (let i = -3; i <= 3; i += 2) ctx.fillRect(i*r*.28-r*.14,-r,r*.28,r*2); ctx.restore(); }
+    if (e.tier === 10 && !e.lead) { ctx.strokeStyle = '#7a5a36'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-r*.5,-r*.3); ctx.lineTo(-r*.1,0); ctx.lineTo(-r*.4,r*.4); ctx.moveTo(r*.1,-r*.6); ctx.lineTo(r*.4,-r*.1); ctx.stroke();
+      if (e.hp < e.maxhp) { ctx.fillStyle = '#300'; ctx.fillRect(-r*.8,-r-8,r*1.6,4); ctx.fillStyle = '#e53935'; ctx.fillRect(-r*.8,-r-8,r*1.6*Math.max(0,e.hp/e.maxhp),4); } }
     ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-r*.3,-r*.35,r*.2,r*.32,.5,0,7); ctx.fill();
     if (e.tier === 6 || e.tier === 7) { ctx.strokeStyle = e.tier===6?'#666':'#aaa'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(0,0,r*.85,r,0,0,7); ctx.stroke(); }
+    if (e.camo) { ctx.globalAlpha = .55; ctx.save(); ctx.beginPath(); ctx.ellipse(0,0,r*.85,r,0,0,7); ctx.clip(); ctx.fillStyle = '#3d5a2a';
+      [[-.4,-.4,.35],[.35,-.1,.4],[-.2,.5,.3],[.2,.6,.25]].forEach(([a,b,c]) => { ctx.beginPath(); ctx.arc(a*r,b*r,c*r,0,7); ctx.fill(); }); ctx.restore(); }
+    ctx.globalAlpha = 1;
+    if (e.lead) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(0,0,r*.85+1,r+1,0,0,7); ctx.stroke(); }
   }
   if (e.poison > 0) { ctx.strokeStyle = 'rgba(120,255,60,.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0,0,r+2,0,7); ctx.stroke(); }
   if (e.freeze > 0) { ctx.fillStyle = 'rgba(160,230,255,.55)'; ctx.beginPath(); ctx.arc(0,0,r+3,0,7); ctx.fill(); }
@@ -913,6 +972,7 @@ function render(time) {
     if (f.type === 'boom') { ctx.fillStyle = `rgba(255,170,60,${k*.6})`; ctx.strokeStyle = `rgba(255,230,120,${k})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1.1-k*.3),0,7); ctx.fill(); ctx.stroke(); }
     else if (f.type === 'line') { ctx.strokeStyle = `rgba(255,255,200,${k})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(f.x1,f.y1); ctx.lineTo(f.x2,f.y2); ctx.stroke(); }
     else if (f.type === 'ring') { ctx.strokeStyle = `rgba(140,220,255,${k})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1-k*.8),0,7); ctx.stroke(); }
+    else if (f.type === 'ping') { ctx.strokeStyle = `rgba(255,255,255,${k})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(f.x-8,f.y-8); ctx.lineTo(f.x+8,f.y+8); ctx.moveTo(f.x+8,f.y-8); ctx.lineTo(f.x-8,f.y+8); ctx.stroke(); }
     else if (f.type === 'gas') { ctx.fillStyle = `rgba(120,230,60,${k*.5})`; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1.15-k*.25),0,7); ctx.fill(); }
     else if (f.type === 'bite') { ctx.fillStyle = `rgba(255,255,255,${k})`; ctx.beginPath(); ctx.moveTo(f.x-10,f.y-6); ctx.lineTo(f.x-5,f.y+4); ctx.lineTo(f.x,f.y-6); ctx.lineTo(f.x+5,f.y+4); ctx.lineTo(f.x+10,f.y-6); ctx.fill(); }
     else if (f.type === 'leak') { ctx.fillStyle = `rgba(255,0,0,${k*.18})`; ctx.fillRect(0,0,W,H); }
@@ -1000,12 +1060,12 @@ function refreshAll(force) {
     infoEl.innerHTML = `<h3>${def.name}</h3><div class="desc">${def.desc}</div>Klicke auf die Karte oder ziehe das Capybara aus der Leiste dorthin. (Esc = abbrechen)`;
   } else {
     infoEl.innerHTML = `<h3>Bereit?</h3><div class="desc">Wähle unten in der Leiste ein Capybara (anklicken oder auf die Karte ziehen) und platziere es neben dem Weg. Klicke platzierte Capybaras an, um sie zu verbessern.</div>
-      <div style="font-size:12px;opacity:.75">Pro Capybara gibt es 3 Pfade – aber nur 2 davon nutzbar, einer bis Stufe 5, der andere bis Stufe 2. <b>Schwarze</b> Ballons sind explosionsimmun, <b>weiße</b> immun gegen Eis. Alle 10 Runden kommt ein Boss.</div>`;
+      <div style="font-size:12px;opacity:.75">Pro Capybara gibt es 3 Pfade – aber nur 2 davon nutzbar, einer bis Stufe 5, der andere bis Stufe 2. <b>Schwarze</b> Ballons sind explosionsimmun, <b>weiße</b> eisimmun, <b>Zebras</b> beides. <b>Blei</b> prallt spitze Waffen ab, <b>Tarn</b>-Ballons brauchen Erkennung. Keramik, Regenbogen und Bosse (MOAB, BFB, DDT) kommen später.</div>`;
   }
 }
 
 let msgT;
-function flash(txt) { const m = $('msg'); m.textContent = txt; m.classList.add('show'); clearTimeout(msgT); msgT = setTimeout(()=>m.classList.remove('show'), 2200); }
+function flash(txt, ms) { const m = $('msg'); m.textContent = txt; m.classList.add('show'); clearTimeout(msgT); msgT = setTimeout(()=>m.classList.remove('show'), ms || 2200); }
 
 /* Eingabe */
 function toGame(ev) {
@@ -1064,7 +1124,7 @@ function loop(now) {
 requestAnimationFrame(loop);
 
 // Zum Testen erreichbar
-window.__td = { get S() { return S; }, MAPS, newGame, placeTower, startRound, upgradeTower };
+window.__td = { get S() { return S; }, MAPS, spawn, newGame, placeTower, startRound, upgradeTower };
 })();
 </script>
 </body>
