@@ -67,7 +67,7 @@
           <button data-d="1">Normal</button>
           <button data-d="2">Schwer</button>
         </div>
-        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · 1–7 = Capybara wählen</p>
+        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · 1–9, 0, - = Capybara wählen</p>
       </div>
     </div>
   </div>
@@ -157,6 +157,13 @@ const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
 /* ---------- Capybara Zeichnen ---------- */
 function drawCapy(c, x, y, type, ang, sz = 1) {
   c.save(); c.translate(x, y); c.scale(sz, sz);
+  if (type === 'village') { // Teich + Hütte
+    c.fillStyle = '#2b7fb8'; c.beginPath(); c.ellipse(0,10,30,16,0,0,7); c.fill();
+    c.strokeStyle = '#7fc8ee'; c.lineWidth = 2; c.stroke();
+    c.fillStyle = '#3aa64a'; c.beginPath(); c.ellipse(-20,14,5,3,0,0,7); c.ellipse(19,6,4,2.5,0,0,7); c.fill();
+    c.fillStyle = '#8a5a2e'; c.fillRect(-30,-14,14,12); c.fillStyle = '#c6402f'; c.beginPath(); c.moveTo(-33,-14); c.lineTo(-23,-24); c.lineTo(-13,-14); c.fill();
+    c.translate(4,-2);
+  }
   const flip = Math.cos(ang) < 0 ? -1 : 1;
   c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0,14,17,5,0,0,7); c.fill();
   c.save(); c.scale(flip, 1);
@@ -195,6 +202,21 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
       c.fillStyle = '#7fd3ff'; c.beginPath(); c.ellipse(hx,hy+1,9,5.5,0,Math.PI,0); c.fill();
       c.fillStyle = '#fff'; c.beginPath(); c.arc(hx,hy-6,2.6,0,7); c.fill();
       c.fillStyle = '#4fb0e8'; c.fillRect(2,-1,10,3.5); break;
+    case 'hai':
+      c.fillStyle = '#6c7a89'; c.beginPath(); c.ellipse(hx+1,hy+3,10,6,0,Math.PI,0); c.fill(); c.fillRect(1,-12,21,3);
+      c.beginPath(); c.moveTo(4,-16); c.lineTo(9,-30); c.lineTo(15,-16); c.fill();
+      c.fillStyle = '#fff'; for (let i=0;i<4;i++){ c.beginPath(); c.moveTo(16+i*2.2,-1); c.lineTo(17.1+i*2.2,3); c.lineTo(18.2+i*2.2,-1); c.fill(); } break;
+    case 'boomer':
+      c.fillStyle = '#7b5a2e'; c.beginPath(); c.ellipse(hx+1,hy+3,15,3.2,0,0,7); c.fill(); c.beginPath(); c.ellipse(hx+1,hy,7.5,5,0,Math.PI,0); c.fill();
+      c.fillStyle = '#d9a441'; c.fillRect(hx-6,hy,15,1.6); break;
+    case 'alch':
+      c.fillStyle = '#4b2e6f'; c.beginPath(); c.ellipse(hx+1,hy+2,9,5,0,Math.PI,0); c.fill();
+      c.fillStyle = '#7CFC00'; c.beginPath(); c.arc(13.5,-9,3.6,0,7); c.fill(); c.strokeStyle='#333'; c.lineWidth=1.2; c.stroke();
+      c.fillStyle = '#2a170a'; c.beginPath(); c.arc(13.5,-9,1.7,0,7); c.fill();
+      c.fillStyle = '#7CFC00'; c.beginPath(); c.roundRect(-9,-4,6,8,2); c.fill(); c.fillStyle='#fff'; c.fillRect(-8,-6,4,2); break;
+    case 'village':
+      c.fillStyle = '#2fa84f'; c.beginPath(); c.ellipse(hx+2,hy+3,9,3,-.3,0,7); c.fill();
+      c.fillStyle = '#e63946'; c.fillRect(hx+4,hy-6,2,8); c.fillStyle = '#ffd166'; c.fillRect(hx+6,hy-6,4,3); break;
     case 'farmer':
       c.fillStyle = '#e6c25a'; c.beginPath(); c.ellipse(hx+1,hy+2,14,3.6,0,0,7); c.fill();
       c.beginPath(); c.ellipse(hx+1,hy-1,7,5,0,Math.PI,0); c.fill(); c.fillStyle='#b8452e'; c.fillRect(hx-6,hy-2,14,1.6);
@@ -212,6 +234,8 @@ function drawWeapon(c, t) {
     case 'warrior': c.strokeStyle='#5a3a1a'; c.lineWidth=2.5; c.beginPath(); c.arc(16,0,11,-1.2,1.2); c.stroke(); break;
     case 'ninja': c.fillStyle='#ccd'; c.beginPath(); for(let i=0;i<4;i++){const q=i*Math.PI/2; c.lineTo(20+Math.cos(q)*6,Math.sin(q)*6); c.lineTo(20+Math.cos(q+.78)*2.5,Math.sin(q+.78)*2.5);} c.fill(); break;
     case 'bomber': c.fillStyle='#111'; c.beginPath(); c.arc(20,0,6,0,7); c.fill(); c.fillStyle='#ff9a2a'; c.fillRect(24,-8,2,4); break;
+    case 'boomer': c.strokeStyle='#d9a441'; c.lineWidth=4; c.lineCap='round'; c.beginPath(); c.moveTo(16,-8); c.lineTo(22,0); c.lineTo(16,8); c.stroke(); break;
+    case 'alch': c.fillStyle='#7CFC00'; c.beginPath(); c.arc(20,0,5,0,7); c.fill(); c.fillStyle='#fff'; c.fillRect(19,-9,3,5); break;
   }
   c.restore();
 }
@@ -223,73 +247,157 @@ const TOWERS = {
     A:{name:'Schärfe', up:[
       {n:'Spitze Pfeile', c:140, d:'+3 Durchschlag', m:s=>{s.pierce+=3}},
       {n:'Schwere Pfeile', c:320, d:'+2 Schaden', m:s=>{s.dmg+=2}},
-      {n:'Pfeilhagel', c:1100, d:'5 Pfeile im Fächer, +1 Schaden', m:s=>{s.shots=5; s.spread=.55; s.dmg+=1}}]},
+      {n:'Pfeilhagel', c:1100, d:'5 Pfeile im Fächer, +1 Schaden', m:s=>{s.shots=5; s.spread=.55; s.dmg+=1}},
+      {n:'Speerregen', c:3600, d:'7 Speere, +3 Schaden, +6 Durchschlag', m:s=>{s.shots=7; s.spread=.7; s.dmg+=3; s.pierce+=6}},
+      {n:'Kriegsgott', c:15000, d:'9 Speere, +10 Schaden, schneller', m:s=>{s.shots=9; s.spread=.9; s.dmg+=10; s.rate*=.7}}]},
     B:{name:'Tempo', up:[
       {n:'Weitsicht', c:100, d:'+25 Reichweite', m:s=>{s.range+=25}},
       {n:'Schnelle Hände', c:260, d:'40% schneller', m:s=>{s.rate*=.6}},
-      {n:'Dauerfeuer', c:900, d:'Extrem schnell, +15 Reichweite', m:s=>{s.rate*=.4; s.range+=15}}]}},
+      {n:'Dauerfeuer', c:900, d:'Extrem schnell, +15 Reichweite', m:s=>{s.rate*=.4; s.range+=15}},
+      {n:'Pfeilwerfer', c:3200, d:'40% schneller, +20 Reichweite', m:s=>{s.rate*=.6; s.range+=20}},
+      {n:'Pfeilsturm', c:12000, d:'Doppelt so schnell, +2 Schaden, +4 Durchschlag', m:s=>{s.rate*=.5; s.dmg+=2; s.pierce+=4}}]}},
   sniper: { name:'Scharfschütze', cost:380, desc:'Trifft überall auf der Karte. Langsam, aber stark.',
     base:{range:99999, rate:1.7, dmg:2, kind:'snipe'},
     A:{name:'Kaliber', up:[
       {n:'Panzerbrechend', c:350, d:'+3 Schaden', m:s=>{s.dmg+=3}},
-      {n:'Kaliber .50', c:1000, d:'+8 Schaden', m:s=>{s.dmg+=8}},
-      {n:'Vernichter', c:3200, d:'+40 Schaden', m:s=>{s.dmg+=40}}]},
+      {n:'Kaliber .50', c:1000, d:'+6 Schaden', m:s=>{s.dmg+=6}},
+      {n:'Vernichter', c:3200, d:'+20 Schaden', m:s=>{s.dmg+=20}},
+      {n:'Railgun', c:9000, d:'+60 Schaden', m:s=>{s.dmg+=60}},
+      {n:'Orbitalstrahl', c:26000, d:'+400 Schaden', m:s=>{s.dmg+=400}}]},
     B:{name:'Feuerrate', up:[
       {n:'Repetierer', c:300, d:'Schießt schneller', m:s=>{s.rate*=.65}},
-      {n:'Halbautomatik', c:900, d:'Deutlich schneller', m:s=>{s.rate*=.55}},
-      {n:'Vollautomatik', c:2600, d:'Sturmfeuer', m:s=>{s.rate*=.4}}]}},
+      {n:'Halbautomatik', c:900, d:'Noch schneller', m:s=>{s.rate*=.7}},
+      {n:'Vollautomatik', c:2600, d:'Sturmfeuer', m:s=>{s.rate*=.6}},
+      {n:'Schnellfeuer', c:7000, d:'Noch viel schneller', m:s=>{s.rate*=.6}},
+      {n:'Minigun', c:20000, d:'Dauerfeuer über die ganze Karte', m:s=>{s.rate*=.5}}]}},
   mage: { name:'Magier', cost:480, desc:'Magische Geschosse durchschlagen viele Ballons.',
     base:{range:130, rate:1, dmg:1, pierce:6, speed:340, shots:1, spread:0, splash:0, kind:'magic', col:'#b58cff'},
     A:{name:'Feuer', up:[
       {n:'Feuerball', c:400, d:'Explosion beim Treffer', m:s=>{s.splash=45; s.col='#ff8a3d'}},
       {n:'Inferno', c:1000, d:'Größere Explosion, +2 Schaden', m:s=>{s.splash=70; s.dmg+=2}},
-      {n:'Drachenatem', c:3000, d:'+5 Schaden, riesige Explosion', m:s=>{s.dmg+=5; s.splash=100; s.rate*=.7}}]},
+      {n:'Drachenatem', c:3000, d:'+5 Schaden, riesige Explosion', m:s=>{s.dmg+=5; s.splash=100; s.rate*=.7}},
+      {n:'Vulkan', c:8000, d:'+8 Schaden, gewaltige Explosion', m:s=>{s.dmg+=8; s.splash=130}},
+      {n:'Phönix', c:26000, d:'+30 Schaden, Mega-Explosion, schneller', m:s=>{s.dmg+=30; s.splash=170; s.rate*=.6}}]},
     B:{name:'Arkan', up:[
       {n:'Stab-Upgrade', c:300, d:'+20 Reichweite, +6 Durchschlag', m:s=>{s.range+=20; s.pierce+=6}},
       {n:'Zwillingsblitz', c:700, d:'3 Zauber gleichzeitig', m:s=>{s.shots=3; s.spread=.3}},
-      {n:'Erzmagier', c:2500, d:'5 Zauber, doppelt so schnell', m:s=>{s.shots=5; s.spread=.5; s.rate*=.5; s.dmg+=1}}]}},
+      {n:'Erzmagier', c:2500, d:'5 Zauber, doppelt so schnell', m:s=>{s.shots=5; s.spread=.5; s.rate*=.5; s.dmg+=1}},
+      {n:'Magiestrom', c:6500, d:'Schneller, +10 Durchschlag, +1 Schaden', m:s=>{s.rate*=.6; s.pierce+=10; s.dmg+=1}},
+      {n:'Zauber-Sturm', c:20000, d:'9 Zauber, +2 Schaden, schneller', m:s=>{s.shots=9; s.spread=1; s.dmg+=2; s.rate*=.6}}]}},
   ninja: { name:'Ninja', cost:400, desc:'Blitzschnelle Shuriken-Würfe.',
     base:{range:115, rate:.4, dmg:1, pierce:2, speed:520, shots:1, spread:0, kind:'dart', col:'#dde'},
     A:{name:'Waffen', up:[
       {n:'Doppelwurf', c:250, d:'2 Shuriken', m:s=>{s.shots=2; s.spread=.2}},
       {n:'Kunai', c:600, d:'+1 Schaden, +2 Durchschlag', m:s=>{s.dmg+=1; s.pierce+=2}},
-      {n:'Shuriken-Sturm', c:1800, d:'6 Shuriken im Kreis-Fächer', m:s=>{s.shots=6; s.spread=1.1}}]},
+      {n:'Shuriken-Sturm', c:1800, d:'6 Shuriken im Fächer', m:s=>{s.shots=6; s.spread=1.1}},
+      {n:'Klingenwirbel', c:4500, d:'8 Shuriken, +2 Schaden, +4 Durchschlag', m:s=>{s.shots=8; s.spread=1.4; s.dmg+=2; s.pierce+=4}},
+      {n:'Nachtsturm', c:15000, d:'12 Shuriken im Kreis, +3 Schaden', m:s=>{s.shots=12; s.spread=Math.PI; s.dmg+=3}}]},
     B:{name:'Schatten', up:[
       {n:'Flinke Finger', c:200, d:'30% schneller', m:s=>{s.rate*=.7}},
       {n:'Schattenschritt', c:450, d:'+25 Reichweite', m:s=>{s.range+=25}},
-      {n:'Meister-Ninja', c:1500, d:'Sehr schnell, +1 Schaden', m:s=>{s.rate*=.45; s.dmg+=1}}]}},
-  bomber: { name:'Bomber', cost:650, desc:'Flächenschaden – aber Schwarze Ballons sind immun.',
+      {n:'Meister-Ninja', c:1500, d:'Sehr schnell, +1 Schaden', m:s=>{s.rate*=.45; s.dmg+=1}},
+      {n:'Schattenklon', c:4000, d:'Schneller, +20 Reichweite', m:s=>{s.rate*=.6; s.range+=20}},
+      {n:'Ninja-Gott', c:14000, d:'Doppelt so schnell, +2 Schaden, +3 Durchschlag', m:s=>{s.rate*=.5; s.dmg+=2; s.pierce+=3}}]}},
+  bomber: { name:'Bomber', cost:650, desc:'Flächenschaden – Schwarze Ballons sind immun.',
     base:{range:140, rate:1.7, dmg:1, splash:55, speed:280, kind:'bomb'},
     A:{name:'Sprengkraft', up:[
       {n:'Große Bomben', c:350, d:'Größerer Radius', m:s=>{s.splash=75}},
       {n:'Schwere Bomben', c:900, d:'+2 Schaden', m:s=>{s.dmg+=2}},
-      {n:'Mega-Bombe', c:3000, d:'+6 Schaden, riesiger Radius', m:s=>{s.dmg+=6; s.splash=110}}]},
+      {n:'Mega-Bombe', c:3000, d:'+6 Schaden, riesiger Radius', m:s=>{s.dmg+=6; s.splash=110}},
+      {n:'Streubomben', c:7500, d:'+8 Schaden, Radius 140', m:s=>{s.dmg+=8; s.splash=140}},
+      {n:'Atombombe', c:25000, d:'+60 Schaden, Radius 220', m:s=>{s.dmg+=60; s.splash=220}}]},
     B:{name:'Logistik', up:[
       {n:'Kurze Lunte', c:300, d:'30% schneller', m:s=>{s.rate*=.7}},
       {n:'Weitwurf', c:800, d:'+20 Reichweite, schneller', m:s=>{s.range+=20; s.rate*=.7}},
-      {n:'Bomber-Staffel', c:2400, d:'Feuert extrem schnell', m:s=>{s.rate*=.4}}]}},
-  ice: { name:'Eis-Capybara', cost:350, desc:'Verlangsamt Ballons in der Nähe. Weiße Ballons sind immun.',
+      {n:'Schnellfeuer', c:2400, d:'Extrem schnell', m:s=>{s.rate*=.4}},
+      {n:'Nachladeautomat', c:6000, d:'Noch schneller', m:s=>{s.rate*=.6}},
+      {n:'Bomber-Geschwader', c:18000, d:'Doppelt so schnell, +3 Schaden', m:s=>{s.rate*=.5; s.dmg+=3}}]}},
+  ice: { name:'Eis-Capybara', cost:350, desc:'Verlangsamt Ballons. Weiße Ballons sind immun, Bosse können nicht einfrieren.',
     base:{range:95, rate:2.2, dmg:0, slow:1.6, freeze:0, kind:'pulse'},
     A:{name:'Frost', up:[
       {n:'Tiefkühlung', c:200, d:'Friert Ballons kurz ein', m:s=>{s.freeze=.8}},
       {n:'Permafrost', c:500, d:'Längeres Einfrieren', m:s=>{s.freeze=1.5}},
-      {n:'Eiszeit', c:1800, d:'+40 Reichweite, 2,5s einfrieren, 1 Schaden', m:s=>{s.range+=40; s.freeze=2.5; s.dmg=1}}]},
+      {n:'Eiszeit', c:1800, d:'+40 Reichweite, 2,5s einfrieren, 1 Schaden', m:s=>{s.range+=40; s.freeze=2.5; s.dmg=1}},
+      {n:'Kryonik', c:5000, d:'3,5s einfrieren, +2 Schaden', m:s=>{s.freeze=3.5; s.dmg+=2}},
+      {n:'Absoluter Nullpunkt', c:16000, d:'5s einfrieren, +5 Schaden, +50 Reichweite', m:s=>{s.freeze=5; s.dmg+=5; s.range+=50}}]},
     B:{name:'Kälte', up:[
       {n:'Große Reichweite', c:150, d:'+25 Reichweite', m:s=>{s.range+=25}},
       {n:'Schneller Puls', c:350, d:'35% schneller', m:s=>{s.rate*=.65}},
-      {n:'Blizzard', c:1200, d:'+1 Schaden, viel schneller', m:s=>{s.dmg+=1; s.rate*=.6}}]}},
-  farmer: { name:'Bankier', cost:800, desc:'Verdient am Rundenende Geld für dich.',
-    base:{range:0, income:150, interest:0, kind:'bank'},
+      {n:'Blizzard', c:1200, d:'+1 Schaden, viel schneller', m:s=>{s.dmg+=1; s.rate*=.6}},
+      {n:'Eissturm', c:3500, d:'+30 Reichweite, schneller, +1 Schaden', m:s=>{s.range+=30; s.rate*=.7; s.dmg+=1}},
+      {n:'Gletscherzeit', c:12000, d:'+40 Reichweite, schneller, +3 Schaden', m:s=>{s.range+=40; s.rate*=.6; s.dmg+=3}}]}},
+  farmer: { name:'Bankier', cost:800, desc:'Verdient am Rundenende Geld und Zinsen für dich.',
+    base:{range:0, income:150, interest:0, cap:0, kind:'bank'},
     A:{name:'Handel', up:[
       {n:'Marktstand', c:500, d:'+150 Einkommen', m:s=>{s.income+=150}},
       {n:'Supermarkt', c:1500, d:'+400 Einkommen', m:s=>{s.income+=400}},
-      {n:'Handelsimperium', c:4000, d:'+1200 Einkommen', m:s=>{s.income+=1200}}]},
+      {n:'Handelsimperium', c:4000, d:'+1200 Einkommen', m:s=>{s.income+=1200}},
+      {n:'Kapitalgesellschaft', c:9000, d:'+3000 Einkommen', m:s=>{s.income+=3000}},
+      {n:'Weltkonzern', c:25000, d:'+9000 Einkommen', m:s=>{s.income+=9000}}]},
     B:{name:'Zinsen', up:[
       {n:'Sparbuch', c:400, d:'4% Zinsen (max 150)', m:s=>{s.interest=.04; s.cap=150}},
       {n:'Anleihen', c:1000, d:'6% Zinsen (max 350)', m:s=>{s.interest=.06; s.cap=350}},
-      {n:'Hedgefonds', c:3000, d:'9% Zinsen (max 900)', m:s=>{s.interest=.09; s.cap=900}}]}}
+      {n:'Hedgefonds', c:3000, d:'9% Zinsen (max 900)', m:s=>{s.interest=.09; s.cap=900}},
+      {n:'Börsenhai', c:7000, d:'12% Zinsen (max 2000)', m:s=>{s.interest=.12; s.cap=2000}},
+      {n:'Zentralbank', c:20000, d:'15% Zinsen (max 6000)', m:s=>{s.interest=.15; s.cap=6000}}]}},
+  hai: { name:'Hai-Capybara', cost:550, desc:'Beißt zu: kurze Reichweite, trifft mehrere Ballons auf einmal.',
+    base:{range:75, rate:.55, dmg:2, targets:2, kind:'bite'},
+    A:{name:'Gebiss', up:[
+      {n:'Scharfe Zähne', c:250, d:'+2 Schaden', m:s=>{s.dmg+=2}},
+      {n:'Doppelbiss', c:550, d:'Beißt 4 Ballons gleichzeitig', m:s=>{s.targets=4}},
+      {n:'Haizähne', c:1600, d:'+6 Schaden, 6 Ziele', m:s=>{s.dmg+=6; s.targets=6}},
+      {n:'Kettenbiss', c:4200, d:'+10 Schaden, 10 Ziele', m:s=>{s.dmg+=10; s.targets=10}},
+      {n:'Megalodon', c:15000, d:'+40 Schaden, 20 Ziele', m:s=>{s.dmg+=40; s.targets=20}}]},
+    B:{name:'Jagd', up:[
+      {n:'Flossenantrieb', c:200, d:'25% schneller', m:s=>{s.rate*=.75}},
+      {n:'Langer Atem', c:350, d:'+20 Reichweite', m:s=>{s.range+=20}},
+      {n:'Blutrausch', c:1200, d:'40% schneller', m:s=>{s.rate*=.6}},
+      {n:'Tsunami', c:3500, d:'+40 Reichweite, schneller', m:s=>{s.range+=40; s.rate*=.6}},
+      {n:'Ozean-Herrscher', c:12000, d:'Viel schneller, +10 Schaden, +6 Ziele', m:s=>{s.rate*=.4; s.dmg+=10; s.targets+=6}}]}},
+  boomer: { name:'Bumerang-Capybara', cost:420, desc:'Bumerang fliegt hin und zurück und trifft dabei zweimal.',
+    base:{range:130, rate:1.1, dmg:1, pierce:5, speed:300, shots:1, spread:0, kind:'boomer', col:'#d9a441'},
+    A:{name:'Klinge', up:[
+      {n:'Glaive', c:250, d:'+3 Durchschlag', m:s=>{s.pierce+=3}},
+      {n:'Schwerer Bumerang', c:450, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+      {n:'Zwillings-Rangs', c:1300, d:'2 Bumerangs', m:s=>{s.shots=2; s.spread=.25}},
+      {n:'Sägeblatt', c:3800, d:'+3 Schaden, +10 Durchschlag', m:s=>{s.dmg+=3; s.pierce+=10}},
+      {n:'Kugelblitz-Glaive', c:14000, d:'3 Bumerangs, +8 Schaden, +20 Durchschlag', m:s=>{s.shots=3; s.spread=.4; s.dmg+=8; s.pierce+=20}}]},
+    B:{name:'Flug', up:[
+      {n:'Weitwurf', c:150, d:'+30 Reichweite', m:s=>{s.range+=30}},
+      {n:'Leichter Bumerang', c:350, d:'25% schneller', m:s=>{s.rate*=.75}},
+      {n:'Turbo-Rückkehr', c:1000, d:'40% schneller, +20 Reichweite', m:s=>{s.rate*=.6; s.range+=20}},
+      {n:'Wirbel', c:3200, d:'40% schneller', m:s=>{s.rate*=.6}},
+      {n:'Bumerang-Sturm', c:12000, d:'Doppelt so schnell, +2 Bumerangs, +3 Schaden', m:s=>{s.rate*=.5; s.shots+=2; s.spread=Math.max(s.spread,.4); s.dmg+=3}}]}},
+  alch: { name:'Alchemist-Capybara', cost:700, desc:'Wirft Gifttränke (Schaden über Zeit). Höhere Stufen stärken Türme in der Nähe.',
+    base:{range:120, rate:1.6, dmg:0, splash:40, speed:260, pdmg:1, ptime:3, kind:'potion', aDist:0, aRate:1, aRange:0, aDmg:0, income:0},
+    A:{name:'Gifte', up:[
+      {n:'Starkes Gift', c:300, d:'Gift wirkt 5s', m:s=>{s.ptime=5}},
+      {n:'Ätzsäure', c:600, d:'2 Giftschaden pro Tick', m:s=>{s.pdmg=2}},
+      {n:'Nervengift', c:1600, d:'Größerer Radius, 3 Giftschaden', m:s=>{s.splash=65; s.pdmg=3}},
+      {n:'Pest', c:4500, d:'8s Gift, 5 Schaden, Radius 85', m:s=>{s.ptime=8; s.pdmg=5; s.splash=85}},
+      {n:'Todestrank', c:16000, d:'15 Giftschaden, Radius 110', m:s=>{s.pdmg=15; s.splash=110}}]},
+    B:{name:'Elixiere', up:[
+      {n:'Schnelles Brauen', c:250, d:'25% schneller', m:s=>{s.rate*=.75}},
+      {n:'Wurfarm', c:400, d:'+20 Reichweite', m:s=>{s.range+=20}},
+      {n:'Stärkungstrank', c:1500, d:'Türme im Umkreis 110: +20% Tempo', m:s=>{s.aDist=110; s.aRate=1.2}},
+      {n:'Aufputschmittel', c:3800, d:'Umkreis 130: +35% Tempo, +10 Reichweite', m:s=>{s.aDist=130; s.aRate=1.35; s.aRange=10; s.rate*=.7}},
+      {n:'Stein der Weisen', c:14000, d:'Umkreis 150: +50% Tempo, +1 Schaden, +$300/Runde', m:s=>{s.aDist=150; s.aRate=1.5; s.aDmg=1; s.income+=300}}]}},
+  village: { name:'Capyteich', cost:900, desc:'Capybara-Dorf: Türme im Umkreis werden schneller. Später auch mit Einkommen.',
+    base:{range:0, kind:'village', income:0, aDist:100, aRate:1.1, aRange:0, aDmg:0},
+    A:{name:'Dorfleben', up:[
+      {n:'Große Siedlung', c:300, d:'+30 Umkreis', m:s=>{s.aDist+=30}},
+      {n:'Schnellere Truppen', c:600, d:'+20% Tempo für Türme', m:s=>{s.aRate=1.2}},
+      {n:'Marktplatz', c:1500, d:'+$100 pro Runde', m:s=>{s.income+=100}},
+      {n:'Großes Dorf', c:4000, d:'+35% Tempo, +25 Reichweite, +40 Umkreis', m:s=>{s.aRate=1.35; s.aRange=25; s.aDist+=40}},
+      {n:'Capy-Metropole', c:16000, d:'+60% Tempo, +40 Reichweite, +1 Schaden, +$500', m:s=>{s.aRate=1.6; s.aRange=40; s.aDmg=1; s.income+=500; s.aDist+=40}}]},
+    B:{name:'Wirtschaft', up:[
+      {n:'Bauern', c:350, d:'+$80 pro Runde', m:s=>{s.income+=80}},
+      {n:'Handelsposten', c:800, d:'+$180 pro Runde', m:s=>{s.income+=180}},
+      {n:'Kanalnetz', c:2000, d:'+30 Umkreis, +$200', m:s=>{s.aDist+=30; s.income+=200}},
+      {n:'Hafen', c:5000, d:'+$700 pro Runde', m:s=>{s.income+=700}},
+      {n:'Weltreich', c:15000, d:'+$2500 pro Runde', m:s=>{s.income+=2500}}]}}
 };
-const ORDER = ['warrior','sniper','mage','ninja','bomber','ice','farmer'];
+const ORDER = ['warrior','sniper','mage','ninja','bomber','ice','farmer','hai','boomer','alch','village'];
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
 
 /* ---------- Ballons ---------- */
@@ -370,6 +478,13 @@ function hit(e, dmg) {
   return pops;
 }
 
+function poisonSplash(p) {
+  S.fx.push({type:'gas', x:p.tx, y:p.ty, r:p.splash, life:.6, max:.6});
+  for (const e of S.enemies) {
+    if (e.dead || Math.hypot(e.x - p.tx, e.y - p.ty) > p.splash + eRad(e)) continue;
+    e.poison = Math.max(e.poison || 0, p.ptime); e.pdmg = Math.max(e.pdmg || 0, p.pdmg); e.ptick = e.ptick || .5;
+  }
+}
 function explode(x, y, r, dmg, skip) {
   S.fx.push({type:'boom', x, y, r, life:.3, max:.3});
   for (const e of S.enemies.slice()) {
@@ -394,15 +509,15 @@ function placeTower(type, x, y) {
   const def = TOWERS[type];
   if (S.money < def.cost || !canPlace(x, y)) return false;
   S.money -= def.cost;
-  const t = {type, x, y, up:[0,0], cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
+  const t = {type, x, y, up:[0,0], bf:{rate:1,range:0,dmg:0}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
   computeStats(t); S.towers.push(t); S.sel = t; S.place = null;
   refreshAll(true); return true;
 }
 function upgradeTower(t, path) {
   const def = TOWERS[t.type], key = path ? 'B' : 'A', tier = t.up[path];
-  if (tier >= 3) return;
+  if (tier >= 5) return;
   const u = def[key].up[tier];
-  if (tier === 2 && t.up[1-path] > 1) return;
+  if (tier >= 2 && t.up[1-path] > 2) return;
   if (S.money < u.c) return;
   S.money -= u.c; t.spent += u.c; t.up[path]++; computeStats(t); refreshAll(true);
 }
@@ -410,12 +525,13 @@ function sellTower(t) {
   S.money += Math.round(t.spent * .7);
   S.towers.splice(S.towers.indexOf(t), 1); S.sel = null; refreshAll(true);
 }
+const rng = t => t.s.range > 5000 ? t.s.range : t.s.range + t.bf.range;
 function pickTarget(t) {
   let best = null, bv = 0;
   for (const e of S.enemies) {
     if (e.dead) continue;
     const dist = Math.hypot(e.x - t.x, e.y - t.y);
-    if (dist > t.s.range + eRad(e)) continue;
+    if (dist > rng(t) + eRad(e)) continue;
     let v;
     switch (t.mode) {
       case 0: v = e.d; break;
@@ -438,7 +554,7 @@ function lead(t, e, speed) {
   return p;
 }
 function fire(t, e) {
-  const s = t.s;
+  const s = Object.assign({}, t.s); if (s.dmg > 0) s.dmg += t.bf.dmg; s.range = rng(t);
   switch (s.kind) {
     case 'dart': case 'magic': {
       const p = lead(t, e, s.speed); const base = Math.atan2(p.y - t.y, p.x - t.x); t.ang = base;
@@ -447,6 +563,23 @@ function fire(t, e) {
         S.projs.push({x:t.x+Math.cos(a)*14, y:t.y-2+Math.sin(a)*14, vx:Math.cos(a)*s.speed, vy:Math.sin(a)*s.speed,
           dmg:s.dmg, pierce:s.pierce, splash:s.splash||0, life:(s.range*1.5)/s.speed, hit:new Set(), col:s.col, magic:s.kind==='magic', a});
       }
+      break; }
+    case 'boomer': {
+      const p = lead(t, e, s.speed); const base = Math.atan2(p.y - t.y, p.x - t.x); t.ang = base;
+      for (let i = 0; i < s.shots; i++) {
+        const a = base + (s.shots > 1 ? (i/(s.shots-1) - .5) * s.spread * 2 : 0);
+        S.projs.push({boom:true, phase:0, x:t.x, y:t.y-2, ox:t.x, oy:t.y-2, vx:Math.cos(a)*s.speed, vy:Math.sin(a)*s.speed, speed:s.speed,
+          maxd:s.range*1.05, trav:0, dmg:s.dmg, pierce:s.pierce, pierce0:s.pierce, splash:0, hit:new Set(), col:s.col, a:0, life:99});
+      }
+      break; }
+    case 'bite': {
+      const list = S.enemies.filter(en => !en.dead && Math.hypot(en.x-t.x, en.y-t.y) <= s.range + eRad(en)).sort((a,b) => b.d - a.d).slice(0, s.targets);
+      if (list.length) t.ang = Math.atan2(list[0].y - t.y, list[0].x - t.x);
+      for (const en of list) { S.fx.push({type:'bite', x:en.x, y:en.y, life:.25, max:.25}); hit(en, s.dmg); }
+      break; }
+    case 'potion': {
+      const p = lead(t, e, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x);
+      S.projs.push({bomb:true, potion:true, x:t.x, y:t.y-4, tx:p.x, ty:p.y, speed:s.speed, splash:s.splash, pdmg:s.pdmg, ptime:s.ptime, life:5});
       break; }
     case 'snipe':
       t.ang = Math.atan2(e.y - t.y, e.x - t.x);
@@ -482,6 +615,11 @@ function update(dt) {
   // Ballons
   for (const e of S.enemies) {
     if (e.dead) continue;
+    if (e.poison > 0) {
+      e.poison -= dt; e.ptick -= dt;
+      if (e.ptick <= 0) { e.ptick += .5; hit(e, e.pdmg); if (e.dead) continue; }
+      if (e.poison <= 0) e.pdmg = 0;
+    }
     let sp = e.tier === BOSS_TIER ? 45 : BSPD[e.tier];
     if (e.freeze > 0) { e.freeze -= dt; sp = 0; }
     else if (e.slow > 0) { e.slow -= dt; sp *= .5; }
@@ -495,21 +633,47 @@ function update(dt) {
     const p = posAt(e.d); e.x = p.x; e.y = p.y;
   }
   // Tower
+  for (const t of S.towers) t.bf = {rate:1, range:0, dmg:0};
+  for (const a of S.towers) if (a.s.aDist > 0) for (const t of S.towers) {
+    if (t === a || Math.hypot(t.x-a.x, t.y-a.y) > a.s.aDist) continue;
+    t.bf.rate = Math.max(t.bf.rate, a.s.aRate); t.bf.range = Math.max(t.bf.range, a.s.aRange); t.bf.dmg = Math.max(t.bf.dmg, a.s.aDmg);
+  }
   for (const t of S.towers) {
-    if (t.s.kind === 'bank') continue;
+    if (t.s.kind === 'bank' || t.s.kind === 'village') continue;
     t.cd -= dt;
     const e = pickTarget(t);
     if (e) {
       if (t.s.kind !== 'pulse') t.ang = Math.atan2(e.y - t.y, e.x - t.x);
-      if (t.cd <= 0) { fire(t, e); t.cd = t.s.rate; }
+      if (t.cd <= 0) { fire(t, e); t.cd = t.s.rate / t.bf.rate; }
     } else if (t.cd < 0) t.cd = 0;
   }
   // Projektile
   for (const p of S.projs) {
     if (p.bomb) {
       const dx = p.tx - p.x, dy = p.ty - p.y, dist = Math.hypot(dx, dy), step = p.speed * dt;
-      if (dist <= step) { explode(p.tx, p.ty, p.splash, p.dmg); p.dead = true; }
+      if (dist <= step) { if (p.potion) poisonSplash(p); else explode(p.tx, p.ty, p.splash, p.dmg); p.dead = true; }
       else { p.x += dx/dist*step; p.y += dy/dist*step; }
+      continue;
+    }
+    if (p.boom) {
+      p.spin = (p.spin || 0) + dt * 18;
+      const step = p.speed * dt, n = Math.max(1, Math.ceil(step / 8));
+      for (let i = 0; i < n && !p.dead; i++) {
+        const sub = step / n;
+        if (p.phase === 0) {
+          p.x += p.vx / p.speed * sub; p.y += p.vy / p.speed * sub; p.trav += sub;
+          if (p.trav >= p.maxd) { p.phase = 1; p.hit.clear(); p.pierce = p.pierce0; }
+        } else {
+          const dx = p.ox - p.x, dy = p.oy - p.y, dd = Math.hypot(dx, dy);
+          if (dd < 12) { p.dead = true; break; }
+          p.x += dx/dd*sub; p.y += dy/dd*sub;
+        }
+        for (const e of S.enemies) {
+          if (e.dead || p.hit.has(e.id) || p.pierce <= 0) continue;
+          if (Math.hypot(e.x - p.x, e.y - p.y) < eRad(e) + 6) { p.hit.add(e.id); hit(e, p.dmg); p.pierce--; }
+        }
+        if (p.pierce <= 0 && p.phase === 0) { p.phase = 1; p.hit.clear(); p.pierce = p.pierce0; }
+      }
       continue;
     }
     const step = Math.hypot(p.vx, p.vy) * dt, n = Math.max(1, Math.ceil(step / 8));
@@ -539,8 +703,8 @@ function update(dt) {
 function endRound() {
   S.active = false;
   let bonus = 100 + S.round * 4, extra = 0;
-  for (const t of S.towers) if (t.s.kind === 'bank') {
-    extra += t.s.income;
+  for (const t of S.towers) {
+    extra += t.s.income || 0;
     if (t.s.interest) extra += Math.min(Math.floor(S.money * t.s.interest), t.s.cap);
   }
   S.money += bonus + extra;
@@ -582,6 +746,7 @@ function drawBalloon(e) {
     ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-r*.3,-r*.35,r*.2,r*.32,.5,0,7); ctx.fill();
     if (e.tier === 6 || e.tier === 7) { ctx.strokeStyle = e.tier===6?'#666':'#aaa'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(0,0,r*.85,r,0,0,7); ctx.stroke(); }
   }
+  if (e.poison > 0) { ctx.strokeStyle = 'rgba(120,255,60,.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0,0,r+2,0,7); ctx.stroke(); }
   if (e.freeze > 0) { ctx.fillStyle = 'rgba(160,230,255,.55)'; ctx.beginPath(); ctx.arc(0,0,r+3,0,7); ctx.fill(); }
   else if (e.slow > 0) { ctx.strokeStyle = 'rgba(120,200,255,.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0,0,r+2,0,7); ctx.stroke(); }
   ctx.restore();
@@ -595,7 +760,8 @@ function render(time) {
     ctx.strokeStyle = ok ? 'rgba(255,255,255,.6)' : 'rgba(255,60,60,.8)';
     ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.stroke();
   };
-  if (S.sel && S.sel.s.range < 5000 && S.sel.s.range > 0) showRange(S.sel.x, S.sel.y, S.sel.s.range, true);
+  if (S.sel && S.sel.s.range < 5000 && S.sel.s.range > 0) showRange(S.sel.x, S.sel.y, rng(S.sel), true);
+  if (S.sel && S.sel.s.aDist > 0) { ctx.fillStyle='rgba(255,220,80,.12)'; ctx.strokeStyle='rgba(255,220,80,.8)'; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.arc(S.sel.x,S.sel.y,S.sel.s.aDist,0,7); ctx.fill(); ctx.stroke(); ctx.setLineDash([]); }
   // Tower
   const sorted = S.towers.slice().sort((a,b)=>a.y-b.y);
   for (const t of sorted) {
@@ -603,15 +769,17 @@ function render(time) {
     drawCapy(ctx, t.x, t.y, t.type, t.ang);
     drawWeapon(ctx, t);
     // Upgrade-Punkte
-    for (let p = 0; p < 2; p++) for (let k = 0; k < 3; k++) {
+    for (let p = 0; p < 2; p++) for (let k = 0; k < 5; k++) {
       ctx.fillStyle = k < t.up[p] ? (p ? '#6cf' : '#fc5') : 'rgba(0,0,0,.35)';
-      ctx.beginPath(); ctx.arc(t.x - 8 + k*7, t.y + 22 + p*5, 2.2, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(t.x - 10 + k*5, t.y + 22 + p*5, 1.9, 0, 7); ctx.fill();
     }
   }
   // Ballons (hinterste zuerst)
   for (const e of S.enemies.slice().sort((a,b)=>a.d-b.d)) drawBalloon(e);
   // Projektile
   for (const p of S.projs) {
+    if (p.boom) { ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.spin||0); ctx.strokeStyle = p.col; ctx.lineWidth = 4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(-8,-8); ctx.lineTo(0,0); ctx.lineTo(8,-8); ctx.stroke(); ctx.restore(); continue; }
+    if (p.bomb && p.potion) { ctx.fillStyle = '#7CFC00'; ctx.beginPath(); ctx.arc(p.x,p.y,6,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.fillRect(p.x-1.5,p.y-10,3,5); continue; }
     if (p.bomb) { ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(p.x,p.y,6,0,7); ctx.fill(); ctx.fillStyle='#ff9a2a'; ctx.beginPath(); ctx.arc(p.x+3,p.y-5,2,0,7); ctx.fill(); continue; }
     ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
     if (p.magic) { ctx.fillStyle = p.col; ctx.shadowColor = p.col; ctx.shadowBlur = 12; ctx.beginPath(); ctx.arc(0,0,5.5,0,7); ctx.fill(); }
@@ -625,6 +793,8 @@ function render(time) {
     if (f.type === 'boom') { ctx.fillStyle = `rgba(255,170,60,${k*.6})`; ctx.strokeStyle = `rgba(255,230,120,${k})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1.1-k*.3),0,7); ctx.fill(); ctx.stroke(); }
     else if (f.type === 'line') { ctx.strokeStyle = `rgba(255,255,200,${k})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(f.x1,f.y1); ctx.lineTo(f.x2,f.y2); ctx.stroke(); }
     else if (f.type === 'ring') { ctx.strokeStyle = `rgba(140,220,255,${k})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1-k*.8),0,7); ctx.stroke(); }
+    else if (f.type === 'gas') { ctx.fillStyle = `rgba(120,230,60,${k*.5})`; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1.15-k*.25),0,7); ctx.fill(); }
+    else if (f.type === 'bite') { ctx.fillStyle = `rgba(255,255,255,${k})`; ctx.beginPath(); ctx.moveTo(f.x-10,f.y-6); ctx.lineTo(f.x-5,f.y+4); ctx.lineTo(f.x,f.y-6); ctx.lineTo(f.x+5,f.y+4); ctx.lineTo(f.x+10,f.y-6); ctx.fill(); }
     else if (f.type === 'leak') { ctx.fillStyle = `rgba(255,0,0,${k*.18})`; ctx.fillRect(0,0,W,H); }
   }
   // Platzier-Vorschau
@@ -632,6 +802,7 @@ function render(time) {
     const ok = canPlace(S.mx, S.my) && S.money >= TOWERS[S.place].cost;
     const r = TOWERS[S.place].base.range;
     if (r > 0 && r < 5000) showRange(S.mx, S.my, r, ok);
+    else if (TOWERS[S.place].base.aDist) showRange(S.mx, S.my, TOWERS[S.place].base.aDist, ok);
     else if (r === 0) showRange(S.mx, S.my, 20, ok);
     ctx.globalAlpha = .8; drawCapy(ctx, S.mx, S.my, S.place, 0); ctx.globalAlpha = 1;
   }
@@ -645,7 +816,7 @@ const shopBtns = {};
 ORDER.forEach((k, i) => {
   const b = document.createElement('div'); b.className = 'shopbtn';
   const c = document.createElement('canvas'); c.width = c.height = 104;
-  const g = c.getContext('2d'); g.scale(2,2); drawCapy(g, 26, 30, k, 0, 1.3);
+  const g = c.getContext('2d'); g.scale(2,2); drawCapy(g, 26, 30, k, 0, k === 'village' ? .8 : 1.3);
   b.appendChild(c);
   b.insertAdjacentHTML('beforeend', `<div class="n">${i+1}. ${TOWERS[k].name}</div><div class="p">$${TOWERS[k].cost}</div>`);
   b.onclick = () => { S.place = S.place === k ? null : k; S.sel = null; refreshAll(true); };
@@ -674,12 +845,12 @@ function refreshAll(force) {
     let h = `<h3>${def.name} <span style="opacity:.6;font-weight:400">(${t.up[0]}/${t.up[1]})</span></h3><div class="desc">${def.desc}</div>`;
     [['A',0],['B',1]].forEach(([key, i]) => {
       const tier = t.up[i], path = def[key];
-      if (tier >= 3) { h += `<button class="upg" disabled><b>${path.name}: ${path.up[2].n}</b>Maximal ausgebaut</button>`; return; }
-      const u = path.up[tier], blocked = tier === 2 && t.up[1-i] > 1;
+      if (tier >= 5) { h += `<button class="upg" disabled><b>${path.name}: ${path.up[4].n}</b>Maximal ausgebaut</button>`; return; }
+      const u = path.up[tier], blocked = tier >= 2 && t.up[1-i] > 2;
       h += `<button class="upg" data-p="${i}" ${(S.money < u.c || blocked) ? 'disabled' : ''}><span class="c">$${u.c}</span><b>${path.name} ${tier+1}: ${u.n}</b>${blocked ? 'Anderer Pfad zu weit ausgebaut' : u.d}</button>`;
     });
     h += `<div class="row" style="margin-top:6px">`;
-    if (t.s.kind !== 'bank') h += `<button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button>`;
+    if (t.s.kind !== 'bank' && t.s.kind !== 'village') h += `<button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button>`;
     h += `<button class="act sell" id="bSell">Verkaufen $${Math.round(t.spent*.7)}</button></div>`;
     infoEl.innerHTML = h;
     infoEl.querySelectorAll('.upg[data-p]').forEach(b => b.onclick = () => upgradeTower(t, +b.dataset.p));
@@ -722,7 +893,7 @@ window.addEventListener('keydown', ev => {
   if (!S || S.over) return;
   if (ev.code === 'Space') { ev.preventDefault(); startRound(); }
   else if (ev.key === 'Escape') { S.place = null; S.sel = null; refreshAll(true); }
-  else if (ev.key >= '1' && ev.key <= '7') { S.place = ORDER[+ev.key-1]; S.sel = null; refreshAll(true); }
+  else if ('1234567890-'.includes(ev.key)) { S.place = ORDER['1234567890-'.indexOf(ev.key)]; S.sel = null; refreshAll(true); }
   else if (ev.key.toLowerCase() === 'p') { S.paused = !S.paused; refreshAll(true); }
   else if ((ev.key === 'Delete' || ev.key === 'Backspace') && S.sel) sellTower(S.sel);
 });
