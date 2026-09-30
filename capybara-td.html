@@ -494,6 +494,21 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
     case 'blades':
       c.fillStyle='#455a64'; c.beginPath(); c.ellipse(hx+1,hy+3,10,6.5,0,Math.PI,0); c.fill(); c.fillRect(1,-12.5,21,2.5);
       c.strokeStyle='#ffd54a'; c.lineWidth=2; c.beginPath(); c.arc(hx-6,-19,6,.4,2.2); c.stroke(); c.beginPath(); c.arc(hx+8,-19,6,.9,2.7); c.stroke(); break;
+    case 'pirate':
+      c.fillStyle='#111'; c.beginPath(); c.moveTo(-2,-12); c.quadraticCurveTo(hx+2,-26,24,-12); c.closePath(); c.fill(); c.fillRect(-4,-13.5,30,3.4); c.fillStyle='#eee'; c.beginPath(); c.arc(hx+3,-16,2,0,7); c.fill(); c.fillRect(hx+2,-14,2,2.4);
+      c.fillStyle='#111'; c.beginPath(); c.arc(14,-9,2.6,0,7); c.fill(); c.strokeStyle='#111'; c.lineWidth=.8; c.beginPath(); c.moveTo(6,-14); c.lineTo(14,-9); c.stroke(); break;
+    case 'spirit':
+      c.fillStyle='#4a2c7a'; c.beginPath(); c.moveTo(-3,-6); c.quadraticCurveTo(-3,-24,hx+2,-24); c.quadraticCurveTo(24,-24,23,-6); c.lineTo(17,-10); c.lineTo(3,-10); c.closePath(); c.fill();
+      c.fillStyle='rgba(120,255,220,.95)'; c.beginPath(); c.arc(14,-9,1.9,0,7); c.fill(); break;
+    case 'cloud':
+      c.fillStyle='#5d6b3a'; c.beginPath(); c.ellipse(hx+1,hy+3,10,6.5,0,Math.PI,0); c.fill(); c.fillRect(1,-12.5,21,2.5);
+      c.fillStyle='rgba(180,255,120,.9)'; c.strokeStyle='#333'; c.lineWidth=1.2; c.beginPath(); c.arc(12,-9,3.8,0,7); c.arc(17,-9,3.8,0,7); c.fill(); c.stroke(); c.fillStyle='#455a45'; c.beginPath(); c.roundRect(19,-6,7,6,2); c.fill(); break;
+    case 'strike':
+      c.fillStyle='#1a237e'; c.beginPath(); c.moveTo(-1,-12); c.quadraticCurveTo(hx+3,-32,23,-12); c.closePath(); c.fill(); c.fillRect(-3,-13,28,3.2);
+      c.fillStyle='#ffd54a'; c.font='9px sans-serif'; c.fillText('★',hx-3,-19); c.fillText('★',hx+6,-26); c.fillText('☾',hx+9,-16); break;
+    case 'juggle':
+      c.fillStyle='#e53935'; c.beginPath(); c.moveTo(3,-12); c.lineTo(-3,-24); c.lineTo(8,-15); c.closePath(); c.fill(); c.fillStyle='#1e88e5'; c.beginPath(); c.moveTo(21,-12); c.lineTo(27,-24); c.lineTo(16,-15); c.closePath(); c.fill(); c.fillStyle='#fdd835'; c.beginPath(); c.moveTo(3,-12); c.lineTo(12,-25); c.lineTo(21,-12); c.closePath(); c.fill(); c.fillRect(2,-13,20,3);
+      c.fillStyle='#fff'; c.beginPath(); c.arc(-3,-24,1.8,0,7); c.arc(27,-24,1.8,0,7); c.arc(12,-25,1.8,0,7); c.fill(); break;
     case 'farmer':
       c.fillStyle = '#e6c25a'; c.beginPath(); c.ellipse(hx+1,hy+2,14,3.6,0,0,7); c.fill();
       c.beginPath(); c.ellipse(hx+1,hy-1,7,5,0,Math.PI,0); c.fill(); c.fillStyle='#b8452e'; c.fillRect(hx-6,hy-2,14,1.6);
@@ -516,6 +531,11 @@ function drawWeapon(c, t) {
       const gl=c.createRadialGradient(24,0,0,24,0,7); gl.addColorStop(0,'#fff'); gl.addColorStop(.5,'#4fc3f7'); gl.addColorStop(1,'rgba(79,195,247,0)'); c.fillStyle=gl; c.beginPath(); c.arc(24,0,6+Math.sin(TIME*20),0,7); c.fill(); break; }
     case 'shaman': c.strokeStyle='#6d4c41'; c.lineWidth=3; c.beginPath(); c.moveTo(6,0); c.lineTo(26,0); c.stroke(); c.fillStyle='#69f0ae'; c.beginPath(); c.arc(28,0,4.5,0,7); c.fill(); c.fillStyle='#fff'; c.beginPath(); c.arc(27,-1,1.5,0,7); c.fill(); break;
     case 'hydro': c.fillStyle='#1e88e5'; c.fillRect(8,-3,20,6); c.fillStyle='#cfd8dc'; c.fillRect(26,-4,4,8); break;
+    case 'pirate': c.fillStyle='#37474f'; c.fillRect(8,-3,17,6); c.fillStyle='#263238'; c.beginPath(); c.arc(26,0,4,0,7); c.fill(); c.fillStyle='#795548'; c.fillRect(6,-4,5,8); break;
+    case 'spirit': c.strokeStyle='#8d6e63'; c.lineWidth=2.5; c.beginPath(); c.moveTo(6,0); c.lineTo(22,0); c.stroke(); c.fillStyle='rgba(140,255,230,.95)'; c.beginPath(); c.arc(25,0,4.5,0,7); c.fill(); break;
+    case 'cloud': c.fillStyle='#78909c'; c.fillRect(8,-3,14,6); c.fillStyle='rgba(150,255,120,.8)'; c.beginPath(); c.arc(25,0,5+Math.sin(TIME*6),0,7); c.fill(); break;
+    case 'strike': c.strokeStyle='#90a4ae'; c.lineWidth=3; c.beginPath(); c.moveTo(6,2); c.lineTo(24,-8); c.stroke(); c.fillStyle='#cfd8dc'; c.fillRect(20,-11,8,6); break;
+    case 'juggle': for (let i=0;i<3;i++){ const a=TIME*4+i*2.09; c.fillStyle=['#e53935','#1e88e5','#fdd835'][i]; c.beginPath(); c.arc(16+Math.cos(a)*8, -6+Math.sin(a)*5, 3.4, 0, 7); c.fill(); } break;
     case 'catapult': c.strokeStyle='#6d4c41'; c.lineWidth=3.5; c.lineCap='round'; c.beginPath(); c.moveTo(4,5); c.lineTo(22,-7); c.stroke(); c.fillStyle='#8d6e63'; c.beginPath(); c.ellipse(23,-8,5,3,-.5,0,7); c.fill(); c.fillStyle='#9e978c'; c.beginPath(); c.arc(23,-11,3.6,0,7); c.fill(); break;
     case 'laser': c.fillStyle='#37474f'; c.fillRect(8,-3,18,6); c.fillStyle='#00e5ff'; c.fillRect(24,-1.6,5,3.2); c.fillStyle='#90a4ae'; c.fillRect(11,-4.5,6,2); break;
     case 'timewarp': c.strokeStyle='#6d4c41'; c.lineWidth=3; c.beginPath(); c.moveTo(6,0); c.lineTo(24,0); c.stroke(); c.fillStyle='#ce93d8'; c.beginPath(); c.arc(27,0,5,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=1; c.beginPath(); c.moveTo(27,0); c.lineTo(27,-3); c.moveTo(27,0); c.lineTo(29.5,1); c.stroke(); break;
@@ -1152,14 +1172,14 @@ function omniBuy(t, what, a, b) {
   const o = t.omni; let cost;
   if (what === 'up') { if (omniMaxed(o, a)) return; cost = omniCost(a, o.lv[a]); if (S.money < cost) return; o.lv[a]++; }
   else if (what === 'mod') { if (!a || o.mods.some(m => m.type === a)) return; cost = modUnlockCost(a); if (S.money < cost) return; o.mods.push({type:a, up:[0,0,0], pt:null, s:null}); o.open[a] = true; o.pick = ''; }
-  else if (what === 'mup') { const m = o.mods.find(m => m.type === a); if (!m || m.up[b] >= 5) return; cost = modUpCost(a, b, m.up[b]); if (S.money < cost) return; m.up[b]++; }
+  else if (what === 'mup') { const m = o.mods.find(m => m.type === a); if (!m || m.up[b] >= TOWERS[a]['ABC'[b]].up.length) return; cost = modUpCost(a, b, m.up[b]); if (S.money < cost) return; m.up[b]++; }
   else return;
   S.money -= cost; t.spent += cost; computeStats(t); refreshAll(true);
 }
 function omniCosts(t) {
   const o = t.omni, c = [];
   for (const k in OMNI_UP) c.push(omniMaxed(o, k) ? 0 : omniCost(k, o.lv[k]));
-  for (const m of o.mods) for (let p = 0; p < 3; p++) c.push(m.up[p] >= 5 ? 0 : modUpCost(m.type, p, m.up[p]));
+  for (const m of o.mods) for (let p = 0; p < 3; p++) c.push(m.up[p] >= TOWERS[m.type]['ABC'[p]].up.length ? 0 : modUpCost(m.type, p, m.up[p]));
   for (const k of modTypes()) if (!o.mods.some(m => m.type === k)) c.push(modUnlockCost(k));
   return c;
 }
@@ -1205,7 +1225,7 @@ function omniInfo(t) {
     const md = TOWERS[m.type];
     h += `<details class="omod" data-mod="${m.type}" ${o.open[m.type] ? 'open' : ''}><summary><span class="dotm" style="background:${MOD_COL(m.type)}"></span>${md.name} <i>(${m.up.join('/')})</i></summary>`;
     for (let p = 0; p < 3; p++) { const path = md['ABC'[p]];
-      if (m.up[p] >= 5) { h += `<button class="upg" disabled><b>${path.name}: ${path.up[4].n}</b>Maximal</button>`; continue; }
+      if (m.up[p] >= path.up.length) { h += `<button class="upg" disabled><b>${path.name}: ${path.up[path.up.length - 1].n}</b>Maximal</button>`; continue; }
       const u = path.up[m.up[p]], cost = modUpCost(m.type, p, m.up[p]);
       h += `<button class="upg" data-omod="${m.type}:${p}" ${S.money < cost ? 'disabled' : ''}><span class="c">$${fm(cost)}</span><b>${path.name} ${m.up[p] + 1}: ${u.n}</b>${u.d}</button>`; }
     h += `</details>`;
@@ -1224,7 +1244,143 @@ function omniInfo(t) {
   $('bSell').onclick = () => sellTower(t);
 }
 
-const HOTK = '1234567890-asdfgjzxcvbn';
+TOWERS.pirate = { name:'Piraten-Capy', cost:650, desc:'Schrotflinte mit Streuung. Der Pfad „Beute“ bringt Extra-Geld pro geplatztem Ballon.',
+  base:{range:115, rate:.8, dmg:1, pierce:1, speed:520, shots:3, spread:.32, splash:0, popBonus:0, kind:'dart', col:'#f5c542'},
+  A:{name:'Kanone', up:[
+    {n:'Rostige Kugeln', c:250, d:'+1 Durchschlag', m:s=>{s.pierce+=1}},
+    {n:'Explosivgeschosse', c:600, d:'Explosion beim Treffer (Radius 35)', m:s=>{s.splash=35}},
+    {n:'Kartätschen', c:1600, d:'+3 Kugeln, +1 Schaden', m:s=>{s.shots+=3; s.dmg+=1; s.spread=.5}},
+    {n:'Breitseite', c:5000, d:'+5 Kugeln, Radius 55, +2 Schaden', m:s=>{s.shots+=5; s.splash=55; s.dmg+=2; s.spread=.7}},
+    {n:'Geisterschiff', c:18000, d:'+9 Kugeln, Radius 75, +6 Schaden', m:s=>{s.shots+=9; s.splash=75; s.dmg+=6; s.spread=1}}]},
+  B:{name:'Seemann', up:[
+    {n:'Fernglas', c:200, d:'+20 Reichweite', m:s=>{s.range+=20}},
+    {n:'Schnelles Nachladen', c:450, d:'25% schneller', m:s=>{s.rate*=.75}},
+    {n:'Geübte Crew', c:1400, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Sturmwind', c:4000, d:'+25 Reichweite, schneller', m:s=>{s.range+=25; s.rate*=.7}},
+    {n:'Kraken-Crew', c:14000, d:'Doppelt so schnell, +30 Reichweite', m:s=>{s.rate*=.5; s.range+=30}}]},
+  C:{name:'Beute', up:[
+    {n:'Kopfgeld', c:500, d:'+$1 pro geplatztem Ballon', m:s=>{s.popBonus+=1}},
+    {n:'Schatzkarte', c:1200, d:'+$1 pro Ballon', m:s=>{s.popBonus+=1}},
+    {n:'Raubzug', c:3000, d:'+$2 pro Ballon, erkennt Tarnung', m:s=>{s.popBonus+=2; s.detect=true}},
+    {n:'Piratenkönig', c:8000, d:'+$3 pro Ballon', m:s=>{s.popBonus+=3}},
+    {n:'Gold-Galeone', c:22000, d:'+$6 pro Ballon, +5 Schaden', m:s=>{s.popBonus+=6; s.dmg+=5}}]}};
+TOWERS.spirit = { name:'Geister-Capy', cost:700, desc:'Beschwört Geister, die rückwärts über den Weg gleiten und Ballons durchschneiden – auch Blei.',
+  base:{range:110, rate:1.6, dmg:1, pierce:6, spirits:1, spiritSpeed:90, life:7, kind:'spirit'},
+  A:{name:'Seelen', up:[
+    {n:'Zweiter Geist', c:250, d:'+1 Geist', m:s=>{s.spirits+=1}},
+    {n:'Schneidende Seelen', c:500, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Geisterpaar', c:1500, d:'+2 Geister', m:s=>{s.spirits+=2}},
+    {n:'Geisterschwarm', c:4800, d:'+2 Geister, +2 Schaden', m:s=>{s.spirits+=2; s.dmg+=2}},
+    {n:'Totenheer', c:17000, d:'+4 Geister, +6 Schaden', m:s=>{s.spirits+=4; s.dmg+=6}}]},
+  B:{name:'Geisterwelt', up:[
+    {n:'Schnelles Beschwören', c:250, d:'25% schneller', m:s=>{s.rate*=.75}},
+    {n:'Langlebige Geister', c:500, d:'+3s Lebensdauer, +4 Durchschlag', m:s=>{s.life+=3; s.pierce+=4}},
+    {n:'Schnelle Geister', c:1500, d:'Geister viel schneller, 30% schneller', m:s=>{s.spiritSpeed*=1.6; s.rate*=.7}},
+    {n:'Geisterlegion', c:4000, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Totenreich', c:14000, d:'Doppelt so schnell, +20 Durchschlag', m:s=>{s.rate*=.5; s.pierce+=20}}]},
+  C:{name:'Fluch', up:[
+    {n:'Eisiger Hauch', c:300, d:'Geister verlangsamen', m:s=>{s.trapSlow=2}},
+    {n:'Geistersicht', c:600, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Giftiger Nebel', c:1700, d:'Gift: 3 Schaden/Tick', m:s=>{s.trapPoison=3}},
+    {n:'Lähmender Blick', c:5000, d:'Friert 1s ein', m:s=>{s.trapFreeze=1}},
+    {n:'Seelenfeuer', c:16000, d:'Gift 8, friert 2s ein, +5 Schaden', m:s=>{s.trapPoison=8; s.trapFreeze=2; s.dmg+=5}}]}};
+TOWERS.cloud = { name:'Sumpf-Capy', cost:600, desc:'Legt Giftwolken auf den Weg, die alle Ballons darin regelmäßig schädigen.',
+  base:{range:120, rate:2.2, dmg:1, radius:42, life:5, tick:.5, kind:'cloud'},
+  A:{name:'Gift', up:[
+    {n:'Giftiger Nebel', c:250, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Größere Wolke', c:500, d:'+15 Radius', m:s=>{s.radius+=15}},
+    {n:'Ätzgas', c:1500, d:'+2 Schaden, +15 Radius', m:s=>{s.dmg+=2; s.radius+=15}},
+    {n:'Giftsumpf', c:4800, d:'+4 Schaden, +20 Radius, +3s', m:s=>{s.dmg+=4; s.radius+=20; s.life+=3}},
+    {n:'Pestwolke', c:17000, d:'+12 Schaden, +40 Radius', m:s=>{s.dmg+=12; s.radius+=40}}]},
+  B:{name:'Sumpf', up:[
+    {n:'Schneller brauen', c:200, d:'25% schneller', m:s=>{s.rate*=.75}},
+    {n:'Weiter werfen', c:400, d:'+25 Reichweite', m:s=>{s.range+=25}},
+    {n:'Mehr Nebel', c:1400, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Dauerwolke', c:4000, d:'+5s Dauer, schneller', m:s=>{s.life+=5; s.rate*=.7}},
+    {n:'Sumpfgott', c:14000, d:'Doppelt so schnell, +30 Reichweite, +20 Radius', m:s=>{s.rate*=.5; s.range+=30; s.radius+=20}}]},
+  C:{name:'Wirkung', up:[
+    {n:'Klebriger Schlamm', c:300, d:'Verlangsamt', m:s=>{s.zSlow=2}},
+    {n:'Vergiftend', c:700, d:'Gift: 2 Schaden/Tick', m:s=>{s.zPoison=2}},
+    {n:'Schwefelgeruch', c:1800, d:'Erkennt Tarnung, Gift 4', m:s=>{s.detect=true; s.zPoison=4}},
+    {n:'Lähmgas', c:5200, d:'Friert 0,8s ein', m:s=>{s.zFreeze=.8}},
+    {n:'Todesnebel', c:17000, d:'Gift 10, friert 1,5s ein', m:s=>{s.zPoison=10; s.zFreeze=1.5}}]}};
+TOWERS.strike = { name:'Astro-Capy', cost:900, desc:'Ruft Meteore vom Himmel – trifft überall auf der Karte, mit kurzer Verzögerung.',
+  base:{range:99999, rate:3, dmg:6, r:55, delay:.9, count:1, stun:0, burn:0, kind:'strike'},
+  A:{name:'Einschlag', up:[
+    {n:'Größere Meteore', c:400, d:'+15 Radius', m:s=>{s.r+=15}},
+    {n:'Schwere Meteore', c:900, d:'+6 Schaden', m:s=>{s.dmg+=6}},
+    {n:'Meteorschauer', c:2400, d:'+1 Meteor, +4 Schaden', m:s=>{s.count+=1; s.dmg+=4}},
+    {n:'Kometen', c:6500, d:'+2 Meteore, +15 Schaden, +15 Radius', m:s=>{s.count+=2; s.dmg+=15; s.r+=15}},
+    {n:'Supernova', c:22000, d:'+3 Meteore, +60 Schaden, +40 Radius', m:s=>{s.count+=3; s.dmg+=60; s.r+=40}}]},
+  B:{name:'Sterne', up:[
+    {n:'Schnellere Bahn', c:300, d:'20% schneller', m:s=>{s.rate*=.8}},
+    {n:'Zielsystem', c:700, d:'Meteore schlagen 30% schneller ein', m:s=>{s.delay*=.7}},
+    {n:'Orbitaltakt', c:2000, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Sternenregen', c:5500, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Galaxiekern', c:18000, d:'Doppelt so schnell', m:s=>{s.rate*=.5}}]},
+  C:{name:'Kosmos', up:[
+    {n:'Sternenkarte', c:500, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Schockwelle', c:1000, d:'Betäubt 0,5s', m:s=>{s.stun=.5}},
+    {n:'Sonnenwind', c:2500, d:'Brand: 3 Schaden/Tick', m:s=>{s.burn=3}},
+    {n:'Gravitation', c:6000, d:'Betäubt 1,2s', m:s=>{s.stun=1.2}},
+    {n:'Schwarzes Loch', c:20000, d:'Betäubt 2,5s, Brand 8, +20 Schaden', m:s=>{s.stun=2.5; s.burn=8; s.dmg+=20}}]}};
+TOWERS.juggle = { name:'Jongleur-Capy', cost:550, desc:'Wirft Bälle, die von Ballon zu Ballon springen. Stumpf – wirkt auch auf Blei.',
+  base:{range:125, rate:1.1, dmg:1, bees:2, beeSpeed:340, pierce:4, kind:'juggle'},
+  A:{name:'Bälle', up:[
+    {n:'Mehr Bälle', c:250, d:'+1 Ball', m:s=>{s.bees+=1}},
+    {n:'Schwere Bälle', c:500, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Feuerbälle', c:1500, d:'+2 Bälle, +1 Schaden', m:s=>{s.bees+=2; s.dmg+=1}},
+    {n:'Kettenjongleur', c:4800, d:'+3 Bälle, +6 Sprünge, +2 Schaden', m:s=>{s.bees+=3; s.pierce+=6; s.dmg+=2}},
+    {n:'Zirkusdirektor', c:17000, d:'+6 Bälle, +10 Sprünge, +8 Schaden', m:s=>{s.bees+=6; s.pierce+=10; s.dmg+=8}}]},
+  B:{name:'Zirkus', up:[
+    {n:'Schnelle Hände', c:200, d:'25% schneller', m:s=>{s.rate*=.75}},
+    {n:'Große Bühne', c:400, d:'+20 Reichweite', m:s=>{s.range+=20}},
+    {n:'Akrobat', c:1400, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Zirkusshow', c:3800, d:'40% schneller, +20 Reichweite', m:s=>{s.rate*=.6; s.range+=20}},
+    {n:'Feuerwerk-Finale', c:13000, d:'Doppelt so schnell, +30 Reichweite', m:s=>{s.rate*=.5; s.range+=30}}]},
+  C:{name:'Tricks', up:[
+    {n:'Klebrige Bälle', c:300, d:'Verlangsamen (2s)', m:s=>{s.slowHit=2}},
+    {n:'Giftbälle', c:700, d:'Gift: 2 Schaden/Tick', m:s=>{s.hp=2; s.hpt=4}},
+    {n:'Zielsicher', c:1600, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Betäubungsbälle', c:4800, d:'Verlangsamung 4s, Gift 4', m:s=>{s.slowHit=4; s.hp=4}},
+    {n:'Glücksbälle', c:16000, d:'+$2 pro Ballon, Gift 8', m:s=>{s.popBonus=(s.popBonus||0)+2; s.hp=8}}]}};
+ORDER.push('pirate','spirit','cloud','strike','juggle');
+
+/* ---- Stufen 6 und 7 automatisch aus der Wirkung von Stufe 5 ableiten ---- */
+const MAXT = 7;
+(function extendTiers() {
+  const INTK = new Set(['shots','pierce','chain','targets','bees','blades','beams','planes','traps','cluster','rings','spirits','count']);
+  const MULT = new Set(['rate','hitCd','flySpeed','spiritSpeed','beeSpeed']);
+  const LBL = {dmg:'Schaden', range:'Reichweite', rate:'Tempo', pierce:'Durchschlag', shots:'Geschosse', chain:'Sprünge', targets:'Ziele', bees:'Projektile', blades:'Klingen', beams:'Strahlen', planes:'Flugzeuge', traps:'Fallen', cluster:'Nachbeben', splash:'Radius', freeze:'Einfrieren', stun:'Betäubung', hp:'Gift', slowHit:'Verlangsamung', income:'Einkommen', popBonus:'Beute', curseAmt:'Fluch', knock:'Rückstoß', rewind:'Rückspulen', width:'Breite', radius:'Radius', spirits:'Geister', r:'Radius', burn:'Brand', trapPoison:'Gift', zPoison:'Gift', orbR:'Radius', aRate:'Aura-Tempo', aDist:'Aura-Radius', bombDmg:'Bombenschaden', pdmg:'Gift', life:'Dauer'};
+  for (const k in TOWERS) for (const p of ['A','B','C']) {
+    const arr = TOWERS[k][p] && TOWERS[k][p].up; if (!arr || arr.length !== 5) continue;
+    const s4 = Object.assign({}, TOWERS[k].base); for (let i = 0; i < 4; i++) arr[i].m(s4);
+    const s5 = Object.assign({}, s4); arr[4].m(s5);
+    const diff = {};
+    for (const key in s5) {
+      const a = s4[key], b = s5[key];
+      if (typeof b === 'number' && (typeof a === 'number' || a === undefined) && b !== (a || 0)) diff[key] = {a:a || 0, b};
+      else if (b === true && !a) diff[key] = true;
+    }
+    const keys = Object.keys(diff);
+    const labels = keys.filter(x => LBL[x]).slice(0, 3).map(x => LBL[x]);
+    const mk = f => s => {
+      if (!keys.length) { if (s.dmg > 0) s.dmg = Math.round(s.dmg * (1 + f*.4)); if (s.rate) s.rate *= (1 - .1*f); return; }
+      for (const key of keys) {
+        const d = diff[key]; if (d === true) { s[key] = true; continue; }
+        const cur = s[key] === undefined ? 0 : s[key];
+        if (MULT.has(key) && d.a > 0) s[key] = cur * Math.pow(d.b / d.a, f);
+        else { let inc = (d.b - d.a) * f; if (INTK.has(key)) inc = Math.max(1, Math.round(inc)); s[key] = cur + inc; }
+      }
+      if (s.spread > 3) s.spread = 3;
+    };
+    const t5 = arr[4];
+    arr.push({n:t5.n + ' II', c:Math.round(t5.c * 2.2), d:'Meisterstufe: verstärkt „' + t5.n + '“' + (labels.length ? ' (' + labels.join(', ') + ')' : ''), m:mk(.5)});
+    arr.push({n:t5.n + ' III', c:Math.round(t5.c * 5), d:'Meisterstufe: verstärkt „' + t5.n + '“ noch weiter' + (labels.length ? ' (' + labels.join(', ') + ')' : ''), m:mk(.85)});
+  }
+})();
+
+const HOTK = '1234567890-asdfgjzxcvbnikolm';
 
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
 
@@ -1614,7 +1770,7 @@ function placeTower(type, x, y) {
   refreshAll(true); return true;
 }
 const PKEY = ['A','B','C'];
-function blockReason(t, i) { return t.up[i] >= 5 ? 'max' : ''; }
+function blockReason(t, i) { return t.up[i] >= TOWERS[t.type][PKEY[i]].up.length ? 'max' : ''; }
 function upgradeTower(t, path) {
   const def = TOWERS[t.type], tier = t.up[path];
   if (blockReason(t, path)) return;
@@ -1740,10 +1896,10 @@ function fire(t, e) {
         if (s.dmg) hit(en, s.dmg);
       }
       break; }
-    case 'swarm': {
+    case 'swarm': case 'juggle': {
       t.ang = Math.atan2(e.y - t.y, e.x - t.x);
       for (let i = 0; i < s.bees; i++) { const a = t.ang + (Math.random() - .5) * 2.2;
-        S.projs.push({homing:true, target:e, x:t.x, y:t.y-10, vx:Math.cos(a)*s.beeSpeed, vy:Math.sin(a)*s.beeSpeed, speed:s.beeSpeed, dmg:s.dmg, pierce:s.pierce, splash:0, life:4, hit:new Set(), col:'#ffd54a', magic:false, sharp:!s.pierceLead, a, slow:s.slowHit||0, hp:s.hp||0, hpt:s.hpt||4, knock:0}); }
+        S.projs.push({homing:true, target:e, x:t.x, y:t.y-10, vx:Math.cos(a)*s.beeSpeed, vy:Math.sin(a)*s.beeSpeed, speed:s.beeSpeed, dmg:s.dmg, pierce:s.pierce, splash:0, life:s.kind === 'juggle' ? 3.5 : 4, hit:new Set(), col:'#ffd54a', magic:false, ball:s.kind === 'juggle', sharp:s.kind !== 'juggle' && !s.pierceLead, a, slow:s.slowHit||0, hp:s.hp||0, hpt:s.hpt||4, knock:0}); }
       break; }
     case 'beam': {
       const base = Math.atan2(e.y - t.y, e.x - t.x); t.ang = base;
@@ -1758,6 +1914,24 @@ function fire(t, e) {
         }
         S.fx.push({type:'beam', x1:ox, y1:oy, x2:ox + ux*R, y2:oy + uy*R, w:s.width, life:.13, max:.13});
       }
+      break; }
+    case 'spirit': {
+      t.ang = Math.atan2(e.y - t.y, e.x - t.x); const L = LANES[e.lane];
+      for (let i = 0; i < s.spirits; i++) {
+        const d = Math.min(L.total - 5, e.d + 40 + i*26 + Math.random()*30), pp = posAt(d, e.lane);
+        if (S.traps.length < 250) S.traps.push({x:pp.x, y:pp.y, d, lane:e.lane, life:s.life, pierce:s.pierce, dmg:s.dmg, sharp:false, slow:s.trapSlow||0, hp:s.trapPoison||0, freeze:s.trapFreeze||0, boom:0, hit:new Set(), rot:0, v:-s.spiritSpeed, ghost:true});
+      }
+      break; }
+    case 'cloud': {
+      t.ang = Math.atan2(e.y - t.y, e.x - t.x); const L = LANES[e.lane];
+      const d = Math.min(L.total - 5, e.d + 20 + Math.random()*90), pp = posAt(d, e.lane);
+      if (S.traps.length < 250) S.traps.push({x:pp.x, y:pp.y, d, lane:e.lane, life:s.life, zone:true, r:s.radius, tick:s.tick, tt:0, dmg:s.dmg, slow:s.zSlow||0, hp:s.zPoison||0, freeze:s.zFreeze||0, det:!!(s.detect || t.bf.detect), pierce:1, hit:new Set(), rot:0});
+      break; }
+    case 'strike': {
+      t.ang = Math.atan2(e.y - t.y, e.x - t.x);
+      const list = [e]; if (s.count > 1) list.push(...S.enemies.filter(x => !x.dead && x !== e && (!x.camo || canSee(t))).sort((a, b) => b.d - a.d).slice(0, s.count - 1));
+      (S.strikes || (S.strikes = []));
+      for (const en of list) { const pp = posAt(en.d + baseSpd(en) * (en.slow > 0 ? .5 : 1) * s.delay, en.lane); S.strikes.push({x:pp.x, y:pp.y, t:s.delay, max:s.delay, dmg:s.dmg, r:s.r, stun:s.stun, burn:s.burn}); }
       break; }
     case 'snipe':
       t.ang = Math.atan2(e.y - t.y, e.x - t.x);
@@ -1781,7 +1955,7 @@ function fire(t, e) {
       }
       break; }
   }
-  if (!['pulse','curse','trap','flame','chain','beam'].includes(s.kind)) { t.recoil = 1; S.fx.push({type:'flash', x:t.x + Math.cos(t.ang)*17, y:t.y - 2 + Math.sin(t.ang)*17, life:.09, max:.09}); }
+  if (!['pulse','curse','trap','flame','chain','beam','spirit','cloud','strike'].includes(s.kind)) { t.recoil = 1; S.fx.push({type:'flash', x:t.x + Math.cos(t.ang)*17, y:t.y - 2 + Math.sin(t.ang)*17, life:.09, max:.09}); }
 }
 
 /* ---------- Update ---------- */
@@ -1842,6 +2016,18 @@ function update(dt) {
   // Fallen
   for (const tr of S.traps) {
     tr.life -= dt;
+    if (tr.v) { tr.d += tr.v * dt; const pp = posAt(tr.d, tr.lane); tr.x = pp.x; tr.y = pp.y; if (tr.d < 0 || tr.d > LANES[tr.lane].total) tr.life = 0; }
+    if (tr.zone) {
+      tr.tt -= dt;
+      if (tr.tt <= 0 && tr.life > 0) { tr.tt = tr.tick;
+        for (const e of S.enemies.slice()) {
+          if (e.dead || Math.hypot(e.x - tr.x, e.y - tr.y) > tr.r + eRad(e)*.6 || (e.camo && !tr.det)) continue;
+          hit(e, tr.dmg);
+          if (!e.dead) { if (tr.slow && !immIce(e)) e.slow = Math.max(e.slow, tr.slow); if (tr.hp) applyPoison(e, tr.hp, 3); if (tr.freeze && !isBoss(e) && !immIce(e)) e.freeze = Math.max(e.freeze, tr.freeze); }
+        }
+      }
+      continue;
+    }
     for (const e of S.enemies) {
       if (e.dead || tr.life <= 0 || e.lane !== tr.lane || tr.hit.has(e.id) || Math.abs(e.d - tr.d) > 14 + eRad(e)*.5) continue;
       tr.hit.add(e.id);
@@ -1856,6 +2042,11 @@ function update(dt) {
     }
   }
   S.traps = S.traps.filter(tr => tr.life > 0);
+  if (S.strikes) {
+    for (const st of S.strikes) { st.t -= dt; if (st.t <= 0) { explode(st.x, st.y, st.r, st.dmg); S.shake = Math.max(S.shake || 0, 3);
+      if (st.stun || st.burn) for (const en of S.enemies) if (!en.dead && Math.hypot(en.x - st.x, en.y - st.y) <= st.r + eRad(en)) { if (st.stun) { if (isBoss(en)) en.slow = Math.max(en.slow, st.stun*2); else if (!immIce(en)) en.freeze = Math.max(en.freeze, st.stun); } if (st.burn) applyPoison(en, st.burn, 4); } } }
+    S.strikes = S.strikes.filter(st => st.t > 0);
+  }
   // Projektile
   for (const p of S.projs) {
     if (p.bomb) {
@@ -2041,8 +2232,8 @@ function drawPathFx() {
 }
 function bornScale(t) { if (t.born === undefined) t.born = TIME; const a = (TIME - t.born) / .4; if (a >= 1) return 1; const c1 = 1.70158, c3 = c1 + 1; return Math.max(.01, 1 + c3*Math.pow(a-1, 3) + c1*Math.pow(a-1, 2)); }
 function drawTierRing(t) {
-  const tier = t.omni ? 5 : t.hero ? 0 : Math.max(...t.up); if (tier < 3 || t.paragon) return;
-  ctx.strokeStyle = tier >= 5 ? `rgba(255,213,74,${.55 + .3*Math.sin(TIME*3)})` : 'rgba(127,208,255,.55)'; ctx.lineWidth = tier >= 5 ? 2.6 : 2;
+  const tier = t.omni ? 7 : t.hero ? 0 : Math.max(...t.up); if (tier < 3 || t.paragon) return;
+  ctx.strokeStyle = tier >= 7 ? `rgba(255,120,255,${.6 + .3*Math.sin(TIME*4)})` : tier >= 5 ? `rgba(255,213,74,${.55 + .3*Math.sin(TIME*3)})` : 'rgba(127,208,255,.55)'; ctx.lineWidth = tier >= 5 ? 2.6 : 2;
   ctx.beginPath(); ctx.ellipse(t.x, t.y + 13, 23, 8.5, 0, 0, 7); ctx.stroke();
 }
 function drawUpFlash(t) {
@@ -2091,6 +2282,13 @@ function render(time) {
   } else if (S.sel && S.sel.s.range < 5000 && S.sel.s.range > 0) showRange(S.sel.x, S.sel.y, rng(S.sel), true);
   if (S.sel && S.sel.s.aDist > 0) { ctx.fillStyle='rgba(255,220,80,.12)'; ctx.strokeStyle='rgba(255,220,80,.8)'; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.arc(S.sel.x,S.sel.y,S.sel.s.aDist,0,7); ctx.fill(); ctx.stroke(); ctx.setLineDash([]); }
   for (const tr of S.traps) {
+    if (tr.zone) { const a = Math.min(1, tr.life/1.5), g = ctx.createRadialGradient(tr.x, tr.y, 0, tr.x, tr.y, tr.r); g.addColorStop(0, `rgba(120,220,80,${.38*a})`); g.addColorStop(1, `rgba(60,150,50,${.06*a})`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(tr.x, tr.y, tr.r, 0, 7); ctx.fill();
+      ctx.strokeStyle = `rgba(190,255,150,${.5*a})`; ctx.lineWidth = 1.2; for (let i = 0; i < 5; i++) { const ph = (TIME*.8 + i*.37 + tr.x*.01) % 1; ctx.beginPath(); ctx.arc(tr.x + Math.sin(i*2.1 + tr.y)*tr.r*.5, tr.y + tr.r*.4 - ph*tr.r*.9, 2 + i%3, 0, 7); ctx.stroke(); }
+      continue; }
+    if (tr.ghost) { ctx.save(); ctx.translate(tr.x, tr.y - 8 + Math.sin(TIME*4 + tr.d)*3); ctx.globalAlpha = Math.min(.8, tr.life/1.5);
+      ctx.fillStyle = 'rgba(210,225,255,.85)'; ctx.beginPath(); ctx.arc(0, 0, 8, Math.PI, 0); ctx.lineTo(8, 9); for (let i = 0; i < 3; i++) { ctx.quadraticCurveTo(8 - i*5.33 - 2.67, 5, 8 - (i+1)*5.33, 9); } ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#334'; ctx.beginPath(); ctx.arc(-3, -1, 1.7, 0, 7); ctx.arc(3, -1, 1.7, 0, 7); ctx.fill(); ctx.beginPath(); ctx.ellipse(0, 4, 1.6, 2.2, 0, 0, 7); ctx.fill(); ctx.restore(); continue; }
     ctx.save(); ctx.translate(tr.x, tr.y); ctx.globalAlpha = Math.min(1, tr.life/3);
     ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(0,2,10,4,0,0,7); ctx.fill();
     ctx.rotate(tr.rot); ctx.fillStyle = '#c9ced4'; ctx.strokeStyle = '#4a4f57'; ctx.lineWidth = 1;
@@ -2114,15 +2312,23 @@ function render(time) {
       ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, 8, 0, 1.6); ctx.stroke();
       ctx.fillStyle = '#e8eef4'; ctx.strokeStyle = '#5a6570'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, 0); ctx.quadraticCurveTo(0, -11, 9, 0); ctx.quadraticCurveTo(0, -4, -9, 0); ctx.fill(); ctx.stroke(); ctx.restore(); }
     // Upgrade-Punkte
-    if (!t.hero && !t.paragon && !t.omni) for (let p = 0; p < 3; p++) for (let k = 0; k < 5; k++) {
-      ctx.fillStyle = k < t.up[p] ? ['#fc5','#6cf','#f8a'][p] : 'rgba(0,0,0,.35)';
-      ctx.beginPath(); ctx.arc(t.x - 10 + k*5, t.y + 21 + p*4.5, 1.7, 0, 7); ctx.fill();
+    if (!t.hero && !t.paragon && !t.omni) for (let p = 0; p < 3; p++) for (let k = 0; k < 7; k++) {
+      ctx.fillStyle = k < t.up[p] ? (k >= 5 ? '#fff' : ['#fc5','#6cf','#f8a'][p]) : 'rgba(0,0,0,.35)';
+      ctx.beginPath(); ctx.arc(t.x - 13 + k*4.4, t.y + 21 + p*4.5, 1.6, 0, 7); ctx.fill();
     }
+  }
+  for (const st of (S.strikes || [])) {
+    const k = 1 - st.t / st.max;
+    ctx.strokeStyle = `rgba(255,90,60,${.45 + .4*Math.sin(TIME*14)})`; ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.arc(st.x, st.y, st.r*(.5 + .5*k), 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    const sx = st.x - (1-k)*260, sy = st.y - (1-k)*420; ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createLinearGradient(sx, sy, sx - 60, sy - 100); g.addColorStop(0, 'rgba(255,220,120,.9)'); g.addColorStop(1, 'rgba(255,120,40,0)'); ctx.strokeStyle = g; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - 60*(1-k) - 4, sy - 100*(1-k) - 4); ctx.stroke();
+    ctx.fillStyle = '#fff3c0'; ctx.beginPath(); ctx.arc(sx, sy, 7, 0, 7); ctx.fill(); ctx.globalCompositeOperation = 'source-over';
   }
   // Ballons (hinterste zuerst)
   for (const e of S.enemies.slice().sort((a,b)=>a.d-b.d)) drawBalloon(e);
   // Projektile
   for (const p of S.projs) {
+    if (p.homing && p.ball) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(TIME*10); const g = ctx.createRadialGradient(-1.5,-1.5,.5,0,0,5.5); g.addColorStop(0,'#fff'); g.addColorStop(.35,['#e53935','#1e88e5','#fdd835','#43a047'][(p.x|0)%4]); g.addColorStop(1,'#333'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0,0,5.5,0,7); ctx.fill(); ctx.restore(); continue; }
     if (p.homing) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
       ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-1, -3, 3, 1.6 + Math.sin(TIME*60 + p.x)*.8, .5, 0, 7); ctx.ellipse(-1, 3, 3, 1.6 + Math.cos(TIME*60 + p.y)*.8, -.5, 0, 7); ctx.fill();
       ctx.fillStyle = '#ffd54a'; ctx.beginPath(); ctx.ellipse(0, 0, 4.5, 2.8, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#222'; ctx.fillRect(-1.5, -2.6, 1.6, 5.2); ctx.fillRect(1.5, -2.4, 1.4, 4.8);
@@ -2285,7 +2491,7 @@ function paragonHtml(t) {
   if (!t.up.every(u => u >= 5)) return '';
   const r = paragonReq(t), nm = TOWERS[t.type].name, okSub = r.subs.length >= 2;
   return `<div class="para"><b>👑 Paragon-Fusion</b> <span class="c">$${PARAGON_COST}</span>
-    <div class="req ok">✔ 5/5/5 ausgebaut</div>
+    <div class="req ok">✔ alle 3 Pfade mindestens Stufe 5</div>
     <div class="req ${okSub ? 'ok' : ''}">${okSub ? '✔' : '✖'} 2 weitere ${nm} mit einem Pfad auf Stufe 5 (${Math.min(2, r.subs.length)}/2) – werden geopfert</div>
     <button class="act" id="bParagon" ${r.ok ? '' : 'disabled'}>👑 Fusionieren</button></div>`;
 }
@@ -2335,7 +2541,7 @@ function refreshAll(force) {
     PKEY.forEach((key, i) => {
       const tier = t.up[i], path = def[key];
       const why = blockReason(t, i);
-      if (why === 'max') { h += `<button class="upg" disabled><b>${path.name}: ${path.up[4].n}</b>Maximal ausgebaut</button>`; return; }
+      if (why === 'max') { h += `<button class="upg" disabled><b>${path.name}: ${path.up[path.up.length - 1].n}</b>Maximal ausgebaut</button>`; return; }
       const u = path.up[tier];
       h += `<button class="upg" data-p="${i}" ${(S.money < u.c || why) ? 'disabled' : ''}><span class="c">$${u.c}</span><b>${path.name} ${tier+1}: ${u.n}</b>${why || u.d}</button>`;
     });
@@ -2354,7 +2560,7 @@ function refreshAll(force) {
     infoEl.innerHTML = `<h3>${def.name}</h3><div class="desc">${def.desc}</div>Klicke auf die Karte oder ziehe das Capybara aus der Leiste dorthin. (Esc = abbrechen)`;
   } else {
     infoEl.innerHTML = `<h3>Bereit?</h3><div class="desc">Wähle unten in der Leiste ein Capybara (anklicken oder auf die Karte ziehen) und platziere es neben dem Weg. Klicke platzierte Capybaras an, um sie zu verbessern.</div>
-      <div style="font-size:12px;opacity:.75">Pro Capybara gibt es 3 Pfade mit je 5 Stufen – alle frei kombinierbar (5/5/5 möglich!). <b>Schwarze</b> Ballons sind explosionsimmun, <b>weiße</b> eisimmun, <b>Zebras</b> beides. <b>Blei</b> prallt spitze Waffen ab, <b>Tarn</b>-Ballons brauchen Erkennung. Keramik, Regenbogen und Bosse (MOAB, BFB, DDT) kommen später.</div>`;
+      <div style="font-size:12px;opacity:.75">Pro Capybara gibt es 3 Pfade mit je 7 Stufen – alle frei kombinierbar (7/7/7 möglich!). Stufe 6 und 7 sind teure Meisterstufen. <b>Schwarze</b> Ballons sind explosionsimmun, <b>weiße</b> eisimmun, <b>Zebras</b> beides. <b>Blei</b> prallt spitze Waffen ab, <b>Tarn</b>-Ballons brauchen Erkennung. Keramik, Regenbogen und Bosse (MOAB, BFB, DDT) kommen später.</div>`;
   }
 }
 
@@ -2464,12 +2670,12 @@ function renderWiki() {
   const el = $('tab-wiki'); if (el.dataset.done) return; el.dataset.done = 1;
   const dots = [['#e53935','Rot'],['#1e88e5','Blau'],['#43a047','Grün'],['#fdd835','Gelb'],['#ec407a','Rosa'],['#23232b','Schwarz – explosionsimmun'],['#f2f2f2','Weiß – eisimmun'],['#888','Zebra – immun gegen Explosionen UND Eis'],['#ff66cc','Regenbogen – schnell, zerfällt in Zebras'],['#d9b48a','Keramik – hat Lebenspunkte']];
   let h = `<div class="wiki"><h3>🎮 Steuerung</h3><ul><li><b>Leertaste</b> Runde starten · <b>Esc</b> Auswahl abbrechen bzw. Pausemenü · <b>P</b> Pause</li>
-  <li>Capybaras unten aus der Leiste anklicken <i>oder auf die Karte ziehen</i>. Kurztasten: 1–9, 0, −, A–G, J, Z–B · <b>H</b> = Held</li>
+  <li>Capybaras unten aus der Leiste anklicken <i>oder auf die Karte ziehen</i>. Kurztasten: 1–9, 0, −, A–G, J, Z–B, N, I K O L M · <b>H</b> = Held</li>
   <li>Held-Fähigkeiten: <b>Q / W / E</b></li><li>Türme anklicken zum Verbessern, Ziel wechseln, Haustier wählen oder verkaufen.</li></ul>
   <h3>🎈 Ballons</h3><ul>${dots.map(d => `<li><span class="dot" style="background:${d[0]}"></span>${d[1]}</li>`).join('')}
   <li><b>Blei</b> prallt spitze Waffen ab · <b>Tarn</b>-Ballons brauchen Tarnungserkennung</li></ul>
   <h3>👹 Bosse</h3><p><b>MOAB</b> (Runde 10), <b>DDT</b> (schnell &amp; getarnt), <b>BFB</b> (zerfällt in 4 MOABs), <b>ZOMG</b> (Runde 60). Bosse werden mit der Rundenzahl immer zäher, sind immun gegen Einfrieren und Rückstoß.</p>
-  <h3>👑 Paragons</h3><p>Baue einen Turm auf <b>5/5/5</b> aus und opfere <b>2 weitere Türme derselben Sorte</b> (mit je einem Pfad auf Stufe 5) plus <b>$${PARAGON_COST}</b>: Der Turm wird zum Paragon mit massiv gesteigertem Schaden, Tempo, Reichweite und Anzahl an Schüssen.</p>
+  <h3>👑 Paragons</h3><p>Baue einen Turm auf mindestens <b>5/5/5</b> aus und opfere <b>2 weitere Türme derselben Sorte</b> (mit je einem Pfad auf Stufe 5) plus <b>$${PARAGON_COST}</b>: Der Turm wird zum Paragon mit massiv gesteigertem Schaden, Tempo, Reichweite und Anzahl an Schüssen.</p>
   <h3>🐾 Haustiere</h3><p>${Object.values(PETS).map(p => `${p.e} <b>${p.name}</b>: ${p.perk}`).join(' · ')}</p>
   <h3>🦫 Alle Capybaras</h3><div class="wgrid" id="wTowers"></div>
   <h3>⭐ Helden</h3><div class="wgrid" id="wHeroes"></div></div>`;
