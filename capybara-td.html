@@ -69,6 +69,61 @@
   .mapcard:hover { transform:translateY(-3px); }
   #overlay { backdrop-filter:blur(3px); }
   #msg { box-shadow:0 4px 16px rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.15); }
+  .para { margin:8px 0; padding:8px; border-radius:8px; background:linear-gradient(180deg,#5a4a10,#3d3308); border:1px solid #ffd54a; font-size:12px; }
+  .para.on { text-align:center; font-size:13px; }
+  .para .c { float:right; color:var(--accent); font-weight:700; }
+  .para .req { margin:3px 0; opacity:.75; } .para .req.ok { opacity:1; color:#b9f6ca; }
+  .para button { width:100%; margin-top:4px; }
+  .petbox { margin:8px 0; padding:8px; border-radius:8px; background:#243a2b; font-size:12px; }
+  .petbox .perk { opacity:.75; font-size:11px; display:block; margin:2px 0 4px; }
+  .petrow { display:flex; gap:4px; flex-wrap:wrap; margin:4px 0; }
+  .pb { width:32px; height:30px; border-radius:6px; border:2px solid transparent; background:#33503b; cursor:pointer; font-size:16px; padding:0; }
+  .pb.on { border-color:var(--accent); background:#4b6d54; }
+  .sw { width:20px; height:20px; border-radius:50%; border:2px solid #0006; cursor:pointer; padding:0; }
+  .sw.on { border-color:#fff; box-shadow:0 0 0 2px var(--accent); }
+  .petbox input { width:100%; margin-top:4px; padding:5px 8px; border-radius:6px; border:1px solid #4b6d54; background:#1a2a1f; color:var(--ink); font-size:12px; }
+  #overlay { align-items:stretch; padding:14px; text-align:left; overflow:hidden; background:radial-gradient(ellipse at 50% 0%, rgba(40,80,50,.96), rgba(8,18,10,.97)); }
+  #overlay .menu { position:relative; z-index:1; width:100%; max-width:900px; margin:0 auto; max-height:100%; overflow-y:auto; padding:0 8px 8px; }
+  #overlay .logo { display:flex; align-items:center; gap:14px; margin:4px 0 12px; }
+  #overlay .mascot { font-size:58px; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); animation:bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 50% { transform:translateY(-6px) rotate(-4deg); } }
+  #overlay h1 { font-size:34px; margin:0; background:linear-gradient(180deg,#ffe08a,#ffb300); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none; }
+  #overlay .logo p { margin:2px 0 0; opacity:.85; font-size:14px; }
+  #overlay h2 { font-size:15px; margin:14px 0 6px; color:var(--accent); letter-spacing:.5px; }
+  .tabs { display:flex; gap:6px; margin-bottom:6px; border-bottom:2px solid #ffffff22; }
+  .tabs button { background:transparent; border:0; color:var(--ink); padding:9px 14px; font-size:15px; font-weight:700; cursor:pointer; border-radius:8px 8px 0 0; opacity:.7; }
+  .tabs button.on { background:#ffffff1a; opacity:1; box-shadow:inset 0 -3px 0 var(--accent); }
+  .tabs button:hover { opacity:1; }
+  .tab { display:none; } .tab.on { display:block; }
+  #overlay .maps { justify-content:flex-start; margin:4px 0; }
+  #overlay .diff { justify-content:flex-start; flex-wrap:wrap; margin:6px 0; }
+  #overlay .diff button { display:block; min-width:210px; text-align:center; line-height:1.3; }
+  #overlay .diff button small { display:block; font-weight:400; font-size:11px; opacity:.85; }
+  #overlay .diff button.sel { background:var(--accent); color:#222; }
+  .startbar { position:sticky; bottom:0; z-index:2; box-shadow:0 -10px 14px #0f2416; background:#1d3a26 !important; }
+  #panel .row .act { font-size:12px; padding:8px 4px; }
+  .startbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0 4px; padding:12px; border-radius:12px; background:#ffffff12; }
+  #sumLine { font-size:13px; opacity:.9; }
+  #startBtn { padding:14px 30px; font-size:20px; font-weight:800; border:0; border-radius:12px; cursor:pointer; color:#0d2010; background:linear-gradient(180deg,#9df09d,#4faf4f); box-shadow:0 5px 0 #2f7a2f, 0 8px 16px rgba(0,0,0,.4); transition:transform .1s; }
+  #startBtn:hover { transform:translateY(-2px); } #startBtn:active { transform:translateY(3px); box-shadow:0 2px 0 #2f7a2f; }
+  .balloons { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+  .balloons i { position:absolute; bottom:-70px; width:26px; height:32px; border-radius:50% 50% 48% 48%; opacity:.45; animation:rise linear infinite; }
+  .balloons i::after { content:''; position:absolute; left:50%; top:100%; width:1px; height:26px; background:#fff8; }
+  @keyframes rise { to { transform:translateY(-1100px) translateX(40px); } }
+  .petpanel { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; }
+  .petprev { border-radius:12px; overflow:hidden; border:2px solid #ffffff22; } .petprev canvas { display:block; width:240px; height:150px; }
+  .petpanel > div:last-child { flex:1; min-width:260px; }
+  .wiki h3 { margin:16px 0 6px; color:var(--accent); font-size:16px; }
+  .wiki p, .wiki li { font-size:13px; line-height:1.5; opacity:.92; } .wiki ul { margin:4px 0; padding-left:20px; }
+  .wgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:8px; }
+  .wcard { display:flex; gap:8px; background:#ffffff10; border-radius:10px; padding:6px 8px; font-size:12px; align-items:center; }
+  .wcard canvas { width:46px; height:46px; flex:none; } .wcard b { display:block; font-size:13px; } .wcard span { opacity:.8; }
+  .dot { display:inline-block; width:11px; height:13px; border-radius:50%; margin-right:6px; vertical-align:middle; border:1px solid #0006; }
+  table.rec { border-collapse:collapse; width:100%; font-size:14px; margin:8px 0; } table.rec td, table.rec th { padding:8px 10px; border-bottom:1px solid #ffffff1a; text-align:center; } table.rec td:first-child, table.rec th:first-child { text-align:left; }
+  .bigstats { display:flex; gap:12px; flex-wrap:wrap; margin:10px 0; } .bigstats div { background:#ffffff12; border-radius:12px; padding:12px 18px; text-align:center; } .bigstats b { display:block; font-size:26px; color:var(--accent); }
+  #pauseMenu { position:absolute; inset:0; background:rgba(5,12,7,.72); backdrop-filter:blur(3px); z-index:6; display:flex; align-items:center; justify-content:center; border-radius:12px; }
+  #pauseMenu.hidden { display:none; } .pm { background:linear-gradient(180deg,#33503b,#22332a); border-radius:16px; padding:22px 28px; min-width:280px; box-shadow:0 10px 40px #000a; display:flex; flex-direction:column; gap:10px; }
+  .pm h2 { margin:0 0 6px; text-align:center; } .pm .act { flex:none; padding:12px; font-size:15px; }
   @media (max-width:820px) {
     #app { flex-direction:column; height:auto; min-height:100%; }
     #panel { flex:none; }
@@ -84,22 +139,36 @@
     <div id="bar"></div>
     <div id="msg"></div>
     <div id="overlay">
-      <div class="box">
-        <h1>🦫 Capybara Tower Defence</h1>
-        <p id="ovText">Die bösen Ballons wollen durch den Dschungel! Platziere Capybaras verschiedener Klassen, um sie zu stoppen. Überlebe <b>80 Runden</b> – danach geht es endlos weiter.</p>
-        <button class="act" id="endless" style="display:none;margin:8px auto;flex:none;padding:10px 20px">♾ Endlos weiterspielen</button>
-        <div class="maps" id="mapBtns"></div>
-        <p style="margin:0;font-weight:700">Held wählen:</p>
-        <div class="maps" id="heroBtns"></div>
-        <p style="margin:0;font-weight:700">Karte wählen, dann Schwierigkeit zum Starten:</p>
-        <div class="diff" id="diffBtns">
-          <button data-d="0">Leicht</button>
-          <button data-d="1">Normal</button>
-          <button data-d="2">Schwer</button>
-        </div>
-        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · Capybara aus der Leiste ziehen oder anklicken · 1–9, 0, -, A–G, J, Z–B = Schnellwahl</p>
+      <div class="balloons" id="balloons"></div>
+      <div class="menu">
+        <header class="logo"><div class="mascot">🦫</div><div><h1>Capybara Tower Defence</h1><p id="ovText">Die bösen Ballons wollen durch den Dschungel! Platziere Capybaras, Helden und Flieger – überlebe <b>80 Runden</b> und darüber hinaus.</p></div></header>
+        <button class="act" id="endless" style="display:none;margin:0 0 10px;flex:none;padding:10px 20px">♾ Endlos weiterspielen</button>
+        <nav class="tabs" id="tabs">
+          <button data-tab="play" class="on">▶ Spielen</button>
+          <button data-tab="pets">🐾 Haustiere</button>
+          <button data-tab="wiki">📖 Anleitung</button>
+          <button data-tab="stats">🏆 Rekorde</button>
+        </nav>
+        <section class="tab on" id="tab-play">
+          <h2>1 · Karte</h2><div class="maps" id="mapBtns"></div>
+          <h2>2 · Held</h2><div class="maps" id="heroBtns"></div>
+          <h2>3 · Schwierigkeit</h2>
+          <div class="diff" id="diffBtns">
+            <button data-d="0"><b>Leicht</b><small>200 Leben · $900 Start · 25 % weniger Ballons</small></button>
+            <button data-d="1"><b>Normal</b><small>150 Leben · $700 Start · normale Wellen</small></button>
+            <button data-d="2"><b>Schwer</b><small>80 Leben · $550 Start · 30 % mehr Ballons & Boss-HP</small></button>
+          </div>
+          <div class="startbar"><span id="sumLine"></span><button id="startBtn">▶ Spiel starten</button></div>
+        </section>
+        <section class="tab" id="tab-pets"></section>
+        <section class="tab" id="tab-wiki"></section>
+        <section class="tab" id="tab-stats"></section>
       </div>
     </div>
+    <div id="pauseMenu" class="hidden"><div class="pm"><h2>⏸ Pause</h2>
+      <button class="act go" id="pmResume">▶ Weiter spielen</button>
+      <button class="act" id="pmRestart">🔄 Neustart (gleiche Einstellungen)</button>
+      <button class="act" id="pmMenu">🏠 Hauptmenü</button></div></div>
   </div>
   <aside id="panel">
     <div id="hud"><span>❤️ <b id="hLives">0</b></span><span>💰 <b id="hMoney">0</b></span><span>🌊 <b id="hRound">0</b><span id="hMax">/80</span></span></div>
@@ -112,6 +181,7 @@
       <button class="act" id="bSpeed">Tempo ×1</button>
       <button class="act" id="bAuto">Auto: Aus</button>
       <button class="act" id="bPause">⏸</button>
+      <button class="act" id="bMenu">☰</button>
     </div>
   </aside>
 </div>
@@ -1036,14 +1106,21 @@ const DIFF = [
   {name:'Schwer', money:550, lives:80, mult:1.3}
 ];
 let diffIdx = 1, nextId = 1, towerUid = 0;
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem('capy_td_v1') || '{}') || {}; } catch (e) { return {}; } },
+  set(o) { try { localStorage.setItem('capy_td_v1', JSON.stringify(o)); } catch (e) {} }
+};
+const SAVE = Object.assign({best:{}, plays:0, pops:0, pet:{type:'', color:'', name:''}, sel:{map:0, hero:0, diff:1}}, store.get());
+const persist = () => store.set(SAVE);
 
 function newGame(d, mi, hk) {
   diffIdx = d; setMap(mi == null ? mapIdx : mi);
   S = { money:DIFF[d].money, lives:DIFF[d].lives, round:0, towers:[], enemies:[], projs:[], parts:[], fx:[],
         queue:[], qi:0, qt:0, active:false, speed:1, auto:false, paused:false, sel:null, place:null,
-        over:false, won:false, mx:-99, my:-99, heroKey:hk || null, hero:null, traps:[], endless:false, rally:0, goldT:0 };
+        over:false, won:false, mapKey:0, mx:-99, my:-99, heroKey:hk || null, hero:null, traps:[], endless:false, rally:0, goldT:0 };
   $('endless').style.display = 'none'; buildHeroBtn();
-  document.getElementById('overlay').classList.add('hidden');
+  SAVE.plays++; persist(); setTitle();
+  document.getElementById('overlay').classList.add('hidden'); $('pauseMenu').classList.add('hidden');
   refreshAll(true);
 }
 
@@ -1106,6 +1183,7 @@ function spawnKids(e) {
 }
 
 function pop(e, col) {
+  S.pops = (S.pops || 0) + 1;
   if (S.parts.length > 400) return;
   S.fx.push({type:'pring', x:e.x, y:e.y, col, life:.22, max:.22});
   for (let i = 0; i < 8; i++) S.parts.push({x:e.x, y:e.y, vx:(Math.random()-.5)*220, vy:(Math.random()-.7)*190, g:420, life:.5, max:.5, s:2+Math.random()*3, col});
@@ -1235,10 +1313,126 @@ function explode(x, y, r, dmg, skip) {
 }
 
 /* ---------- Tower-Logik ---------- */
+/* ---------- Paragon ---------- */
+const PARAGON_COST = 45000;
+function paragonReq(t) {
+  const full = t.up.every(u => u >= 5);
+  const subs = S.towers.filter(o => o !== t && o.type === t.type && !o.paragon && !o.hero && o.up.some(u => u >= 5));
+  return {full, subs, ok: full && !t.paragon && subs.length >= 2 && S.money >= PARAGON_COST};
+}
+function makeParagon(t) {
+  const r = paragonReq(t); if (!r.ok) return;
+  S.money -= PARAGON_COST; t.spent += PARAGON_COST;
+  r.subs.sort((a, b) => a.spent - b.spent).slice(0, 2).forEach(o => { S.towers.splice(S.towers.indexOf(o), 1); S.fx.push({type:'boom', x:o.x, y:o.y, r:40, life:.4, max:.4}); });
+  t.paragon = true; computeStats(t); S.shake = 9; ringFx(t);
+  flash(`👑 PARAGON! ${TOWERS[t.type].name} ist jetzt ein Paragon!`, 4000); refreshAll(true);
+}
+function applyParagon(s) {
+  const k = s.kind, has = key => s[key] !== undefined && s[key] !== null;
+  if (has('dmg') && !['curse','village','bank'].includes(k)) s.dmg = s.dmg * 3 + 10;
+  if (has('rate') && s.rate) s.rate *= .5;
+  if (has('hitCd')) s.hitCd *= .6;
+  if (has('range') && s.range > 0 && s.range < 5000) s.range += 45;
+  if (has('pierce')) s.pierce = s.pierce * 2 + 10;
+  if (['dart','magic','hydro','plane','boomer'].includes(k)) { s.shots = (s.shots || 1) + 4; s.spread = Math.max(s.spread || 0, .5); }
+  if (k === 'snipe') s.shots = (s.shots || 1) + 3;
+  if (has('chain')) s.chain = s.chain * 2 + 4;
+  if (has('targets')) s.targets = s.targets * 2 + 5;
+  if (has('splash') && s.splash) s.splash *= 1.4;
+  if (has('traps')) s.traps += 3;
+  if (has('planes')) s.planes += 2;
+  if (has('cluster')) s.cluster = (s.cluster || 0) * 2 + 4;
+  if (has('bees')) s.bees = s.bees * 2 + 6;
+  if (has('blades')) { s.blades = s.blades * 2 + 6; s.orbR += 15; }
+  if (has('beams')) s.beams += 3;
+  if (has('width')) s.width *= 1.5;
+  if (has('curseAmt')) s.curseAmt = s.curseAmt * 2 + 5;
+  if (s.income) s.income = s.income * 3 + 100;
+  if (s.interest) { s.interest *= 1.5; s.cap *= 2; }
+  if (s.aDist > 0) { s.aDist += 40; s.aRate += .2; s.aRange += 20; s.aDmg += 1; }
+  if (s.freeze > 0) s.freeze = s.freeze * 1.5 + 1;
+  if (s.stun > 0) s.stun *= 1.5;
+  if (has('knock')) s.knock *= 2;
+  if (s.slowHit) s.slowHit += 2;
+  if (s.hp) s.hp = s.hp * 2 + 4;
+  if (s.burn) s.burn = s.burn * 2 + 3;
+  if (s.pdmg) s.pdmg = s.pdmg * 2 + 5;
+  if (s.trapPoison) s.trapPoison *= 2;
+  if (s.trapBoom) s.trapBoom *= 1.5;
+  if (s.bomb) s.bombDmg *= 3;
+  if (s.rewind) s.rewind *= 2;
+  if (s.orbit) s.orbit += 30;
+  s.detect = true; s.pierceLead = true;
+}
+/* ---------- Haustiere ---------- */
+const PETS = {
+  duck:{name:'Ente', e:'🦆', perk:'+8% Reichweite', col:'#ffd54a'},
+  frog:{name:'Frosch', e:'🐸', perk:'+8% Tempo', col:'#66bb6a'},
+  turtle:{name:'Schildkröte', e:'🐢', perk:'+2 Durchschlag, +10% Explosionsradius', col:'#7cb342'},
+  monkey:{name:'Äffchen', e:'🐒', perk:'+$12 pro Runde', col:'#8d6e63'},
+  parrot:{name:'Papagei', e:'🦜', perk:'+5% Tempo und Reichweite', col:'#ef5350'},
+  chick:{name:'Küken', e:'🐥', perk:'nur zur Zierde – aber unfassbar süß', col:'#fff176'}
+};
+const PET_COLORS = ['#ffd54a','#66bb6a','#42a5f5','#ef5350','#ab47bc','#ff8a65','#ffffff','#455a64'];
+function applyPet(s, pet) {
+  if (!pet || !pet.type) return;
+  switch (pet.type) {
+    case 'duck': if (s.range > 0 && s.range < 5000) s.range *= 1.08; if (s.orbR) s.orbR *= 1.08; break;
+    case 'frog': if (s.rate) s.rate /= 1.08; if (s.hitCd) s.hitCd /= 1.08; break;
+    case 'turtle': if (s.pierce !== undefined) s.pierce += 2; if (s.splash) s.splash *= 1.1; break;
+    case 'monkey': s.income = (s.income || 0) + 12; break;
+    case 'parrot': if (s.rate) s.rate /= 1.05; if (s.range > 0 && s.range < 5000) s.range *= 1.05; break;
+  }
+}
+function drawPet(c, x, y, pet, tt) {
+  const col = pet.color || PETS[pet.type].col, hop = Math.max(0, Math.sin(tt * 3)) * 3;
+  c.save(); c.translate(x, y - hop); c.lineJoin = 'round';
+  c.fillStyle = 'rgba(0,0,0,.2)'; c.beginPath(); c.ellipse(0, hop + 6, 6, 2, 0, 0, 7); c.fill();
+  c.strokeStyle = 'rgba(0,0,0,.45)'; c.lineWidth = .8;
+  const eye = (ex, ey, r = 1.1) => { c.fillStyle = '#fff'; c.beginPath(); c.arc(ex, ey, r + .6, 0, 7); c.fill(); c.fillStyle = '#111'; c.beginPath(); c.arc(ex + .3, ey, r * .7, 0, 7); c.fill(); };
+  switch (pet.type) {
+    case 'duck':
+      c.fillStyle = col; c.beginPath(); c.ellipse(0, 0, 6.5, 4.6, 0, 0, 7); c.fill(); c.stroke(); c.beginPath(); c.arc(5, -4.5, 3.3, 0, 7); c.fill(); c.stroke();
+      c.fillStyle = '#ff9800'; c.beginPath(); c.moveTo(7.6,-4.6); c.lineTo(11,-3.6); c.lineTo(7.6,-2.8); c.fill(); eye(5.6, -5.4);
+      c.fillStyle = 'rgba(0,0,0,.15)'; c.beginPath(); c.ellipse(-1.5, 0, 3.6, 2.2, .3, 0, 7); c.fill(); break;
+    case 'frog':
+      c.fillStyle = col; c.beginPath(); c.ellipse(0, 0, 6.5, 4.6, 0, 0, 7); c.fill(); c.stroke();
+      c.beginPath(); c.arc(-3, -4.2, 2.4, 0, 7); c.arc(3, -4.2, 2.4, 0, 7); c.fill(); c.stroke(); eye(-3, -4.4, 1.2); eye(3, -4.4, 1.2);
+      c.strokeStyle = 'rgba(0,0,0,.6)'; c.beginPath(); c.arc(0, .6, 3, .2, Math.PI - .2); c.stroke(); break;
+    case 'turtle':
+      c.fillStyle = '#9ccc65'; c.beginPath(); c.arc(7, 1, 2.8, 0, 7); c.fill(); c.stroke(); eye(8, .3, .9);
+      c.fillRect(-4, 2, 2.6, 3.5); c.fillRect(2, 2, 2.6, 3.5);
+      c.fillStyle = col; c.beginPath(); c.ellipse(0, 0, 7.5, 5.6, 0, Math.PI, 0); c.fill(); c.stroke();
+      c.strokeStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.moveTo(-4, -2); c.lineTo(-2, 0); c.moveTo(0, -5.4); c.lineTo(0, 0); c.moveTo(4, -2); c.lineTo(2, 0); c.stroke(); break;
+    case 'monkey':
+      c.strokeStyle = '#6d4c41'; c.lineWidth = 1.8; c.beginPath(); c.moveTo(-3, 3); c.quadraticCurveTo(-11, 2, -9, -5); c.stroke(); c.lineWidth = .8; c.strokeStyle = 'rgba(0,0,0,.45)';
+      c.fillStyle = col; c.beginPath(); c.ellipse(0, 1, 4.6, 5, 0, 0, 7); c.fill(); c.stroke(); c.beginPath(); c.arc(0, -6, 3.8, 0, 7); c.arc(-4, -6.4, 1.8, 0, 7); c.arc(4, -6.4, 1.8, 0, 7); c.fill(); c.stroke();
+      c.fillStyle = '#e8c9a0'; c.beginPath(); c.ellipse(0, -5.4, 2.6, 2.2, 0, 0, 7); c.fill(); eye(-1.3, -6.4, .9); eye(1.3, -6.4, .9); break;
+    case 'parrot':
+      c.fillStyle = col; c.beginPath(); c.moveTo(-4, 4); c.lineTo(-7, 10); c.lineTo(-2, 6); c.fill();
+      c.beginPath(); c.ellipse(0, 0, 4.2, 6, 0, 0, 7); c.fill(); c.stroke(); c.beginPath(); c.arc(1, -6.6, 3.3, 0, 7); c.fill(); c.stroke();
+      c.fillStyle = '#ffb300'; c.beginPath(); c.moveTo(3.6,-7.6); c.lineTo(7,-6); c.lineTo(3.8,-4.8); c.fill(); eye(1.6, -7.2, .9);
+      c.fillStyle = 'rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(-1, 1, 2.2, 3.6, .2, 0, 7); c.fill(); break;
+    case 'chick':
+      c.fillStyle = col; c.beginPath(); c.arc(0, -1, 5.6, 0, 7); c.fill(); c.stroke(); c.fillStyle = '#ff9800'; c.beginPath(); c.moveTo(5,-1.6); c.lineTo(8.4,-.6); c.lineTo(5,.4); c.fill(); eye(2.2, -2.6, 1);
+      c.strokeStyle = '#ff9800'; c.beginPath(); c.moveTo(-1.5, 4.5); c.lineTo(-1.5, 6.5); c.moveTo(1.5, 4.5); c.lineTo(1.5, 6.5); c.stroke(); break;
+  }
+  c.restore();
+}
+function drawParagonMark(t) {
+  const k = .5 + .5 * Math.sin(TIME * 3);
+  ctx.strokeStyle = `rgba(255,215,80,${.5 + k*.4})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(t.x, t.y + 13, 30 + k*3, 11 + k, 0, 0, 7); ctx.stroke();
+  for (let i = 0; i < 4; i++) { const a = TIME*1.3 + i*1.571, sx = t.x + Math.cos(a)*30, sy = t.y + 13 + Math.sin(a)*11; ctx.fillStyle = 'rgba(255,240,150,.95)'; ctx.beginPath(); ctx.arc(sx, sy, 2.2, 0, 7); ctx.fill(); }
+  ctx.fillStyle = '#ffd54a'; ctx.strokeStyle = '#8a6d00'; ctx.lineWidth = 1; const cx = t.x, cy = t.y - 33;
+  ctx.beginPath(); ctx.moveTo(cx-9, cy+6); ctx.lineTo(cx-9, cy-3); ctx.lineTo(cx-4.5, cy+1); ctx.lineTo(cx, cy-6); ctx.lineTo(cx+4.5, cy+1); ctx.lineTo(cx+9, cy-3); ctx.lineTo(cx+9, cy+6); ctx.closePath(); ctx.fill(); ctx.stroke();
+}
 function computeStats(t) {
   const def = TOWERS[t.type]; const s = Object.assign({}, def.base);
-  if (def.hero) { for (let l = 2; l <= t.hero.lvl; l++) HEROES[t.type].lv(s, l); t.s = s; return; }
+  if (def.hero) { for (let l = 2; l <= t.hero.lvl; l++) HEROES[t.type].lv(s, l); applyPet(s, t.pet); t.s = s; return; }
   ['A','B','C'].forEach((p, i) => { for (let k = 0; k < t.up[i]; k++) def[p].up[k].m(s); });
+  if (t.paragon) applyParagon(s);
+  applyPet(s, t.pet);
+  if (s.rate && s.kind !== 'flame') s.rate = Math.max(s.rate, .04);
   t.s = s;
 }
 function canPlace(x, y, type) {
@@ -1255,6 +1449,7 @@ function placeTower(type, x, y) {
   S.money -= def.cost;
   const t = {uid:++towerUid, type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0,detect:false}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
   if (def.hero) { t.hero = {lvl:1, xp:0, cds:[0,0,0]}; S.hero = t; }
+  if (SAVE.pet && SAVE.pet.type) t.pet = Object.assign({}, SAVE.pet);
   computeStats(t); if (t.s.kind === 'plane') updatePlane(t, 0); if (t.s.kind === 'orbit') updateBlades(t, 0); S.towers.push(t); S.sel = t; S.place = null;
   refreshAll(true); return true;
 }
@@ -1567,7 +1762,7 @@ function endRound() {
     extra += t.s.income || 0;
     if (t.s.interest) extra += Math.min(Math.floor(S.money * t.s.interest), t.s.cap);
   }
-  S.money += bonus + extra; heroXP(25 + S.round*3);
+  S.money += bonus + extra; heroXP(25 + S.round*3); flushStats();
   flash(`Runde ${S.round} geschafft! +$${bonus + extra}`);
   if (S.round >= MAXR && !S.endless) { endGame(true); return; }
   refreshAll(true);
@@ -1578,15 +1773,25 @@ function startRound() {
   S.round++; S.bossScale = bossScale(S.round); S.queue = makeWave(S.round); if (NEWS[S.round]) flash(NEWS[S.round], 5000); S.qi = 0; S.qt = 0; S.active = true;
   refreshAll(true);
 }
+function setTitle(head, text) {
+  document.querySelector('#overlay h1').textContent = head || 'Capybara Tower Defence';
+  $('ovText').innerHTML = text || `Die bösen Ballons wollen durch den Dschungel! Platziere Capybaras, Helden und Flieger – überlebe <b>${MAXR} Runden</b> und darüber hinaus.`;
+}
+function flushStats() {
+  if (!S || S.mapKey === undefined) return;
+  const key = mapIdx + '-' + diffIdx;
+  SAVE.best[key] = Math.max(SAVE.best[key] || 0, S.round);
+  SAVE.pops += (S.pops || 0) - (S.popsSaved || 0); S.popsSaved = S.pops || 0;
+  persist();
+}
 function endGame(win) {
-  S.over = true; S.won = win;
-  const ov = document.getElementById('overlay');
-  document.querySelector('#overlay h1').textContent = win ? '🏆 Gewonnen!' : '💥 Verloren';
-  document.getElementById('ovText').innerHTML = win
+  S.over = true; S.won = win; flushStats();
+  setTitle(win ? '🏆 Gewonnen!' : '💥 Verloren', win
     ? `Alle ${MAXR} Runden überstanden – die Capybaras sind die Helden des Dschungels!`
-    : `Die Ballons haben es geschafft. Du hast <b>Runde ${S.round}</b> erreicht.`;
+    : `Die Ballons haben es geschafft. Du hast <b>Runde ${S.round}</b> erreicht.`);
   $('endless').style.display = win ? '' : 'none';
-  ov.classList.remove('hidden');
+  showTab(win ? 'play' : 'play');
+  $('overlay').classList.remove('hidden');
 }
 
 /* ---------- Rendering ---------- */
@@ -1674,15 +1879,17 @@ function render(time) {
   const sorted = S.towers.slice().sort((a,b)=>a.y-b.y);
   for (const t of sorted) {
     if (t === S.sel) { ctx.strokeStyle = '#ffc857'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(t.x,t.y+13,22+Math.sin(TIME*4)*1.5,9,0,0,7); ctx.stroke(); }
+    if (t.paragon) drawParagonMark(t);
     if (t.hero) { ctx.fillStyle = 'rgba(255,215,80,.28)'; ctx.beginPath(); ctx.ellipse(t.x, t.y+12, 27, 11, 0, 0, 7); ctx.fill(); }
     if (t.s.kind === 'plane') drawAirfield(t); else { const rc = t.recoil || 0, bob = t.s.kind === 'village' ? 0 : Math.sin(TIME*2.2 + t.bob) * .9;
       ctx.save(); ctx.translate(-Math.cos(t.ang)*3*rc, bob); drawCapy(ctx, t.x, t.y, t.type, t.ang); drawWeapon(ctx, t); ctx.restore(); }
     if (t.hero) drawHeroBadge(t);
+    if (t.pet && t.pet.type) { drawPet(ctx, t.x + 25, t.y + 9, t.pet, TIME + t.bob); if (t === S.sel && t.pet.name) { ctx.fillStyle = '#fff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.strokeText(t.pet.name, t.x + 25, t.y + 26); ctx.fillText(t.pet.name, t.x + 25, t.y + 26); } }
     if (t.blades) for (const b of t.blades) { ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.a * 3 + TIME * 10);
       ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, 8, 0, 1.6); ctx.stroke();
       ctx.fillStyle = '#e8eef4'; ctx.strokeStyle = '#5a6570'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, 0); ctx.quadraticCurveTo(0, -11, 9, 0); ctx.quadraticCurveTo(0, -4, -9, 0); ctx.fill(); ctx.stroke(); ctx.restore(); }
     // Upgrade-Punkte
-    if (!t.hero) for (let p = 0; p < 3; p++) for (let k = 0; k < 5; k++) {
+    if (!t.hero && !t.paragon) for (let p = 0; p < 3; p++) for (let k = 0; k < 5; k++) {
       ctx.fillStyle = k < t.up[p] ? ['#fc5','#6cf','#f8a'][p] : 'rgba(0,0,0,.35)';
       ctx.beginPath(); ctx.arc(t.x - 10 + k*5, t.y + 21 + p*4.5, 1.7, 0, 7); ctx.fill();
     }
@@ -1836,9 +2043,36 @@ function heroInfo(t) {
   h += `<div style="background:#1d2b1f;border-radius:6px;height:10px;margin:4px 0"><div style="background:#ffd54a;height:10px;border-radius:6px;width:${L >= 20 ? 100 : Math.round(100*(t.hero.xp - xpFor(L))/(xpFor(L+1) - xpFor(L)))}%"></div></div>`;
   h += `<div style="font-size:12px;opacity:.85;margin-bottom:6px">${L >= 20 ? 'Maximale Stufe erreicht!' : `Noch ${need} XP bis Stufe ${L+1} – Stufenaufstiege (automatische Upgrades) durch geplatzte Ballons, Bosse & Rundenende.`}</div>`;
   H.abil.forEach((a, i) => { h += `<div style="font-size:12px;margin:3px 0;${L < a.lvl ? 'opacity:.5' : ''}"><b>${'QWE'[i]}: ${a.n}</b> (Stufe ${a.lvl}, ${a.cd}s) – ${a.d}</div>`; });
+  h += petHtml(t.pet);
   h += `<div class="row" style="margin-top:6px"><button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button></div>`;
   infoEl.innerHTML = h;
+  bindPet(infoEl, () => t.pet, np => { t.pet = np; computeStats(t); refreshAll(true); });
   $('bMode').onclick = () => { t.mode = (t.mode+1)%4; refreshAll(true); };
+}
+function paragonHtml(t) {
+  if (t.paragon) return `<div class="para on">👑 <b>Paragon</b> – alle Werte massiv gesteigert!</div>`;
+  if (!t.up.every(u => u >= 5)) return '';
+  const r = paragonReq(t), nm = TOWERS[t.type].name, okSub = r.subs.length >= 2;
+  return `<div class="para"><b>👑 Paragon-Fusion</b> <span class="c">$${PARAGON_COST}</span>
+    <div class="req ok">✔ 5/5/5 ausgebaut</div>
+    <div class="req ${okSub ? 'ok' : ''}">${okSub ? '✔' : '✖'} 2 weitere ${nm} mit einem Pfad auf Stufe 5 (${Math.min(2, r.subs.length)}/2) – werden geopfert</div>
+    <button class="act" id="bParagon" ${r.ok ? '' : 'disabled'}>👑 Fusionieren</button></div>`;
+}
+function petHtml(pet) {
+  const cur = pet && pet.type ? PETS[pet.type] : null;
+  let h = `<div class="petbox"><b>🐾 Haustier</b>${cur ? ` <span class="perk">${cur.name}: ${cur.perk}</span>` : ' <span class="perk">wähle ein Haustier</span>'}<div class="petrow">`;
+  for (const k in PETS) h += `<button class="pb ${pet && pet.type === k ? 'on' : ''}" data-pet="${k}" title="${PETS[k].name}: ${PETS[k].perk}">${PETS[k].e}</button>`;
+  h += `<button class="pb ${!cur ? 'on' : ''}" data-pet="" title="kein Haustier">✖</button></div>`;
+  if (cur) {
+    h += `<div class="petrow">`; PET_COLORS.forEach(c => h += `<button class="sw ${pet.color === c ? 'on' : ''}" data-pcol="${c}" style="background:${c}"></button>`);
+    h += `</div><input id="petName" maxlength="12" placeholder="Name des Haustiers" value="${(pet.name || '').replace(/"/g, '&quot;')}">`;
+  }
+  return h + '</div>';
+}
+function bindPet(root, getPet, setPet) {
+  root.querySelectorAll('[data-pet]').forEach(b => b.onclick = () => { const old = getPet() || {}; setPet(b.dataset.pet ? {type:b.dataset.pet, color:old.color || '', name:old.name || ''} : null); });
+  root.querySelectorAll('[data-pcol]').forEach(b => b.onclick = () => setPet(Object.assign({}, getPet(), {color:b.dataset.pcol})));
+  const n = root.querySelector('#petName'); if (n) n.onchange = () => setPet(Object.assign({}, getPet(), {name:n.value.slice(0, 12)}));
 }
 let lastSig = '';
 function refreshAll(force) {
@@ -1856,13 +2090,14 @@ function refreshAll(force) {
   $('bPause').classList.toggle('on', S.paused);
   updateAbil();
   const t = S.sel;
-  const sig = t ? [S.towers.indexOf(t), t.up, t.mode, t.hero ? t.hero.lvl + ':' + Math.floor(t.hero.xp / 15) : '', PKEY.map(k => TOWERS[t.type][k].up.map(u => S.money >= u.c ? 1 : 0).join('')).join('.')].join('|') : (S.place ? 'p'+S.place : 'none');
+  const sig = t ? [S.towers.indexOf(t), t.up, t.mode, t.hero ? t.hero.lvl + ':' + Math.floor(t.hero.xp / 15) : '', t.paragon ? 'P' : (t.up.every(u => u >= 5) ? paragonReq(t).subs.length + (S.money >= PARAGON_COST ? '$' : '') : ''), JSON.stringify(t.pet || 0), PKEY.map(k => TOWERS[t.type][k].up.map(u => S.money >= u.c ? 1 : 0).join('')).join('.')].join('|') : (S.place ? 'p'+S.place : 'none');
   if (!force && sig === lastSig) return;
+  if (!force && document.activeElement && document.activeElement.id === 'petName') return;
   lastSig = sig;
   if (t && t.hero) heroInfo(t);
   else if (t) {
     const def = TOWERS[t.type];
-    let h = `<h3>${def.name} <span style="opacity:.6;font-weight:400">(${t.up.join('-')})</span></h3><div class="desc">${def.desc}</div>`;
+    let h = `<h3>${t.paragon ? '👑 Paragon ' : ''}${def.name} <span style="opacity:.6;font-weight:400">(${t.up.join('-')})</span></h3><div class="desc">${def.desc}</div>`;
     PKEY.forEach((key, i) => {
       const tier = t.up[i], path = def[key];
       const why = blockReason(t, i);
@@ -1870,11 +2105,14 @@ function refreshAll(force) {
       const u = path.up[tier];
       h += `<button class="upg" data-p="${i}" ${(S.money < u.c || why) ? 'disabled' : ''}><span class="c">$${u.c}</span><b>${path.name} ${tier+1}: ${u.n}</b>${why || u.d}</button>`;
     });
+    h += paragonHtml(t) + petHtml(t.pet);
     h += `<div class="row" style="margin-top:6px">`;
     if (!['bank','village','orbit'].includes(t.s.kind)) h += `<button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button>`;
     h += `<button class="act sell" id="bSell">Verkaufen $${Math.round(t.spent*.7)}</button></div>`;
     infoEl.innerHTML = h;
     infoEl.querySelectorAll('.upg[data-p]').forEach(b => b.onclick = () => upgradeTower(t, +b.dataset.p));
+    bindPet(infoEl, () => t.pet, np => { t.pet = np; computeStats(t); refreshAll(true); });
+    const bp = $('bParagon'); if (bp) bp.onclick = () => makeParagon(t);
     const m = $('bMode'); if (m) m.onclick = () => { t.mode = (t.mode+1)%4; refreshAll(true); };
     $('bSell').onclick = () => sellTower(t);
   } else if (S.place) {
@@ -1913,7 +2151,7 @@ cv.addEventListener('pointerdown', ev => {
 window.addEventListener('keydown', ev => {
   if (!S || S.over) return;
   if (ev.code === 'Space') { ev.preventDefault(); startRound(); }
-  else if (ev.key === 'Escape') { S.place = null; S.sel = null; refreshAll(true); }
+  else if (ev.key === 'Escape') { if (S.place || S.sel) { S.place = null; S.sel = null; refreshAll(true); } else togglePauseMenu(); }
   else if (ev.key.length === 1 && HOTK.includes(ev.key.toLowerCase())) { S.place = ORDER[HOTK.indexOf(ev.key.toLowerCase())]; S.sel = null; refreshAll(true); }
   else if (ev.key.toLowerCase() === 'q') useAbility(0);
   else if (ev.key.toLowerCase() === 'w') useAbility(1);
@@ -1926,29 +2164,111 @@ $('bGo').onclick = startRound;
 $('bSpeed').onclick = () => { S.speed = S.speed % 3 + 1; refreshAll(true); };
 $('bAuto').onclick = () => { S.auto = !S.auto; if (S.auto) startRound(); refreshAll(true); };
 $('bPause').onclick = () => { S.paused = !S.paused; refreshAll(true); };
-let pickMap = 0, pickHero = HERO_KEYS[0];
+let pickMap = Math.min(SAVE.sel.map, MAPS.length - 1), pickHero = HERO_KEYS[SAVE.sel.hero] || HERO_KEYS[0], pickDiff = SAVE.sel.diff;
+const updSum = () => { $('sumLine').innerHTML = `<b>${MAPS[pickMap].name}</b> · ${HEROES[pickHero].name} · ${DIFF[pickDiff].name}`; };
 HERO_KEYS.forEach((k, i) => {
-  const d = document.createElement('div'); d.className = 'mapcard herocard' + (i === 0 ? ' sel' : '');
+  const d = document.createElement('div'); d.className = 'mapcard herocard' + (k === pickHero ? ' sel' : '');
   const c = document.createElement('canvas'); c.width = c.height = 112; const g = c.getContext('2d'); g.scale(2,2); drawCapy(g, 28, 34, k, 0, 1.3);
   d.appendChild(c); d.insertAdjacentHTML('beforeend', `<b>${HEROES[k].name}</b><small>${HEROES[k].desc}</small>`);
-  d.onclick = () => { pickHero = k; document.querySelectorAll('.herocard').forEach((x, j) => x.classList.toggle('sel', j === i)); };
+  d.onclick = () => { pickHero = k; document.querySelectorAll('.herocard').forEach((x, j) => x.classList.toggle('sel', j === i)); updSum(); };
   $('heroBtns').appendChild(d);
 });
-$('endless').onclick = () => { S.over = false; S.won = false; S.endless = true; $('overlay').classList.add('hidden'); refreshAll(true); };
 MAPS.forEach((m, i) => {
-  const d = document.createElement('div'); d.className = 'mapcard' + (i === 0 ? ' sel' : '');
+  const d = document.createElement('div'); d.className = 'mapcard' + (i === pickMap ? ' sel' : '');
   const c = document.createElement('canvas'); c.width = 240; c.height = 150; c.getContext('2d').drawImage(MAP_DATA[i].bg, 0, 0, 240, 150);
   d.appendChild(c); d.insertAdjacentHTML('beforeend', `<b>${m.name}</b><small>${m.desc}</small>`);
-  d.onclick = () => { pickMap = i; document.querySelectorAll('.mapcard:not(.herocard)').forEach((x, j) => x.classList.toggle('sel', j === i)); };
+  d.onclick = () => { pickMap = i; document.querySelectorAll('.mapcard:not(.herocard)').forEach((x, j) => x.classList.toggle('sel', j === i)); updSum(); };
   $('mapBtns').appendChild(d);
 });
-$('diffBtns').querySelectorAll('button').forEach(b => b.onclick = () => newGame(+b.dataset.d, pickMap, pickHero));
+$('diffBtns').querySelectorAll('button').forEach(b => {
+  b.classList.toggle('sel', +b.dataset.d === pickDiff);
+  b.onclick = () => { pickDiff = +b.dataset.d; $('diffBtns').querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b)); updSum(); };
+});
+updSum();
+$('startBtn').onclick = () => { SAVE.sel = {map:pickMap, hero:HERO_KEYS.indexOf(pickHero), diff:pickDiff}; persist(); newGame(pickDiff, pickMap, pickHero); };
+$('endless').onclick = () => { S.over = false; S.won = false; S.endless = true; $('overlay').classList.add('hidden'); refreshAll(true); };
+
+// Schwebende Ballons im Menü
+(() => { const box = $('balloons'), cols = ['#e53935','#1e88e5','#43a047','#fdd835','#ec407a','#ab47bc'];
+  for (let i = 0; i < 12; i++) { const b = document.createElement('i'); b.style.left = (Math.random()*96) + '%'; b.style.background = cols[i % cols.length]; b.style.animationDuration = (12 + Math.random()*10) + 's'; b.style.animationDelay = (-Math.random()*20) + 's'; box.appendChild(b); } })();
+
+// Tabs
+let petAnim = false;
+function showTab(name) {
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + name));
+  petAnim = name === 'pets';
+  if (name === 'pets') renderPetTab(); else if (name === 'wiki') renderWiki(); else if (name === 'stats') renderStats();
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
+function renderPetTab() {
+  const el = $('tab-pets');
+  el.innerHTML = `<div class="petpanel"><div class="petprev"><canvas id="petCv" width="480" height="300"></canvas></div><div><h2 style="margin-top:0">Standard-Haustier</h2>
+    <p style="font-size:13px;opacity:.85;margin:0 0 6px">Neue Capybaras bekommen automatisch dieses Haustier. Bei jedem einzelnen Capybara kannst du es später im Spiel ändern – Aussehen, Farbe und Name. Jedes Haustier gibt einen kleinen Bonus!</p>
+    <div id="petUi"></div></div></div>`;
+  const draw = () => { $('petUi').innerHTML = petHtml(SAVE.pet); bindPet($('petUi'), () => SAVE.pet, np => { SAVE.pet = np || {type:'', color:'', name:''}; persist(); draw(); }); };
+  draw();
+}
+function petPreviewFrame() {
+  const cv2 = $('petCv'); if (!petAnim || !cv2) return;
+  const g = cv2.getContext('2d'); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,480,300);
+  const gr = g.createLinearGradient(0,0,0,300); gr.addColorStop(0,'#5aa04a'); gr.addColorStop(1,'#3f7a3a'); g.fillStyle = gr; g.fillRect(0,0,480,300);
+  g.save(); g.scale(2,2); g.save(); g.translate(78,86); g.scale(2.4,2.4); drawCapy(g, 0, 0, 'warrior', 0, 1); g.restore();
+  if (SAVE.pet && SAVE.pet.type) { g.save(); g.translate(150,100); g.scale(2.4,2.4); drawPet(g, 0, 0, SAVE.pet, TIME); g.restore();
+    if (SAVE.pet.name) { g.fillStyle = '#fff'; g.strokeStyle = '#000'; g.lineWidth = 3; g.font = 'bold 12px sans-serif'; g.textAlign = 'center'; g.strokeText(SAVE.pet.name, 150, 128); g.fillText(SAVE.pet.name, 150, 128); } }
+  g.restore();
+}
+function renderWiki() {
+  const el = $('tab-wiki'); if (el.dataset.done) return; el.dataset.done = 1;
+  const dots = [['#e53935','Rot'],['#1e88e5','Blau'],['#43a047','Grün'],['#fdd835','Gelb'],['#ec407a','Rosa'],['#23232b','Schwarz – explosionsimmun'],['#f2f2f2','Weiß – eisimmun'],['#888','Zebra – immun gegen Explosionen UND Eis'],['#ff66cc','Regenbogen – schnell, zerfällt in Zebras'],['#d9b48a','Keramik – hat Lebenspunkte']];
+  let h = `<div class="wiki"><h3>🎮 Steuerung</h3><ul><li><b>Leertaste</b> Runde starten · <b>Esc</b> Auswahl abbrechen bzw. Pausemenü · <b>P</b> Pause</li>
+  <li>Capybaras unten aus der Leiste anklicken <i>oder auf die Karte ziehen</i>. Kurztasten: 1–9, 0, −, A–G, J, Z–B · <b>H</b> = Held</li>
+  <li>Held-Fähigkeiten: <b>Q / W / E</b></li><li>Türme anklicken zum Verbessern, Ziel wechseln, Haustier wählen oder verkaufen.</li></ul>
+  <h3>🎈 Ballons</h3><ul>${dots.map(d => `<li><span class="dot" style="background:${d[0]}"></span>${d[1]}</li>`).join('')}
+  <li><b>Blei</b> prallt spitze Waffen ab · <b>Tarn</b>-Ballons brauchen Tarnungserkennung</li></ul>
+  <h3>👹 Bosse</h3><p><b>MOAB</b> (Runde 10), <b>DDT</b> (schnell &amp; getarnt), <b>BFB</b> (zerfällt in 4 MOABs), <b>ZOMG</b> (Runde 60). Bosse werden mit der Rundenzahl immer zäher, sind immun gegen Einfrieren und Rückstoß.</p>
+  <h3>👑 Paragons</h3><p>Baue einen Turm auf <b>5/5/5</b> aus und opfere <b>2 weitere Türme derselben Sorte</b> (mit je einem Pfad auf Stufe 5) plus <b>$${PARAGON_COST}</b>: Der Turm wird zum Paragon mit massiv gesteigertem Schaden, Tempo, Reichweite und Anzahl an Schüssen.</p>
+  <h3>🐾 Haustiere</h3><p>${Object.values(PETS).map(p => `${p.e} <b>${p.name}</b>: ${p.perk}`).join(' · ')}</p>
+  <h3>🦫 Alle Capybaras</h3><div class="wgrid" id="wTowers"></div>
+  <h3>⭐ Helden</h3><div class="wgrid" id="wHeroes"></div></div>`;
+  el.innerHTML = h;
+  ORDER.forEach((k, i) => { const d = document.createElement('div'); d.className = 'wcard'; const c = document.createElement('canvas'); c.width = c.height = 92; const g = c.getContext('2d'); g.scale(2,2); drawCapy(g, 23, 27, k, 0, k === 'village' ? .65 : 1.1);
+    d.appendChild(c); d.insertAdjacentHTML('beforeend', `<div><b>${TOWERS[k].name} <span style="color:var(--accent)">$${TOWERS[k].cost}</span> <span style="opacity:.6">[${HOTK[i].toUpperCase()}]</span></b><span>${TOWERS[k].desc}</span></div>`); $('wTowers').appendChild(d); });
+  HERO_KEYS.forEach(k => { const d = document.createElement('div'); d.className = 'wcard'; const c = document.createElement('canvas'); c.width = c.height = 92; const g = c.getContext('2d'); g.scale(2,2); drawCapy(g, 23, 27, k, 0, 1.1);
+    d.appendChild(c); d.insertAdjacentHTML('beforeend', `<div><b>${HEROES[k].name}</b><span>${HEROES[k].desc}<br>${HEROES[k].abil.map((a, i) => `<i>${'QWE'[i]}: ${a.n} (Stufe ${a.lvl})</i>`).join(' · ')}</span></div>`); $('wHeroes').appendChild(d); });
+}
+function renderStats() {
+  const el = $('tab-stats');
+  let rows = MAPS.map((m, mi) => `<tr><td>${m.name}</td>${DIFF.map((d, di) => `<td>${SAVE.best[mi + '-' + di] ? 'Runde ' + SAVE.best[mi + '-' + di] : '–'}</td>`).join('')}</tr>`).join('');
+  el.innerHTML = `<div class="bigstats"><div><b>${SAVE.plays}</b>Spiele</div><div><b>${SAVE.pops.toLocaleString('de-DE')}</b>Ballons geplatzt</div></div>
+    <h2>Beste Runde</h2><table class="rec"><tr><th>Karte</th>${DIFF.map(d => `<th>${d.name}</th>`).join('')}</tr>${rows}</table>
+    <button class="act" id="resetSave" style="flex:none;padding:8px 14px;margin-top:8px">Rekorde zurücksetzen</button>`;
+  $('resetSave').onclick = () => { if (confirm('Alle Rekorde wirklich löschen?')) { SAVE.best = {}; SAVE.plays = 0; SAVE.pops = 0; persist(); renderStats(); } };
+}
+// Pausemenü
+let pmWasPaused = false;
+function togglePauseMenu(force) {
+  const pm = $('pauseMenu'), open = force !== undefined ? force : pm.classList.contains('hidden');
+  if (open) { pmWasPaused = S.paused; S.paused = true; pm.classList.remove('hidden'); }
+  else { pm.classList.add('hidden'); S.paused = pmWasPaused; }
+  refreshAll(true);
+}
+function openMainMenu() {
+  flushStats(); S.over = true; S.paused = false; $('pauseMenu').classList.add('hidden'); setTitle(); $('endless').style.display = 'none';
+  showTab('play'); $('overlay').classList.remove('hidden');
+}
+$('bMenu').onclick = () => togglePauseMenu();
+$('pmResume').onclick = () => togglePauseMenu(false);
+$('pmRestart').onclick = () => { flushStats(); newGame(diffIdx, mapIdx, S.heroKey); };
+$('pmMenu').onclick = openMainMenu;
 
 /* ---------- Hauptschleife ---------- */
 S = { traps:[], money:0, lives:0, round:0, towers:[], enemies:[], projs:[], parts:[], fx:[], queue:[], qi:0, qt:0, active:false, speed:1, auto:false, paused:false, sel:null, place:null, over:true, mx:-99, my:-99 };
 refreshAll(true);
 let last = performance.now(), uiT = 0;
 function loop(now) {
+  petPreviewFrame();
   const dt = Math.min(.05, (now - last) / 1000); last = now;
   if (!S.paused) for (let i = 0; i < S.speed; i++) update(dt);
   render(now);
@@ -1958,7 +2278,7 @@ function loop(now) {
 requestAnimationFrame(loop);
 
 // Zum Testen erreichbar
-window.__td = { get S() { return S; }, get LANES() { return LANES; }, TOWERS, HEROES, ORDER, xpFor, canPlace, update, render, MAPS, spawn, useAbility, newGame, placeTower, startRound, upgradeTower };
+window.__td = { makeParagon, paragonReq, PETS, get S() { return S; }, get LANES() { return LANES; }, TOWERS, HEROES, ORDER, xpFor, canPlace, update, render, MAPS, spawn, useAbility, newGame, placeTower, startRound, upgradeTower };
 })();
 </script>
 </body>
