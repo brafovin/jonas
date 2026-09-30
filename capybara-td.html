@@ -97,7 +97,7 @@
           <button data-d="1">Normal</button>
           <button data-d="2">Schwer</button>
         </div>
-        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · Capybara aus der Leiste ziehen oder anklicken · 1–9, 0, -, A–G, J = Schnellwahl</p>
+        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · Capybara aus der Leiste ziehen oder anklicken · 1–9, 0, -, A–G, J, Z–B = Schnellwahl</p>
       </div>
     </div>
   </div>
@@ -388,6 +388,23 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
     case 'hydro':
       c.fillStyle='#fff'; c.beginPath(); c.ellipse(hx+1,hy+3,9.5,5.5,0,Math.PI,0); c.fill(); c.fillStyle='#1e88e5'; c.fillRect(1,-12.5,21,2.5);
       c.fillStyle='#1e88e5'; c.beginPath(); c.roundRect(-11,-9,8,12,3); c.fill(); c.fillStyle='rgba(255,255,255,.4)'; c.fillRect(-9,-7,2,7); break;
+    case 'swarm':
+      c.fillStyle='#f3e6b3'; c.strokeStyle='#8a7a3a'; c.lineWidth=.8; c.beginPath(); c.ellipse(hx+2,hy+3,13,3.2,0,0,7); c.fill(); c.stroke(); c.beginPath(); c.ellipse(hx+2,hy,7,5.5,0,Math.PI,0); c.fill(); c.stroke();
+      c.strokeStyle='rgba(255,255,255,.6)'; c.lineWidth=.7; for (let i=0;i<6;i++){ c.beginPath(); c.moveTo(hx-8+i*4,hy+4); c.lineTo(hx-9+i*4.4,hy+15); c.stroke(); }
+      c.fillStyle='#ffd54a'; c.strokeStyle='#8a6d00'; c.lineWidth=.8; c.beginPath(); c.ellipse(-12,-2,5,6.5,0,0,7); c.fill(); c.stroke(); c.fillStyle='#3a2a00'; c.fillRect(-16,-4,8,1.4); c.fillRect(-16,0,8,1.4); break;
+    case 'catapult':
+      c.fillStyle='#b0872e'; c.beginPath(); c.ellipse(hx+1,hy+3,10,6.5,0,Math.PI,0); c.fill(); c.fillRect(1,-12.5,21,2.5);
+      c.fillStyle='#c62828'; c.beginPath(); c.moveTo(hx-5,-19); c.quadraticCurveTo(hx+2,-30,hx+9,-19); c.closePath(); c.fill(); break;
+    case 'timewarp':
+      c.fillStyle='#5e35b1'; c.beginPath(); c.ellipse(hx+1,hy+2,10,6.5,0,Math.PI,0); c.fill(); c.fillRect(1,-12.5,21,2.5);
+      c.fillStyle='#fff'; c.strokeStyle='#ffd54a'; c.lineWidth=1.2; c.beginPath(); c.arc(hx+1,hy-4,3.6,0,7); c.fill(); c.stroke();
+      c.strokeStyle='#222'; c.lineWidth=.9; c.beginPath(); c.moveTo(hx+1,hy-4); c.lineTo(hx+1,hy-6.5); c.moveTo(hx+1,hy-4); c.lineTo(hx+3,hy-3); c.stroke(); break;
+    case 'laser':
+      c.fillStyle='#37474f'; c.beginPath(); c.ellipse(hx+1,hy+3,9.5,6,0,Math.PI,0); c.fill(); c.fillRect(1,-12.5,21,2.5);
+      c.fillStyle='rgba(0,229,255,.95)'; c.fillRect(8,-11.5,13,3.6); c.strokeStyle='#90a4ae'; c.lineWidth=1.2; c.beginPath(); c.moveTo(hx-2,-19); c.lineTo(hx-5,-27); c.stroke(); c.fillStyle='#ff1744'; c.beginPath(); c.arc(hx-5,-27,1.7,0,7); c.fill(); break;
+    case 'blades':
+      c.fillStyle='#455a64'; c.beginPath(); c.ellipse(hx+1,hy+3,10,6.5,0,Math.PI,0); c.fill(); c.fillRect(1,-12.5,21,2.5);
+      c.strokeStyle='#ffd54a'; c.lineWidth=2; c.beginPath(); c.arc(hx-6,-19,6,.4,2.2); c.stroke(); c.beginPath(); c.arc(hx+8,-19,6,.9,2.7); c.stroke(); break;
     case 'farmer':
       c.fillStyle = '#e6c25a'; c.beginPath(); c.ellipse(hx+1,hy+2,14,3.6,0,0,7); c.fill();
       c.beginPath(); c.ellipse(hx+1,hy-1,7,5,0,Math.PI,0); c.fill(); c.fillStyle='#b8452e'; c.fillRect(hx-6,hy-2,14,1.6);
@@ -410,6 +427,9 @@ function drawWeapon(c, t) {
       const gl=c.createRadialGradient(24,0,0,24,0,7); gl.addColorStop(0,'#fff'); gl.addColorStop(.5,'#4fc3f7'); gl.addColorStop(1,'rgba(79,195,247,0)'); c.fillStyle=gl; c.beginPath(); c.arc(24,0,6+Math.sin(TIME*20),0,7); c.fill(); break; }
     case 'shaman': c.strokeStyle='#6d4c41'; c.lineWidth=3; c.beginPath(); c.moveTo(6,0); c.lineTo(26,0); c.stroke(); c.fillStyle='#69f0ae'; c.beginPath(); c.arc(28,0,4.5,0,7); c.fill(); c.fillStyle='#fff'; c.beginPath(); c.arc(27,-1,1.5,0,7); c.fill(); break;
     case 'hydro': c.fillStyle='#1e88e5'; c.fillRect(8,-3,20,6); c.fillStyle='#cfd8dc'; c.fillRect(26,-4,4,8); break;
+    case 'catapult': c.strokeStyle='#6d4c41'; c.lineWidth=3.5; c.lineCap='round'; c.beginPath(); c.moveTo(4,5); c.lineTo(22,-7); c.stroke(); c.fillStyle='#8d6e63'; c.beginPath(); c.ellipse(23,-8,5,3,-.5,0,7); c.fill(); c.fillStyle='#9e978c'; c.beginPath(); c.arc(23,-11,3.6,0,7); c.fill(); break;
+    case 'laser': c.fillStyle='#37474f'; c.fillRect(8,-3,18,6); c.fillStyle='#00e5ff'; c.fillRect(24,-1.6,5,3.2); c.fillStyle='#90a4ae'; c.fillRect(11,-4.5,6,2); break;
+    case 'timewarp': c.strokeStyle='#6d4c41'; c.lineWidth=3; c.beginPath(); c.moveTo(6,0); c.lineTo(24,0); c.stroke(); c.fillStyle='#ce93d8'; c.beginPath(); c.arc(27,0,5,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=1; c.beginPath(); c.moveTo(27,0); c.lineTo(27,-3); c.moveTo(27,0); c.lineTo(29.5,1); c.stroke(); break;
     case 'boomer': c.strokeStyle='#d9a441'; c.lineWidth=4; c.lineCap='round'; c.beginPath(); c.moveTo(16,-8); c.lineTo(22,0); c.lineTo(16,8); c.stroke(); break;
     case 'alch': c.fillStyle='#7CFC00'; c.beginPath(); c.arc(20,0,5,0,7); c.fill(); c.fillStyle='#fff'; c.fillRect(19,-9,3,5); break;
   }
@@ -880,7 +900,109 @@ TOWERS.plane = { name:'Capy-Flieger', cost:650, desc:'Fliegerass: kreist in der 
     {n:'Geschwader', c:20000, d:'4 Flugzeuge, Bomben +8 Schaden, viel öfter', m:s=>{s.planes=4; s.bombDmg+=8; s.bombRate=1.2}}]}};
 ORDER.push('plane');
 
-const HOTK = '1234567890-asdfgj';
+TOWERS.swarm = { name:'Bienen-Capy', cost:600, desc:'Schickt zielsuchende Bienen los. Stiche wirken nicht auf Blei (Ausnahme: Schwere Stiche).',
+  base:{range:120, rate:1.4, dmg:1, bees:3, beeSpeed:260, pierce:1, kind:'swarm'},
+  A:{name:'Schwarm', up:[
+    {n:'Mehr Bienen', c:250, d:'+2 Bienen', m:s=>{s.bees+=2}},
+    {n:'Schwere Stiche', c:500, d:'+1 Schaden, durchdringt Blei', m:s=>{s.dmg+=1; s.pierceLead=true}},
+    {n:'Killerbienen', c:1600, d:'+4 Bienen, +1 Schaden', m:s=>{s.bees+=4; s.dmg+=1}},
+    {n:'Hornissen', c:5000, d:'+6 Bienen, +3 Schaden, +2 Durchschlag', m:s=>{s.bees+=6; s.dmg+=3; s.pierce+=2}},
+    {n:'Bienenkönigin', c:18000, d:'+12 Bienen, +8 Schaden, +4 Durchschlag', m:s=>{s.bees+=12; s.dmg+=8; s.pierce+=4}}]},
+  B:{name:'Bau', up:[
+    {n:'Größerer Stock', c:200, d:'+20 Reichweite', m:s=>{s.range+=20}},
+    {n:'Schnelle Königin', c:450, d:'25% schneller', m:s=>{s.rate*=.75}},
+    {n:'Bienenstock', c:1400, d:'40% schneller, +15 Reichweite', m:s=>{s.rate*=.6; s.range+=15}},
+    {n:'Honigfabrik', c:4000, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Schwarmintelligenz', c:14000, d:'Doppelt so schnell, +30 Reichweite, +4 Bienen', m:s=>{s.rate*=.5; s.range+=30; s.bees+=4}}]},
+  C:{name:'Honig', up:[
+    {n:'Klebriger Honig', c:300, d:'Bienen verlangsamen (2s)', m:s=>{s.slowHit=2}},
+    {n:'Giftstachel', c:700, d:'Gift: 2 Schaden/Tick, 4s', m:s=>{s.hp=2; s.hpt=4}},
+    {n:'Duftspur', c:1700, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Zäher Honig', c:4800, d:'Verlangsamung 4s, Gift 4 Schaden', m:s=>{s.slowHit=4; s.hp=4}},
+    {n:'Goldener Honig', c:16000, d:'Gift 8 Schaden, +$200 pro Runde', m:s=>{s.hp=8; s.income=(s.income||0)+200}}]}};
+TOWERS.catapult = { name:'Katapult-Capy', cost:700, desc:'Schleudert schwere Felsen über riesige Distanz. Langsam, aber mit großem Radius.',
+  base:{range:230, rate:3, dmg:3, splash:60, speed:200, stun:0, cluster:0, boulder:true, kind:'bomb'},
+  A:{name:'Geschosse', up:[
+    {n:'Größere Felsen', c:300, d:'+15 Radius', m:s=>{s.splash+=15}},
+    {n:'Schwere Felsen', c:700, d:'+3 Schaden', m:s=>{s.dmg+=3}},
+    {n:'Felsbrocken', c:2000, d:'+6 Schaden, +20 Radius', m:s=>{s.dmg+=6; s.splash+=20}},
+    {n:'Meteoriten', c:6000, d:'+15 Schaden, +30 Radius', m:s=>{s.dmg+=15; s.splash+=30}},
+    {n:'Weltuntergang', c:20000, d:'+60 Schaden, +60 Radius', m:s=>{s.dmg+=60; s.splash+=60}}]},
+  B:{name:'Mechanik', up:[
+    {n:'Spannseil', c:250, d:'20% schneller', m:s=>{s.rate*=.8}},
+    {n:'Längerer Arm', c:500, d:'+40 Reichweite', m:s=>{s.range+=40}},
+    {n:'Gegengewicht', c:1600, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Trebuchet', c:4500, d:'40% schneller, +40 Reichweite', m:s=>{s.rate*=.6; s.range+=40}},
+    {n:'Belagerungsmaschine', c:15000, d:'Doppelt so schnell, +60 Reichweite', m:s=>{s.rate*=.5; s.range+=60}}]},
+  C:{name:'Erdbeben', up:[
+    {n:'Erschütterung', c:400, d:'Betäubt 0,5s', m:s=>{s.stun=.5}},
+    {n:'Beben', c:900, d:'Betäubt 1s', m:s=>{s.stun=1}},
+    {n:'Spähturm', c:2000, d:'Betäubt 1,2s, erkennt Tarnung', m:s=>{s.stun=1.2; s.detect=true}},
+    {n:'Erdspalte', c:5500, d:'Betäubt 2s, 3 Nachbeben', m:s=>{s.stun=2; s.cluster=3}},
+    {n:'Kontinentalbeben', c:18000, d:'Betäubt 3,5s, 6 Nachbeben, +10 Schaden', m:s=>{s.stun=3.5; s.cluster=6; s.dmg+=10}}]}};
+TOWERS.timewarp = { name:'Zeit-Capy', cost:650, desc:'Spult Ballons auf dem Weg zurück. Bosse sind immun gegen Rückspulen.',
+  base:{range:100, rate:2.5, dmg:0, slow:1.5, freeze:0, rewind:30, kind:'pulse'},
+  A:{name:'Rückspulen', up:[
+    {n:'Weiter zurück', c:300, d:'+30 Rückspulen', m:s=>{s.rewind+=30}},
+    {n:'Zeitsprung', c:700, d:'+60 Rückspulen', m:s=>{s.rewind+=60}},
+    {n:'Zeitriss', c:2000, d:'+100 Rückspulen', m:s=>{s.rewind+=100}},
+    {n:'Zeitschleife', c:5500, d:'+200 Rückspulen', m:s=>{s.rewind+=200}},
+    {n:'Ewige Wiederkehr', c:18000, d:'+400 Rückspulen', m:s=>{s.rewind+=400}}]},
+  B:{name:'Zeitfluss', up:[
+    {n:'Größere Blase', c:250, d:'+20 Reichweite', m:s=>{s.range+=20}},
+    {n:'Schnelle Uhr', c:500, d:'25% schneller', m:s=>{s.rate*=.75}},
+    {n:'Beschleuniger', c:1500, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Zeitblase', c:4200, d:'+30 Reichweite, schneller', m:s=>{s.range+=30; s.rate*=.7}},
+    {n:'Chronos', c:14000, d:'Doppelt so schnell, +40 Reichweite', m:s=>{s.rate*=.5; s.range+=40}}]},
+  C:{name:'Verfall', up:[
+    {n:'Alterung', c:350, d:'1 Schaden pro Puls', m:s=>{s.dmg=1}},
+    {n:'Rost', c:800, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Zeitbrand', c:2000, d:'+2 Schaden, erkennt Tarnung', m:s=>{s.dmg+=2; s.detect=true}},
+    {n:'Zeitriss-Blitz', c:5500, d:'+3 Schaden, friert 1s ein', m:s=>{s.dmg+=3; s.freeze=1}},
+    {n:'Ende der Zeit', c:18000, d:'+12 Schaden, friert 2,5s ein', m:s=>{s.dmg+=12; s.freeze=2.5}}]}};
+TOWERS.laser = { name:'Laser-Capy', cost:800, desc:'Strahl durchdringt ALLE Ballons in einer Linie – auch Blei.',
+  base:{range:150, rate:.35, dmg:1, width:9, beams:1, kind:'beam'},
+  A:{name:'Energie', up:[
+    {n:'Stärkerer Strahl', c:300, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Fokuslinse', c:700, d:'+2 Schaden', m:s=>{s.dmg+=2}},
+    {n:'Plasma', c:2000, d:'+3 Schaden, dickerer Strahl', m:s=>{s.dmg+=3; s.width+=4}},
+    {n:'Ionenstrahl', c:5500, d:'+8 Schaden', m:s=>{s.dmg+=8}},
+    {n:'Todesstrahl', c:18000, d:'+40 Schaden, sehr dick', m:s=>{s.dmg+=40; s.width+=8}}]},
+  B:{name:'Takt', up:[
+    {n:'Kondensator', c:250, d:'20% schneller', m:s=>{s.rate*=.8}},
+    {n:'Reflektor', c:450, d:'+30 Reichweite', m:s=>{s.range+=30}},
+    {n:'Schnellladung', c:1500, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Fusionskern', c:4200, d:'40% schneller, +30 Reichweite', m:s=>{s.rate*=.6; s.range+=30}},
+    {n:'Dauerstrahl', c:14000, d:'Doppelt so schnell, +40 Reichweite', m:s=>{s.rate*=.5; s.range+=40}}]},
+  C:{name:'Optik', up:[
+    {n:'Zielsuche', c:300, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Doppelstrahl', c:900, d:'2 Strahlen', m:s=>{s.beams=2}},
+    {n:'Prisma', c:2400, d:'3 Strahlen', m:s=>{s.beams=3}},
+    {n:'Spiegelsystem', c:6000, d:'5 Strahlen', m:s=>{s.beams=5}},
+    {n:'Lichtspektrum', c:19000, d:'8 Strahlen, +5 Schaden', m:s=>{s.beams=8; s.dmg+=5}}]}};
+TOWERS.blades = { name:'Klingen-Capy', cost:550, desc:'Klingen kreisen um den Turm und schneiden alles in Reichweite. Prallen an Blei ab (Ausnahme: Kettenklingen).',
+  base:{range:0, orbR:55, blades:2, rings:1, spin:3, dmg:1, hitCd:.35, kind:'orbit'},
+  A:{name:'Klingen', up:[
+    {n:'Zusatzklinge', c:250, d:'+1 Klinge', m:s=>{s.blades+=1}},
+    {n:'Schärfer', c:500, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Kettenklingen', c:1400, d:'+2 Klingen, durchdringt Blei', m:s=>{s.blades+=2; s.pierceLead=true}},
+    {n:'Sägeblätter', c:4500, d:'+3 Klingen, +2 Schaden', m:s=>{s.blades+=3; s.dmg+=2}},
+    {n:'Klingenwirbel', c:16000, d:'+6 Klingen, +8 Schaden', m:s=>{s.blades+=6; s.dmg+=8}}]},
+  B:{name:'Bahn', up:[
+    {n:'Weitere Bahn', c:200, d:'+15 Radius', m:s=>{s.orbR+=15}},
+    {n:'Schwungrad', c:400, d:'30% schneller kreisen', m:s=>{s.spin*=1.3}},
+    {n:'Doppelbahn', c:1500, d:'Zweiter Klingenring', m:s=>{s.rings=2}},
+    {n:'Große Bahnen', c:3800, d:'+20 Radius, schneller', m:s=>{s.orbR+=20; s.spin*=1.3}},
+    {n:'Wirbelwind', c:13000, d:'3 Ringe, +25 Radius, schneller', m:s=>{s.rings=3; s.orbR+=25; s.spin*=1.5}}]},
+  C:{name:'Spezial', up:[
+    {n:'Schwungkraft', c:300, d:'Trifft 25% öfter', m:s=>{s.hitCd*=.75}},
+    {n:'Giftklingen', c:700, d:'Gift: 2 Schaden/Tick, 3s', m:s=>{s.hp=2; s.hpt=3}},
+    {n:'Frostklingen', c:1800, d:'Verlangsamt (1,5s)', m:s=>{s.slowHit=1.5}},
+    {n:'Feuerklingen', c:5000, d:'Gift 5 Schaden', m:s=>{s.hp=5}},
+    {n:'Sturmklingen', c:17000, d:'Trifft doppelt so oft, +6 Schaden', m:s=>{s.hitCd*=.5; s.dmg+=6}}]}};
+ORDER.push('swarm','catapult','timewarp','laser','blades');
+
+const HOTK = '1234567890-asdfgjzxcvb';
 
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
 
@@ -913,7 +1035,7 @@ const DIFF = [
   {name:'Normal', money:700, lives:150, mult:1},
   {name:'Schwer', money:550, lives:80, mult:1.3}
 ];
-let diffIdx = 1, nextId = 1;
+let diffIdx = 1, nextId = 1, towerUid = 0;
 
 function newGame(d, mi, hk) {
   diffIdx = d; setMap(mi == null ? mapIdx : mi);
@@ -1034,6 +1156,30 @@ function heroXP(n) {
     ringFx(h); refreshAll(true);
   }
 }
+function steer(p, dt) {
+  let tg = p.target;
+  if (!tg || tg.dead || p.hit.has(tg.id)) { tg = null; let bd = 220; for (const en of S.enemies) { if (en.dead || p.hit.has(en.id)) continue; const d = Math.hypot(en.x - p.x, en.y - p.y); if (d < bd) { bd = d; tg = en; } } p.target = tg; }
+  if (!tg) return;
+  const dx = tg.x - p.x, dy = tg.y - p.y, d = Math.hypot(dx, dy) || 1, k = Math.min(1, dt * 7);
+  p.vx += (dx / d * p.speed - p.vx) * k; p.vy += (dy / d * p.speed - p.vy) * k; p.a = Math.atan2(p.vy, p.vx);
+}
+function updateBlades(t, dt) {
+  const s = t.s; t.spin = (t.spin || 0) + s.spin * dt; t.blades = [];
+  const rings = s.rings || 1, total = s.blades;
+  for (let i = 0; i < total; i++) {
+    const ring = i % rings, idx = (i / rings) | 0, cnt = Math.ceil((total - ring) / rings);
+    const a = t.spin * (ring % 2 ? -1 : 1) + idx * 6.283 / cnt + ring, R = s.orbR * (1 + .65 * ring);
+    t.blades.push({x:t.x + Math.cos(a) * R, y:t.y + Math.sin(a) * R * .8, a});
+  }
+  if (dt <= 0) return;
+  for (const b of t.blades) for (const e of S.enemies) {
+    if (e.dead || Math.hypot(e.x - b.x, e.y - b.y) > eRad(e) + 8) continue;
+    e.bh = e.bh || {}; if ((e.bh[t.uid] || 0) > S.time) continue; e.bh[t.uid] = S.time + s.hitCd;
+    if (e.lead && !s.pierceLead) { S.fx.push({type:'ping', x:e.x, y:e.y, life:.25, max:.25}); continue; }
+    hit(e, s.dmg + t.bf.dmg);
+    if (!e.dead) { if (s.slowHit && !immIce(e)) e.slow = Math.max(e.slow, s.slowHit); if (s.hp) applyPoison(e, s.hp, s.hpt || 3); }
+  }
+}
 function updatePlane(t, dt) {
   const s = t.s; if (t.wingT > 0) t.wingT -= dt;
   const n = (s.planes || 1) + (t.wingT > 0 ? (t.wingN || 3) : 0);
@@ -1067,7 +1213,7 @@ function pd(p, e) {
 
 function onHitFx(p, e) {
   if (e.dead) return;
-  if (p.knock) e.d = Math.max(0, e.d - p.knock * (isBoss(e) ? .03 : 1));
+  if (p.knock) if (!isBoss(e)) e.d = Math.max(0, e.d - p.knock);   // Bosse sind immun gegen Rückstoß
   if (p.slow && !immIce(e)) e.slow = Math.max(e.slow, p.slow);
   if (p.hp) { e.poison = Math.max(e.poison || 0, p.hpt); e.pdmg = Math.max(e.pdmg || 0, p.hp); e.ptick = e.ptick || .5; }
 }
@@ -1107,9 +1253,9 @@ function placeTower(type, x, y) {
   if (def.hero && S.hero) { flash('Der Held ist schon im Spiel'); return false; }
   if (S.money < def.cost || !canPlace(x, y, type)) return false;
   S.money -= def.cost;
-  const t = {type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0,detect:false}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
+  const t = {uid:++towerUid, type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0,detect:false}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
   if (def.hero) { t.hero = {lvl:1, xp:0, cds:[0,0,0]}; S.hero = t; }
-  computeStats(t); if (t.s.kind === 'plane') updatePlane(t, 0); S.towers.push(t); S.sel = t; S.place = null;
+  computeStats(t); if (t.s.kind === 'plane') updatePlane(t, 0); if (t.s.kind === 'orbit') updateBlades(t, 0); S.towers.push(t); S.sel = t; S.place = null;
   refreshAll(true); return true;
 }
 const PKEY = ['A','B','C'];
@@ -1239,6 +1385,25 @@ function fire(t, e) {
         if (s.dmg) hit(en, s.dmg);
       }
       break; }
+    case 'swarm': {
+      t.ang = Math.atan2(e.y - t.y, e.x - t.x);
+      for (let i = 0; i < s.bees; i++) { const a = t.ang + (Math.random() - .5) * 2.2;
+        S.projs.push({homing:true, target:e, x:t.x, y:t.y-10, vx:Math.cos(a)*s.beeSpeed, vy:Math.sin(a)*s.beeSpeed, speed:s.beeSpeed, dmg:s.dmg, pierce:s.pierce, splash:0, life:4, hit:new Set(), col:'#ffd54a', magic:false, sharp:!s.pierceLead, a, slow:s.slowHit||0, hp:s.hp||0, hpt:s.hpt||4, knock:0}); }
+      break; }
+    case 'beam': {
+      const base = Math.atan2(e.y - t.y, e.x - t.x); t.ang = base;
+      for (let j = 0; j < s.beams; j++) {
+        const a = base + (s.beams > 1 ? (j / (s.beams - 1) - .5) * .9 : 0), ux = Math.cos(a), uy = Math.sin(a), R = s.range;
+        const ox = t.x + ux*14, oy = t.y - 2 + uy*14;
+        for (const en of S.enemies.slice()) {
+          if (en.dead || (en.camo && !canSee(t))) continue;
+          const rx = en.x - ox, ry = en.y - oy, along = rx*ux + ry*uy; if (along < 0 || along > R) continue;
+          if (Math.abs(rx*uy - ry*ux) > s.width/2 + eRad(en)*.7) continue;
+          hit(en, s.dmg);
+        }
+        S.fx.push({type:'beam', x1:ox, y1:oy, x2:ox + ux*R, y2:oy + uy*R, w:s.width, life:.13, max:.13});
+      }
+      break; }
     case 'snipe':
       t.ang = Math.atan2(e.y - t.y, e.x - t.x);
       { const list = [e]; const n = s.shots || 1;
@@ -1247,12 +1412,13 @@ function fire(t, e) {
       break;
     case 'bomb': {
       const p = lead(t, e, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x);
-      S.projs.push({bomb:true, x:t.x, y:t.y-4, tx:p.x, ty:p.y, speed:s.speed, dmg:s.dmg, splash:s.splash, cluster:s.cluster||0, life:5});
+      S.projs.push({bomb:true, x:t.x, y:t.y-4, tx:p.x, ty:p.y, speed:s.speed, dmg:s.dmg, splash:s.splash, cluster:s.cluster||0, stun:s.stun||0, boulder:!!s.boulder, life:5});
       break; }
     case 'pulse': {
       S.fx.push({type:'ring', x:t.x, y:t.y, r:s.range, life:.4, max:.4});
       for (const en of S.enemies) {
         if (en.dead || Math.hypot(en.x-t.x, en.y-t.y) > s.range + eRad(en)) continue;
+        if (s.rewind && !isBoss(en)) en.d = Math.max(0, en.d - s.rewind);
         if (immIce(en)) continue;
         en.slow = Math.max(en.slow, s.slow);
         if (s.freeze && !isBoss(en)) en.freeze = Math.max(en.freeze, s.freeze);
@@ -1260,12 +1426,13 @@ function fire(t, e) {
       }
       break; }
   }
-  if (!['pulse','curse','trap','flame','chain'].includes(s.kind)) { t.recoil = 1; S.fx.push({type:'flash', x:t.x + Math.cos(t.ang)*17, y:t.y - 2 + Math.sin(t.ang)*17, life:.09, max:.09}); }
+  if (!['pulse','curse','trap','flame','chain','beam'].includes(s.kind)) { t.recoil = 1; S.fx.push({type:'flash', x:t.x + Math.cos(t.ang)*17, y:t.y - 2 + Math.sin(t.ang)*17, life:.09, max:.09}); }
 }
 
 /* ---------- Update ---------- */
 function update(dt) {
   if (S.over) return;
+  S.time = (S.time || 0) + dt;
   // Spawns
   if (S.active) {
     S.qt += dt;
@@ -1307,6 +1474,7 @@ function update(dt) {
   for (const t of S.towers) {
     if (t.s.kind === 'bank' || t.s.kind === 'village') continue;
     if (t.s.kind === 'plane') { updatePlane(t, dt); continue; }
+    if (t.s.kind === 'orbit') { updateBlades(t, dt); continue; }
     t.cd -= dt; t.recoil = Math.max(0, (t.recoil || 0) - dt*7);
     const e = pickTarget(t);
     if (e) {
@@ -1338,6 +1506,7 @@ function update(dt) {
       if (dist <= step) { if (p.potion) { poisonSplash(p); if (p.dmg > 0) explode(p.tx, p.ty, p.splash, p.dmg); }
         else {
           explode(p.tx, p.ty, p.splash, p.dmg);
+          if (p.stun) for (const en of S.enemies) if (!en.dead && Math.hypot(en.x - p.tx, en.y - p.ty) <= p.splash + eRad(en)) { if (isBoss(en)) en.slow = Math.max(en.slow, p.stun*2); else if (!immIce(en)) en.freeze = Math.max(en.freeze, p.stun); }
           for (let i = 0; i < p.cluster; i++) { const a = i / p.cluster * 6.283 + .4, rr = p.splash * (.6 + .4 * (i % 2)); explode(p.tx + Math.cos(a) * rr, p.ty + Math.sin(a) * rr, p.splash * .55, Math.max(1, Math.ceil(p.dmg / 2))); }
         }
         p.dead = true; }
@@ -1365,6 +1534,7 @@ function update(dt) {
       }
       continue;
     }
+    if (p.homing) steer(p, dt);
     const step = Math.hypot(p.vx, p.vy) * dt, n = Math.max(1, Math.ceil(step / 8));
     for (let i = 0; i < n && !p.dead; i++) {
       p.x += p.vx * dt / n; p.y += p.vy * dt / n;
@@ -1487,6 +1657,7 @@ function render(time) {
     ctx.strokeStyle = ok ? 'rgba(255,255,255,.6)' : 'rgba(255,60,60,.8)';
     ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.stroke();
   };
+  if (S.sel && S.sel.s.kind === 'orbit') { ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.setLineDash([5,5]); ctx.lineWidth = 2; for (let r = 0; r < (S.sel.s.rings || 1); r++) { ctx.beginPath(); ctx.ellipse(S.sel.x, S.sel.y, S.sel.s.orbR * (1 + .65*r), S.sel.s.orbR * (1 + .65*r) * .8, 0, 0, 7); ctx.stroke(); } ctx.setLineDash([]); }
   if (S.sel && S.sel.s.kind === 'plane') {
     ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.setLineDash([6,5]); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(S.sel.x, S.sel.y, S.sel.s.orbit, S.sel.s.orbit*.65, 0, 0, 7); ctx.stroke(); ctx.setLineDash([]);
     for (const ps of (S.sel.pos || [])) showRange(ps.x, ps.y, rng(S.sel), true);
@@ -1507,6 +1678,9 @@ function render(time) {
     if (t.s.kind === 'plane') drawAirfield(t); else { const rc = t.recoil || 0, bob = t.s.kind === 'village' ? 0 : Math.sin(TIME*2.2 + t.bob) * .9;
       ctx.save(); ctx.translate(-Math.cos(t.ang)*3*rc, bob); drawCapy(ctx, t.x, t.y, t.type, t.ang); drawWeapon(ctx, t); ctx.restore(); }
     if (t.hero) drawHeroBadge(t);
+    if (t.blades) for (const b of t.blades) { ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.a * 3 + TIME * 10);
+      ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, 8, 0, 1.6); ctx.stroke();
+      ctx.fillStyle = '#e8eef4'; ctx.strokeStyle = '#5a6570'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, 0); ctx.quadraticCurveTo(0, -11, 9, 0); ctx.quadraticCurveTo(0, -4, -9, 0); ctx.fill(); ctx.stroke(); ctx.restore(); }
     // Upgrade-Punkte
     if (!t.hero) for (let p = 0; p < 3; p++) for (let k = 0; k < 5; k++) {
       ctx.fillStyle = k < t.up[p] ? ['#fc5','#6cf','#f8a'][p] : 'rgba(0,0,0,.35)';
@@ -1517,6 +1691,10 @@ function render(time) {
   for (const e of S.enemies.slice().sort((a,b)=>a.d-b.d)) drawBalloon(e);
   // Projektile
   for (const p of S.projs) {
+    if (p.homing) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+      ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-1, -3, 3, 1.6 + Math.sin(TIME*60 + p.x)*.8, .5, 0, 7); ctx.ellipse(-1, 3, 3, 1.6 + Math.cos(TIME*60 + p.y)*.8, -.5, 0, 7); ctx.fill();
+      ctx.fillStyle = '#ffd54a'; ctx.beginPath(); ctx.ellipse(0, 0, 4.5, 2.8, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#222'; ctx.fillRect(-1.5, -2.6, 1.6, 5.2); ctx.fillRect(1.5, -2.4, 1.4, 4.8);
+      ctx.restore(); continue; }
     if (p.boom) {
       for (let i = 2; i >= 0; i--) { ctx.save(); ctx.translate(p.x,p.y); ctx.rotate((p.spin||0) - i*.55); ctx.globalAlpha = i ? .22/i : 1; ctx.strokeStyle = p.col; ctx.lineWidth = 4.5; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.beginPath(); ctx.moveTo(-8,-8); ctx.lineTo(0,0); ctx.lineTo(8,-8); ctx.stroke(); ctx.restore(); }
       ctx.globalAlpha = 1; continue; }
@@ -1525,7 +1703,7 @@ function render(time) {
       ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(p.x, p.y+3, 6, 2.6, 0, 0, 7); ctx.fill();
       ctx.save(); ctx.translate(p.x, p.y - h); ctx.rotate(TIME*8);
       if (p.potion) { ctx.fillStyle = '#7CFC00'; ctx.strokeStyle = '#2a5a10'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(0,0,6,0,7); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillRect(-1.5,-10,3,5); ctx.beginPath(); ctx.arc(-2,-2,1.8,0,7); ctx.fill(); }
-      else { const g = ctx.createRadialGradient(-2,-2,1,0,0,7); g.addColorStop(0,'#666'); g.addColorStop(1,'#111'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0,0,6.5,0,7); ctx.fill(); ctx.fillStyle = '#ff9a2a'; ctx.beginPath(); ctx.arc(3,-6,2.2+Math.sin(TIME*40),0,7); ctx.fill(); }
+      else { const g = ctx.createRadialGradient(-2,-2,1,0,0,7); g.addColorStop(0,p.boulder ? '#c2bbb0' : '#666'); g.addColorStop(1,p.boulder ? '#5d5750' : '#111'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0,0,p.boulder ? 8.5 : 6.5,0,7); ctx.fill(); ctx.fillStyle = '#ff9a2a'; ctx.beginPath(); ctx.arc(3,-6,2.2+Math.sin(TIME*40),0,7); ctx.fill(); }
       ctx.restore(); continue; }
     ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
     if (p.magic) {
@@ -1556,6 +1734,7 @@ function render(time) {
     else if (f.type === 'line') { ctx.strokeStyle = `rgba(255,240,150,${k*.35})`; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(f.x1,f.y1); ctx.lineTo(f.x2,f.y2); ctx.stroke();
       ctx.strokeStyle = `rgba(255,255,235,${k})`; ctx.lineWidth = 2; ctx.stroke(); }
     else if (f.type === 'ring') { if (f.col) { ctx.strokeStyle = f.col; ctx.globalAlpha = k; } else ctx.strokeStyle = `rgba(140,220,255,${k})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1-k*.8),0,7); ctx.stroke(); ctx.globalAlpha = 1; }
+    else if (f.type === 'beam') { ctx.lineCap = 'round'; ctx.strokeStyle = `rgba(0,229,255,${k*.35})`; ctx.lineWidth = f.w + 6; ctx.beginPath(); ctx.moveTo(f.x1,f.y1); ctx.lineTo(f.x2,f.y2); ctx.stroke(); ctx.strokeStyle = `rgba(230,255,255,${k})`; ctx.lineWidth = Math.max(2, f.w*.4); ctx.stroke(); }
     else if (f.type === 'cone') { const g = ctx.createRadialGradient(f.x,f.y,2,f.x,f.y,f.r); g.addColorStop(0,`rgba(255,240,150,${k})`); g.addColorStop(.5,`rgba(255,140,30,${k*.8})`); g.addColorStop(1,'rgba(200,40,10,0)');
       ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.arc(f.x,f.y,f.r*(1.05-k*.1),f.ang-f.cone,f.ang+f.cone); ctx.closePath(); ctx.fill(); }
     else if (f.type === 'bolt') { ctx.lineJoin = 'round'; ctx.strokeStyle = `rgba(90,170,255,${k*.6})`; ctx.lineWidth = 6; ctx.beginPath(); f.pts.forEach((q,i) => i ? ctx.lineTo(q.x,q.y) : ctx.moveTo(q.x,q.y)); ctx.stroke();
@@ -1692,7 +1871,7 @@ function refreshAll(force) {
       h += `<button class="upg" data-p="${i}" ${(S.money < u.c || why) ? 'disabled' : ''}><span class="c">$${u.c}</span><b>${path.name} ${tier+1}: ${u.n}</b>${why || u.d}</button>`;
     });
     h += `<div class="row" style="margin-top:6px">`;
-    if (t.s.kind !== 'bank' && t.s.kind !== 'village') h += `<button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button>`;
+    if (!['bank','village','orbit'].includes(t.s.kind)) h += `<button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button>`;
     h += `<button class="act sell" id="bSell">Verkaufen $${Math.round(t.spent*.7)}</button></div>`;
     infoEl.innerHTML = h;
     infoEl.querySelectorAll('.upg[data-p]').forEach(b => b.onclick = () => upgradeTower(t, +b.dataset.p));
