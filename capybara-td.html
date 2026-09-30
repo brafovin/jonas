@@ -97,7 +97,7 @@
           <button data-d="1">Normal</button>
           <button data-d="2">Schwer</button>
         </div>
-        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · Capybara aus der Leiste ziehen oder anklicken · 1–9, 0, -, A–G = Schnellwahl</p>
+        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · Capybara aus der Leiste ziehen oder anklicken · 1–9, 0, -, A–G, J = Schnellwahl</p>
       </div>
     </div>
   </div>
@@ -235,8 +235,43 @@ function posAt(d, lane = 0) {
 const distToPath = (x, y) => distLanes(LANES, x, y);
 
 /* ---------- Capybara Zeichnen ---------- */
+function drawPlaneSprite(c, heading, k) {
+  c.save(); c.rotate(heading); c.scale(k, k); c.lineJoin = 'round';
+  c.fillStyle = '#e8ecef'; c.strokeStyle = '#4d5964'; c.lineWidth = 1.2;
+  c.beginPath(); c.roundRect(-6,-25,13,50,3); c.fill(); c.stroke();
+  c.beginPath(); c.roundRect(-25,-10,7,20,2); c.fill(); c.stroke();
+  c.fillStyle = '#e53935'; c.beginPath(); c.arc(0,-17,2.6,0,7); c.arc(0,17,2.6,0,7); c.fill();
+  const g = c.createLinearGradient(0,-7,0,7); g.addColorStop(0,'#f26a55'); g.addColorStop(1,'#a52a1a');
+  c.fillStyle = g; c.beginPath(); c.ellipse(0,0,25,6.8,0,0,7); c.fill(); c.stroke();
+  c.fillStyle = 'rgba(255,255,255,.85)'; c.beginPath(); c.ellipse(-4,0,13,1.6,0,0,7); c.fill();
+  c.fillStyle = '#444'; c.beginPath(); c.arc(23,0,4,0,7); c.fill();
+  c.strokeStyle = '#ffcc00'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(-8,Math.sin(TIME*12)*3,-16,Math.sin(TIME*12+1.5)*4); c.stroke();
+  c.fillStyle = 'rgba(160,220,255,.85)'; c.strokeStyle = '#345'; c.lineWidth = 1; c.beginPath(); c.ellipse(4,0,8,5.5,0,0,7); c.fill(); c.stroke();
+  c.fillStyle = '#b5793f'; c.beginPath(); c.arc(3.5,0,4.4,0,7); c.fill();
+  c.fillStyle = '#8a5a2e'; c.beginPath(); c.arc(1.6,-3.9,1.7,0,7); c.arc(1.6,3.9,1.7,0,7); c.fill(); c.beginPath(); c.arc(8,0,2,0,7); c.fill();
+  c.fillStyle = '#222'; c.beginPath(); c.arc(6,-1.9,1.7,0,7); c.arc(6,1.9,1.7,0,7); c.fill(); c.fillStyle = '#7fe0ff'; c.beginPath(); c.arc(6.3,-1.9,.8,0,7); c.arc(6.3,1.9,.8,0,7); c.fill();
+  c.save(); c.translate(26,0); c.fillStyle = 'rgba(60,60,60,.14)'; c.beginPath(); c.arc(0,0,11,0,7); c.fill(); c.rotate(TIME*45); c.fillStyle = 'rgba(50,50,50,.9)'; c.fillRect(-1,-11,2,22); c.restore();
+  c.restore();
+}
+function drawAirfield(t) {
+  ctx.save(); ctx.translate(t.x, t.y + 6);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.roundRect(-24,-5,50,16,4); ctx.fill();
+  ctx.fillStyle = '#7d848c'; ctx.strokeStyle = '#4d5560'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(-25,-8,50,16,4); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(-19,0); ctx.lineTo(19,0); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(28,8); ctx.lineTo(28,-14); ctx.stroke();
+  ctx.fillStyle = '#ff7043'; ctx.beginPath(); ctx.moveTo(28,-14); ctx.lineTo(28 + 12, -12 + Math.sin(TIME*5)*2); ctx.lineTo(28,-8); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function drawPlanes(t) {
+  for (const ps of t.pos) {
+    ctx.save(); ctx.translate(ps.x + 16, ps.y + 30); ctx.rotate(ps.h); ctx.fillStyle = 'rgba(0,0,0,.16)';
+    ctx.beginPath(); ctx.ellipse(0,0,22,5.5,0,0,7); ctx.roundRect(-5,-22,11,44,3); ctx.roundRect(-23,-8,6,16,2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.translate(ps.x, ps.y); drawPlaneSprite(ctx, ps.h, 1); ctx.restore();
+  }
+}
 function drawCapy(c, x, y, type, ang, sz = 1) {
   c.save(); c.translate(x, y); c.scale(sz, sz);
+  if (type === 'plane') { drawPlaneSprite(c, -.5, .78); c.restore(); return; }
   if (type === 'village') { // Teich + Hütte
     c.fillStyle = '#2b7fb8'; c.beginPath(); c.ellipse(0,10,30,16,0,0,7); c.fill();
     c.strokeStyle = '#7fc8ee'; c.lineWidth = 2; c.stroke();
@@ -751,7 +786,29 @@ TOWERS.hydro = { name:'Wasser-Capy', cost:500, desc:'Wasserstrahl schleudert Bal
     {n:'Säurewasser', c:4800, d:'Gift: 3 Schaden/Tick, 4s', m:s=>{s.hp=3; s.hpt=4}},
     {n:'Flutkatastrophe', c:17000, d:'+20 Durchschlag, +5 Schaden, Gift 8', m:s=>{s.pierce+=20; s.dmg+=5; s.hp=8; s.hpt=6; s.slowHit=5}}]}};
 ORDER.push('flame','trap','tesla','shaman','hydro');
-const HOTK = '1234567890-asdfg';
+TOWERS.plane = { name:'Capy-Flieger', cost:650, desc:'Fliegerass: kreist in der Luft und schießt Darts. Kann auch über dem Weg platziert werden!',
+  base:{range:125, rate:.5, dmg:1, pierce:2, speed:520, shots:1, spread:0, orbit:120, flySpeed:1.6, planes:1, kind:'plane', col:'#f4e3b0', bomb:0, bombR:45, bombDmg:2, bombRate:2.5},
+  A:{name:'Bewaffnung', up:[
+    {n:'Spitze Darts', c:250, d:'+2 Durchschlag', m:s=>{s.pierce+=2}},
+    {n:'Schwere Darts', c:600, d:'+1 Schaden, durchdringt Blei', m:s=>{s.dmg+=1; s.pierceLead=true}},
+    {n:'Doppelläufe', c:1600, d:'2 Darts pro Salve', m:s=>{s.shots=2; s.spread=.12}},
+    {n:'Bordkanone', c:5200, d:'4 Darts, +2 Schaden', m:s=>{s.shots=4; s.spread=.25; s.dmg+=2}},
+    {n:'Luftüberlegenheit', c:19000, d:'7 Darts, +8 Schaden, +6 Durchschlag', m:s=>{s.shots=7; s.spread=.45; s.dmg+=8; s.pierce+=6}}]},
+  B:{name:'Antrieb', up:[
+    {n:'Turbo', c:250, d:'Fliegt schneller, 15% schnellere Salven', m:s=>{s.flySpeed*=1.25; s.rate*=.85}},
+    {n:'Weitsicht', c:450, d:'+30 Reichweite, größere Flugbahn', m:s=>{s.range+=30; s.orbit+=25}},
+    {n:'Doppelmotor', c:1500, d:'40% schnellere Salven', m:s=>{s.rate*=.6}},
+    {n:'Düsenjet', c:4500, d:'Viel schneller, +20 Reichweite', m:s=>{s.flySpeed*=1.4; s.rate*=.6; s.range+=20}},
+    {n:'Überschall', c:15000, d:'Doppelt so schnelle Salven, +40 Reichweite', m:s=>{s.rate*=.5; s.range+=40; s.orbit+=25}}]},
+  C:{name:'Spezial', up:[
+    {n:'Radar', c:300, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Bombenschacht', c:700, d:'Wirft Bomben (2 Schaden, Radius 45)', m:s=>{s.bomb=1; s.bombDmg=2; s.bombR=45; s.bombRate=2.5}},
+    {n:'Napalm', c:1900, d:'Bomben: +2 Schaden, größerer Radius, öfter', m:s=>{s.bombDmg+=2; s.bombR+=20; s.bombRate=1.8}},
+    {n:'Staffel', c:5500, d:'2 Flugzeuge', m:s=>{s.planes=2}},
+    {n:'Geschwader', c:20000, d:'4 Flugzeuge, Bomben +8 Schaden, viel öfter', m:s=>{s.planes=4; s.bombDmg+=8; s.bombRate=1.2}}]}};
+ORDER.push('plane');
+
+const HOTK = '1234567890-asdfgj';
 
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
 
@@ -902,6 +959,31 @@ function heroXP(n) {
     ringFx(h); refreshAll(true);
   }
 }
+function updatePlane(t, dt) {
+  const s = t.s, n = s.planes || 1;
+  t.pa = (t.pa || 0) + s.flySpeed * dt; t.pos = []; t.cds = t.cds || [];
+  for (let j = 0; j < n; j++) {
+    const a = t.pa + j * 6.283 / n;
+    t.pos.push({x:t.x + Math.cos(a) * s.orbit, y:t.y + Math.sin(a) * s.orbit * .65, h:Math.atan2(Math.cos(a) * .65, -Math.sin(a))});
+  }
+  if (dt <= 0) return;
+  const hx = t.x, hy = t.y;
+  for (let j = 0; j < n; j++) {
+    t.cds[j] = (t.cds[j] || 0) - dt;
+    if (t.cds[j] > 0) continue;
+    t.x = t.pos[j].x; t.y = t.pos[j].y;
+    const e = pickTarget(t);
+    if (e) { fire(t, e); t.cds[j] = s.rate / (t.bf.rate * (S.rally > 0 ? 1.5 : 1) * (t.buffT > 0 ? t.buffMul : 1)); } else t.cds[j] = 0;
+    t.x = hx; t.y = hy;
+  }
+  t.x = hx; t.y = hy;
+  if (s.bomb) {
+    t.bcd = (t.bcd || 0) - dt;
+    if (t.bcd <= 0) for (const ps of t.pos) {
+      if (S.enemies.some(en => !en.dead && (!en.camo || canSee(t)) && Math.hypot(en.x - ps.x, en.y - ps.y) < s.bombR + 15)) { explode(ps.x, ps.y, s.bombR, s.bombDmg); t.bcd = s.bombRate; break; }
+    }
+  }
+}
 function pd(p, e) {
   if (e.lead && p.sharp) { S.fx.push({type:'ping', x:e.x, y:e.y, life:.25, max:.25}); return 0; }
   return p.dmg;
@@ -937,30 +1019,25 @@ function computeStats(t) {
   ['A','B','C'].forEach((p, i) => { for (let k = 0; k < t.up[i]; k++) def[p].up[k].m(s); });
   t.s = s;
 }
-function canPlace(x, y) {
+function canPlace(x, y, type) {
   if (x < 18 || x > W-18 || y < 18 || y > H-18) return false;
-  if (distToPath(x, y) < PATH_W/2 + 12) return false;
+  const air = type && TOWERS[type] && TOWERS[type].base.kind === 'plane';
+  if (!air && distToPath(x, y) < PATH_W/2 + 12) return false;
   for (const t of S.towers) if (Math.hypot(t.x-x, t.y-y) < 30) return false;
   return true;
 }
 function placeTower(type, x, y) {
   const def = TOWERS[type];
   if (def.hero && S.hero) { flash('Der Held ist schon im Spiel'); return false; }
-  if (S.money < def.cost || !canPlace(x, y)) return false;
+  if (S.money < def.cost || !canPlace(x, y, type)) return false;
   S.money -= def.cost;
   const t = {type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0,detect:false}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
   if (def.hero) { t.hero = {lvl:1, xp:0, cds:[0,0]}; S.hero = t; }
-  computeStats(t); S.towers.push(t); S.sel = t; S.place = null;
+  computeStats(t); if (t.s.kind === 'plane') updatePlane(t, 0); S.towers.push(t); S.sel = t; S.place = null;
   refreshAll(true); return true;
 }
 const PKEY = ['A','B','C'];
-function blockReason(t, i) {
-  const tier = t.up[i]; if (tier >= 5) return 'max';
-  const others = [0,1,2].filter(j => j !== i);
-  if (tier === 0 && others.every(j => t.up[j] > 0)) return 'Nur 2 Pfade erlaubt';
-  if (tier >= 2 && others.some(j => t.up[j] > 2)) return 'Anderer Pfad zu weit ausgebaut';
-  return '';
-}
+function blockReason(t, i) { return t.up[i] >= 5 ? 'max' : ''; }
 function upgradeTower(t, path) {
   const def = TOWERS[t.type], tier = t.up[path];
   if (blockReason(t, path)) return;
@@ -1006,12 +1083,12 @@ function lead(t, e, speed) {
 function fire(t, e) {
   const s = Object.assign({}, t.s); if (s.dmg > 0) s.dmg += t.bf.dmg; s.range = rng(t);
   switch (s.kind) {
-    case 'dart': case 'magic': case 'hydro': {
+    case 'dart': case 'magic': case 'hydro': case 'plane': {
       const p = lead(t, e, s.speed); const base = Math.atan2(p.y - t.y, p.x - t.x); t.ang = base;
       for (let i = 0; i < s.shots; i++) {
         const a = base + (s.shots > 1 ? (i/(s.shots-1) - .5) * s.spread * 2 : 0);
         S.projs.push({x:t.x+Math.cos(a)*14, y:t.y-2+Math.sin(a)*14, vx:Math.cos(a)*s.speed, vy:Math.sin(a)*s.speed,
-          dmg:s.dmg, pierce:s.pierce, splash:s.splash||0, life:(s.range*1.5)/s.speed, hit:new Set(), col:s.col, magic:s.kind==='magic' || s.kind==='hydro', knock:s.knock||0, sharp:s.kind==='dart' && !s.pierceLead, a, slow:s.slowHit||0, hp:s.hp||0, hpt:s.hpt||0});
+          dmg:s.dmg, pierce:s.pierce, splash:s.splash||0, life:(s.range*1.5)/s.speed, hit:new Set(), col:s.col, magic:s.kind==='magic' || s.kind==='hydro', knock:s.knock||0, sharp:(s.kind==='dart' || s.kind==='plane') && !s.pierceLead, a, slow:s.slowHit||0, hp:s.hp||0, hpt:s.hpt||0});
       }
       break; }
     case 'boomer': {
@@ -1153,6 +1230,7 @@ function update(dt) {
   }
   for (const t of S.towers) {
     if (t.s.kind === 'bank' || t.s.kind === 'village') continue;
+    if (t.s.kind === 'plane') { updatePlane(t, dt); continue; }
     t.cd -= dt; t.recoil = Math.max(0, (t.recoil || 0) - dt*7);
     const e = pickTarget(t);
     if (e) {
@@ -1333,7 +1411,10 @@ function render(time) {
     ctx.strokeStyle = ok ? 'rgba(255,255,255,.6)' : 'rgba(255,60,60,.8)';
     ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.stroke();
   };
-  if (S.sel && S.sel.s.range < 5000 && S.sel.s.range > 0) showRange(S.sel.x, S.sel.y, rng(S.sel), true);
+  if (S.sel && S.sel.s.kind === 'plane') {
+    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.setLineDash([6,5]); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(S.sel.x, S.sel.y, S.sel.s.orbit, S.sel.s.orbit*.65, 0, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+    for (const ps of (S.sel.pos || [])) showRange(ps.x, ps.y, rng(S.sel), true);
+  } else if (S.sel && S.sel.s.range < 5000 && S.sel.s.range > 0) showRange(S.sel.x, S.sel.y, rng(S.sel), true);
   if (S.sel && S.sel.s.aDist > 0) { ctx.fillStyle='rgba(255,220,80,.12)'; ctx.strokeStyle='rgba(255,220,80,.8)'; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.arc(S.sel.x,S.sel.y,S.sel.s.aDist,0,7); ctx.fill(); ctx.stroke(); ctx.setLineDash([]); }
   for (const tr of S.traps) {
     ctx.save(); ctx.translate(tr.x, tr.y); ctx.globalAlpha = Math.min(1, tr.life/3);
@@ -1347,7 +1428,7 @@ function render(time) {
   for (const t of sorted) {
     if (t === S.sel) { ctx.strokeStyle = '#ffc857'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(t.x,t.y+13,22+Math.sin(TIME*4)*1.5,9,0,0,7); ctx.stroke(); }
     if (t.hero) { ctx.fillStyle = 'rgba(255,215,80,.28)'; ctx.beginPath(); ctx.ellipse(t.x, t.y+12, 27, 11, 0, 0, 7); ctx.fill(); }
-    { const rc = t.recoil || 0, bob = t.s.kind === 'village' ? 0 : Math.sin(TIME*2.2 + t.bob) * .9;
+    if (t.s.kind === 'plane') drawAirfield(t); else { const rc = t.recoil || 0, bob = t.s.kind === 'village' ? 0 : Math.sin(TIME*2.2 + t.bob) * .9;
       ctx.save(); ctx.translate(-Math.cos(t.ang)*3*rc, bob); drawCapy(ctx, t.x, t.y, t.type, t.ang); drawWeapon(ctx, t); ctx.restore(); }
     if (t.hero) drawHeroBadge(t);
     // Upgrade-Punkte
@@ -1380,6 +1461,7 @@ function render(time) {
       ctx.fillStyle = '#e63946'; ctx.beginPath(); ctx.moveTo(-7,0); ctx.lineTo(-10,-3); ctx.lineTo(-5,0); ctx.lineTo(-10,3); ctx.closePath(); ctx.fill(); }
     ctx.restore();
   }
+  for (const t of S.towers) if (t.s.kind === 'plane' && t.pos) drawPlanes(t);
   for (const q of S.parts) {
     const k = Math.max(0, q.life/(q.max||.35));
     if (q.smoke) { ctx.globalAlpha = .32*k; ctx.fillStyle = '#5a5048'; ctx.beginPath(); ctx.arc(q.x, q.y, 5 + (1-k)*13, 0, 7); ctx.fill(); }
@@ -1409,8 +1491,8 @@ function render(time) {
   }
   // Platzier-Vorschau
   if (S.place) {
-    const ok = canPlace(S.mx, S.my) && S.money >= TOWERS[S.place].cost;
-    const r = TOWERS[S.place].base.range;
+    const ok = canPlace(S.mx, S.my, S.place) && S.money >= TOWERS[S.place].cost;
+    const r = TOWERS[S.place].base.kind === 'plane' ? TOWERS[S.place].base.orbit : TOWERS[S.place].base.range;
     if (r > 0 && r < 5000) showRange(S.mx, S.my, r, ok);
     else if (TOWERS[S.place].base.aDist) showRange(S.mx, S.my, TOWERS[S.place].base.aDist, ok);
     else if (r === 0) showRange(S.mx, S.my, 20, ok);
@@ -1545,7 +1627,7 @@ function refreshAll(force) {
     infoEl.innerHTML = `<h3>${def.name}</h3><div class="desc">${def.desc}</div>Klicke auf die Karte oder ziehe das Capybara aus der Leiste dorthin. (Esc = abbrechen)`;
   } else {
     infoEl.innerHTML = `<h3>Bereit?</h3><div class="desc">Wähle unten in der Leiste ein Capybara (anklicken oder auf die Karte ziehen) und platziere es neben dem Weg. Klicke platzierte Capybaras an, um sie zu verbessern.</div>
-      <div style="font-size:12px;opacity:.75">Pro Capybara gibt es 3 Pfade – aber nur 2 davon nutzbar, einer bis Stufe 5, der andere bis Stufe 2. <b>Schwarze</b> Ballons sind explosionsimmun, <b>weiße</b> eisimmun, <b>Zebras</b> beides. <b>Blei</b> prallt spitze Waffen ab, <b>Tarn</b>-Ballons brauchen Erkennung. Keramik, Regenbogen und Bosse (MOAB, BFB, DDT) kommen später.</div>`;
+      <div style="font-size:12px;opacity:.75">Pro Capybara gibt es 3 Pfade mit je 5 Stufen – alle frei kombinierbar (5/5/5 möglich!). <b>Schwarze</b> Ballons sind explosionsimmun, <b>weiße</b> eisimmun, <b>Zebras</b> beides. <b>Blei</b> prallt spitze Waffen ab, <b>Tarn</b>-Ballons brauchen Erkennung. Keramik, Regenbogen und Bosse (MOAB, BFB, DDT) kommen später.</div>`;
   }
 }
 
@@ -1560,7 +1642,7 @@ function toGame(ev) {
 function tryPlace(x, y, keep) {
   const type = S.place; if (!type) return;
   if (S.money < TOWERS[type].cost) { flash('Nicht genug Geld!'); return; }
-  if (!canPlace(x, y)) { flash('Hier kann man nicht bauen'); return; }
+  if (!canPlace(x, y, type)) { flash('Hier kann man nicht bauen'); return; }
   placeTower(type, x, y);
   if (keep && S.money >= TOWERS[type].cost) { S.place = type; S.sel = null; refreshAll(true); }
 }
