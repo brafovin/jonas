@@ -23,7 +23,7 @@
   .herocard canvas { width:56px !important; height:56px; margin:0 auto; }
   .shopbtn.hero { border-color:#ffd54a; }
   #abil:empty { display:none; }
-  #abil .act { font-size:12px; padding:6px 4px; }
+  #abil .act { font-size:11px; padding:6px 3px; }
   .mapcard.sel { border-color:var(--accent); }
   .mapcard small { opacity:.7; display:block; }
   .shopbtn { width:71px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; background:var(--panel2); border:2px solid transparent; border-radius:8px; color:var(--ink); padding:3px; cursor:grab; text-align:center; font-size:10.5px; touch-action:none; }
@@ -235,13 +235,13 @@ function posAt(d, lane = 0) {
 const distToPath = (x, y) => distLanes(LANES, x, y);
 
 /* ---------- Capybara Zeichnen ---------- */
-function drawPlaneSprite(c, heading, k) {
+function drawPlaneSprite(c, heading, k, cols) {
   c.save(); c.rotate(heading); c.scale(k, k); c.lineJoin = 'round';
   c.fillStyle = '#e8ecef'; c.strokeStyle = '#4d5964'; c.lineWidth = 1.2;
   c.beginPath(); c.roundRect(-6,-25,13,50,3); c.fill(); c.stroke();
   c.beginPath(); c.roundRect(-25,-10,7,20,2); c.fill(); c.stroke();
   c.fillStyle = '#e53935'; c.beginPath(); c.arc(0,-17,2.6,0,7); c.arc(0,17,2.6,0,7); c.fill();
-  const g = c.createLinearGradient(0,-7,0,7); g.addColorStop(0,'#f26a55'); g.addColorStop(1,'#a52a1a');
+  const g = c.createLinearGradient(0,-7,0,7); g.addColorStop(0,(cols||['#f26a55','#a52a1a'])[0]); g.addColorStop(1,(cols||['#f26a55','#a52a1a'])[1]);
   c.fillStyle = g; c.beginPath(); c.ellipse(0,0,25,6.8,0,0,7); c.fill(); c.stroke();
   c.fillStyle = 'rgba(255,255,255,.85)'; c.beginPath(); c.ellipse(-4,0,13,1.6,0,0,7); c.fill();
   c.fillStyle = '#444'; c.beginPath(); c.arc(23,0,4,0,7); c.fill();
@@ -266,12 +266,12 @@ function drawPlanes(t) {
   for (const ps of t.pos) {
     ctx.save(); ctx.translate(ps.x + 16, ps.y + 30); ctx.rotate(ps.h); ctx.fillStyle = 'rgba(0,0,0,.16)';
     ctx.beginPath(); ctx.ellipse(0,0,22,5.5,0,0,7); ctx.roundRect(-5,-22,11,44,3); ctx.roundRect(-23,-8,6,16,2); ctx.fill(); ctx.restore();
-    ctx.save(); ctx.translate(ps.x, ps.y); drawPlaneSprite(ctx, ps.h, 1); ctx.restore();
+    ctx.save(); ctx.translate(ps.x, ps.y); drawPlaneSprite(ctx, ps.h, 1, t.hero ? ['#6f9bff','#243c8c'] : null); ctx.restore();
   }
 }
 function drawCapy(c, x, y, type, ang, sz = 1) {
   c.save(); c.translate(x, y); c.scale(sz, sz);
-  if (type === 'plane') { drawPlaneSprite(c, -.5, .78); c.restore(); return; }
+  if (type === 'plane' || type === 'h_pilot') { drawPlaneSprite(c, -.5, .78, type === 'h_pilot' ? ['#6f9bff','#243c8c'] : null); c.restore(); return; }
   if (type === 'village') { // Teich + Hütte
     c.fillStyle = '#2b7fb8'; c.beginPath(); c.ellipse(0,10,30,16,0,0,7); c.fill();
     c.strokeStyle = '#7fc8ee'; c.lineWidth = 2; c.stroke();
@@ -282,7 +282,7 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
   const flip = Math.cos(ang) < 0 ? -1 : 1;
   c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0,14,17,5,0,0,7); c.fill();
   c.save(); c.scale(flip, 1);
-  if (type.startsWith('h_')) { c.fillStyle = {h_cap:'#c62828', h_frost:'#4fb0e8', h_bomb:'#ef6c00', h_eagle:'#2e7d32', h_gold:'#6a1b9a'}[type]; c.beginPath(); c.moveTo(-5,-8); c.quadraticCurveTo(-24,-4,-20,14); c.lineTo(-8,10); c.closePath(); c.fill(); }
+  if (type.startsWith('h_')) { c.fillStyle = {h_cap:'#c62828', h_frost:'#4fb0e8', h_bomb:'#ef6c00', h_eagle:'#2e7d32', h_gold:'#6a1b9a', h_ninja:'#b71c1c', h_mage:'#4a148c', h_volt:'#eceff1', h_shaman:'#1b5e20'}[type]; c.beginPath(); c.moveTo(-5,-8); c.quadraticCurveTo(-24,-4,-20,14); c.lineTo(-8,10); c.closePath(); c.fill(); }
   // Beine
   [-11,-5,7,12].forEach(lx => { c.fillStyle = '#6e4522'; c.beginPath(); c.roundRect(lx-2.2,5,4.4,9,2); c.fill(); c.fillStyle = '#2f1c0d'; c.beginPath(); c.roundRect(lx-2.2,12,4.4,2.4,1); c.fill(); });
   // Schwänzchen
@@ -344,6 +344,20 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
     case 'village':
       c.fillStyle = '#2fa84f'; c.beginPath(); c.ellipse(hx+2,hy+3,9,3,-.3,0,7); c.fill();
       c.fillStyle = '#e63946'; c.fillRect(hx+4,hy-6,2,8); c.fillStyle = '#ffd166'; c.fillRect(hx+6,hy-6,4,3); break;
+    case 'h_ninja':
+      c.fillStyle='#111'; c.fillRect(3,-14,19,7.5); c.fillStyle='#ffd54a'; c.fillRect(3,-14,19,1.5); c.beginPath(); c.arc(12.5,-10.5,2,0,7); c.fill();
+      c.fillStyle='#c62828'; c.beginPath(); c.moveTo(3,-11); c.lineTo(-11,-6+Math.sin(TIME*8)*2.5); c.lineTo(-9,-13+Math.sin(TIME*8+1)*2); c.closePath(); c.fill();
+      c.fillStyle='#fff'; c.fillRect(12,-9.6,3.2,1.4); break;
+    case 'h_mage':
+      c.fillStyle='#4a148c'; c.beginPath(); c.moveTo(-1,-12); c.lineTo(hx+3,-40); c.lineTo(23,-12); c.closePath(); c.fill(); c.fillRect(-3,-13,29,3.5);
+      c.fillStyle='#ffd54a'; c.fillRect(-3,-13,29,1.3); c.font='9px sans-serif'; c.fillText('★',hx-2,-20); c.fillText('★',hx+5,-29);
+      c.fillStyle='#eee'; c.beginPath(); c.ellipse(19,1.5,5.5,6.5,0,0,7); c.fill(); break;
+    case 'h_volt':
+      c.fillStyle='#fff'; for (let i=0;i<6;i++){ c.beginPath(); c.moveTo(3+i*3.4,-13); c.lineTo(4+i*3.4+ (i%2?2:-2),-24-(i%3)*3); c.lineTo(6.5+i*3.4,-13); c.fill(); }
+      c.fillStyle='rgba(120,220,255,.85)'; c.strokeStyle='#333'; c.lineWidth=1.3; c.beginPath(); c.arc(14,-9,4,0,7); c.fill(); c.stroke(); break;
+    case 'h_shaman':
+      for (let i=0;i<7;i++){ c.fillStyle=['#ffd54a','#e53935'][i%2]; c.beginPath(); c.ellipse(4+i*3.3,-19-(3-Math.abs(3-i))*2.5,2.3,8,(i-3)*.22,0,7); c.fill(); }
+      c.fillStyle='#4e342e'; c.fillRect(2,-13.5,22,3); c.strokeStyle='#e53935'; c.lineWidth=1.3; c.beginPath(); c.moveTo(16,-4); c.lineTo(18,-1); c.moveTo(18,-5); c.lineTo(21,-2); c.stroke(); break;
     case 'h_cap':
       c.fillStyle='#1d2b5a'; c.beginPath(); c.moveTo(-1,-12); c.lineTo(hx+2,-25); c.lineTo(23,-12); c.closePath(); c.fill(); c.fillRect(-3,-13,28,3);
       c.fillStyle='#ffd54a'; c.fillRect(-3,-13,28,1.2); c.fillStyle='#fff'; c.beginPath(); c.arc(hx+2,-17,2,0,7); c.fill(); break;
@@ -631,8 +645,8 @@ const PATHC = {
 for (const k in PATHC) TOWERS[k].C = PATHC[k];
 
 /* ---------- Helden ---------- */
-const HW = {h_cap:'warrior', h_bomb:'bomber', h_eagle:'sniper', h_gold:'ninja'};
-const xpFor = L => 50 * (L - 1) * (L - 1);
+const HW = {h_cap:'warrior', h_bomb:'bomber', h_eagle:'sniper', h_gold:'ninja', h_ninja:'ninja', h_mage:'mage', h_volt:'tesla', h_shaman:'shaman'};
+const xpFor = L => 35 * (L - 1) * (L - 1);
 const HEROES = {
   h_cap:{name:"Käpt'n Capy", cost:650, desc:'Kommandant: schnelle Pfeile, stärkt Türme in der Nähe. Ruft zum Angriff.',
     base:{range:130, rate:.55, dmg:1, pierce:3, speed:500, shots:1, spread:0, kind:'dart', col:'#ffe08a', aDist:0, aRate:1, aRange:0, aDmg:0},
@@ -679,6 +693,64 @@ const HEROES = {
       {n:'Diamantmine', lvl:10, cd:80, d:'15s lang +$5 pro geplatztem Ballon', fn:t=>{ S.goldT = 15; ringFx(t); }}]}
 };
 const ringFx = t => S.fx.push({type:'ring', x:t.x, y:t.y, r:900, life:.7, max:.7});
+/* ---- weitere Helden + Ultimate-Fähigkeiten (Stufe 20) ---- */
+const dartRing = (t, count, dmg, pierce) => {
+  for (let i = 0; i < count; i++) { const a = i / count * 6.283;
+    S.projs.push({x:t.x, y:t.y-2, vx:Math.cos(a)*540, vy:Math.sin(a)*540, dmg, pierce, splash:0, life:1.1, hit:new Set(), col:'#eef', magic:false, sharp:false, a, slow:0, hp:0, hpt:0}); }
+};
+const densest = () => { let best = null, bn = -1; for (const e of S.enemies) { if (e.dead) continue; let n = 0; for (const o of S.enemies) if (!o.dead && Math.hypot(o.x-e.x, o.y-e.y) < 90) n += isBoss(o) ? 5 : 1; if (n > bn) { bn = n; best = e; } } return best; };
+const foes = () => S.enemies.filter(e => !e.dead);
+const zap = (t, e, dmg) => { S.fx.push({type:'bolt', pts:jag(t.x, t.y-8, e.x, e.y), life:.25, max:.25}); hit(e, dmg); };
+const CD_ULT = 120;
+
+HEROES.h_ninja = {name:'Schatten-Sensei', cost:650, desc:'Blitzschneller Ninja: Shuriken-Hagel, Rauchbomben und Klingensturm.',
+  base:{range:120, rate:.32, dmg:1, pierce:2, speed:540, shots:1, spread:0, kind:'dart', col:'#dde', detect:true},
+  lv:(s,l)=>{ s.range+=2; s.rate*=.97; if (l%3===0) s.dmg+=1; if (l===4) s.pierce+=2; if (l===6) { s.shots=2; s.spread=.18; } if (l===9) s.pierceLead=true;
+    if (l===12) { s.shots=3; s.spread=.3; } if (l===16) { s.shots=5; s.spread=.6; s.pierce+=3; } if (l===20) { s.shots=8; s.spread=1.1; s.dmg+=3; } },
+  abil:[
+    {n:'Rauchbombe', lvl:3, cd:35, d:'Ballons im Umkreis 160: 4s betäubt', fn:t=>{ ringFx(t); for (const e of foes()) if (Math.hypot(e.x-t.x, e.y-t.y) < 160 + eRad(e)) { if (isBoss(e)) e.slow = Math.max(e.slow, 6); else e.freeze = Math.max(e.freeze, 4); } }},
+    {n:'Klingensturm', lvl:10, cd:55, d:'48 Shuriken in alle Richtungen', fn:t=>dartRing(t, 48, 3 + (t.hero.lvl>>1), 8)}]};
+HEROES.h_mage = {name:'Erzmagier Merlino', cost:700, desc:'Mächtiger Zauberer: Meteore, Zeitstopp und Armageddon.',
+  base:{range:135, rate:.9, dmg:1, pierce:6, speed:360, shots:1, spread:0, splash:0, kind:'magic', col:'#b58cff', detect:true},
+  lv:(s,l)=>{ s.range+=2; s.rate*=.97; if (l%3===0) s.dmg+=1; if (l===3) { s.splash=40; s.col='#ff8a3d'; } if (l===6) s.pierce+=6; if (l===8) { s.shots=3; s.spread=.3; }
+    if (l===12) s.splash=75; if (l===15) { s.shots=5; s.spread=.5; s.dmg+=2; } if (l===20) { s.splash=110; s.dmg+=6; } },
+  abil:[
+    {n:'Meteor', lvl:3, cd:30, d:'Meteor trifft die größte Ballongruppe', fn:t=>{ const c = densest(); if (c) explode(c.x, c.y, 100, 15 + t.hero.lvl*2); S.shake = 6; }},
+    {n:'Zeitstopp', lvl:10, cd:70, d:'Alle Ballons 4s eingefroren (Bosse verlangsamt)', fn:t=>{ ringFx(t); for (const e of foes()) { if (isBoss(e)) e.slow = Math.max(e.slow, 8); else e.freeze = Math.max(e.freeze, 4); } }}]};
+HEROES.h_pilot = {name:'Fliegerass Baron', cost:750, desc:'Fliegender Held: kreist über der Karte (auch über dem Weg platzierbar). Luftangriffe und Staffel.',
+  base:{range:125, rate:.5, dmg:1, pierce:2, speed:520, shots:1, spread:0, orbit:130, flySpeed:1.6, planes:1, kind:'plane', col:'#ffd54a', bomb:0, bombR:45, bombDmg:2, bombRate:2.5},
+  lv:(s,l)=>{ s.rate*=.97; s.range+=2; if (l%3===0) s.dmg+=1; if (l===4) s.detect=true; if (l===5) { s.bomb=1; s.bombDmg=2; } if (l===8) { s.shots=2; s.spread=.12; } if (l===10) s.pierceLead=true;
+    if (l===12) s.planes=2; if (l===15) { s.shots=3; s.spread=.25; s.bombDmg+=3; s.bombRate=1.8; } if (l===20) { s.planes=3; s.shots=5; s.spread=.4; s.dmg+=3; } },
+  abil:[
+    {n:'Luftangriff', lvl:3, cd:35, d:'8 Bomben auf die vordersten Ballons', fn:t=>{ foes().sort((a,b)=>b.d-a.d).slice(0,8).forEach(e => explode(e.x, e.y, 55, 4 + t.hero.lvl)); }},
+    {n:'Fliegerstaffel', lvl:10, cd:60, d:'12s lang +3 Flugzeuge', fn:t=>{ t.wingT = 12; t.wingN = 3; ringFx(t); }}]};
+HEROES.h_volt = {name:'Professor Volt', cost:700, desc:'Verrückter Erfinder: Kettenblitze, Überspannung und Blackout.',
+  base:{range:110, rate:1.1, dmg:1, chain:3, chainR:70, stun:0, nova:0, kind:'chain'},
+  lv:(s,l)=>{ s.range+=2; s.rate*=.97; if (l%3===0) s.dmg+=1; if (l===4) s.detect=true; if (l===5) s.chain+=3; if (l===7) s.stun=.4; if (l===10) { s.chain+=4; s.chainR+=20; }
+    if (l===13) s.stun=.9; if (l===15) s.nova=4; if (l===18) { s.chain+=6; s.dmg+=3; } if (l===20) { s.nova=2; s.stun=1.6; } },
+  abil:[
+    {n:'Überspannung', lvl:3, cd:40, d:'Blitze auf 12 zufällige Ballons', fn:t=>{ const l = foes().sort(() => Math.random() - .5).slice(0, 12); l.forEach(e => zap(t, e, 6 + t.hero.lvl)); }},
+    {n:'Blackout', lvl:10, cd:65, d:'Alle Ballons 4s betäubt + Schaden', fn:t=>{ ringFx(t); for (const e of foes()) { if (isBoss(e)) e.slow = Math.max(e.slow, 6); else e.freeze = Math.max(e.freeze, 4); hit(e, 5 + (t.hero.lvl>>1)); } }}]};
+HEROES.h_shaman = {name:'Hexe Nyala', cost:650, desc:'Fluchmeisterin: alle Ballons erleiden mehr Schaden. Massenfluch und Seelenernte.',
+  base:{range:115, rate:2.2, curseT:3, curseAmt:1, dmg:0, slow:0, freeze:0, kind:'curse'},
+  lv:(s,l)=>{ s.range+=2.5; s.rate*=.97; if (l===3) s.slow=1.5; if (l===4) s.detect=true; if (l===5) s.curseAmt=2; if (l===6) s.dmg=1; if (l===8) s.curseT=5; if (l===10) s.freeze=.6;
+    if (l===12) s.curseAmt=4; if (l===15) s.dmg+=2; if (l===18) { s.curseAmt=7; s.curseT=6; } if (l===20) { s.freeze=1.5; s.dmg+=6; } },
+  abil:[
+    {n:'Massenfluch', lvl:3, cd:40, d:'ALLE Ballons 8s verflucht (Extraschaden)', fn:t=>{ ringFx(t); for (const e of foes()) { e.curse = Math.max(e.curse || 0, 8); e.curseAmt = Math.max(e.curseAmt || 0, 3 + (t.hero.lvl/3|0)); } }},
+    {n:'Seelenernte', lvl:10, cd:65, d:'Verfluchte Ballons erleiden Schaden, du erhältst Geld', fn:t=>{ ringFx(t); for (const e of foes()) if (e.curse > 0) { hit(e, 10 + t.hero.lvl*2); S.money += 3; } }}]};
+
+// Ultimates (Stufe 20)
+HEROES.h_cap.abil.push({n:'Legendäre Flotte', lvl:20, cd:CD_ULT, d:'15s Kampfschrei + 3 Ringe Pfeile', fn:t=>{ S.rally = 15; ringFx(t); dartRing(t, 40, 8, 10); dartRing(t, 40, 8, 10); }});
+HEROES.h_frost.abil.push({n:'Zeitalter des Eises', lvl:20, cd:CD_ULT, d:'10s einfrieren + 20 Schaden auf alle', fn:t=>{ ringFx(t); for (const e of foes()) if (!immIce(e)) { if (isBoss(e)) e.slow = Math.max(e.slow, 12); else e.freeze = Math.max(e.freeze, 10); hit(e, 20); } }});
+HEROES.h_bomb.abil.push({n:'Atomschlag', lvl:20, cd:CD_ULT, d:'Explosion bei jedem Ballon (bis 30)', fn:t=>{ S.shake = 10; foes().sort((a,b)=>b.d-a.d).slice(0,30).forEach(e => explode(e.x, e.y, 90, 30 + t.hero.lvl*5)); }});
+HEROES.h_eagle.abil.push({n:'Todesblick', lvl:20, cd:CD_ULT, d:'Jeder Ballon auf der Karte erleidet Riesenschaden', fn:t=>{ ringFx(t); for (const e of foes()) S.fx.push({type:'line', x1:t.x, y1:t.y, x2:e.x, y2:e.y, life:.3, max:.3}); for (const e of foes()) hit(e, 30 + t.hero.lvl*3); }});
+HEROES.h_gold.abil.push({n:'Goldenes Zeitalter', lvl:20, cd:CD_ULT, d:'Sofort $1000 + 30s lang +$5 pro Ballon', fn:t=>{ S.money += 1000 + 250*t.hero.lvl; S.goldT = 30; ringFx(t); flash('Goldenes Zeitalter!'); }});
+HEROES.h_ninja.abil.push({n:'Tausend Klingen', lvl:20, cd:CD_ULT, d:'3 Ringe aus je 40 Shuriken', fn:t=>{ for (let i = 0; i < 3; i++) dartRing(t, 40, 6, 12); ringFx(t); }});
+HEROES.h_mage.abil.push({n:'Armageddon', lvl:20, cd:CD_ULT, d:'12 Meteore auf Ballongruppen', fn:t=>{ S.shake = 10; const list = foes().sort(() => Math.random() - .5).slice(0, 12); list.forEach(e => explode(e.x, e.y, 90, 25 + t.hero.lvl*3)); }});
+HEROES.h_pilot.abil.push({n:'Luftwaffe', lvl:20, cd:CD_ULT, d:'15s lang +6 Flugzeuge', fn:t=>{ t.wingT = 15; t.wingN = 6; ringFx(t); }});
+HEROES.h_volt.abil.push({n:'Weltuntergangsblitz', lvl:20, cd:CD_ULT, d:'Blitz auf bis zu 50 Ballons + 3s Betäubung', fn:t=>{ foes().slice(0, 50).forEach(e => { zap(t, e, 15 + t.hero.lvl*2); if (!e.dead && !isBoss(e)) e.freeze = Math.max(e.freeze, 3); }); S.shake = 6; }});
+HEROES.h_shaman.abil.push({n:'Seelensturm', lvl:20, cd:CD_ULT, d:'Alle Ballons 12s verflucht + Riesenschaden', fn:t=>{ ringFx(t); for (const e of foes()) { e.curse = 12; e.curseAmt = 10; } for (const e of foes()) hit(e, 20 + t.hero.lvl*2); }});
+
 for (const k in HEROES) {
   const h = HEROES[k];
   TOWERS[k] = {name:h.name, cost:h.cost, desc:h.desc, hero:true, base:h.base, A:{name:'',up:[]}, B:{name:'',up:[]}, C:{name:'',up:[]}};
@@ -951,7 +1023,7 @@ function hit(e, dmg) {
 // Schaden eines Geschosses (spitze Waffen prallen an Blei ab)
 function heroXP(n) {
   const h = S.hero; if (!h || n <= 0 || h.hero.lvl >= 20) return;
-  h.hero.xp += n;
+  h.hero.xp += n * (1 + S.round / 25);
   while (h.hero.lvl < 20 && h.hero.xp >= xpFor(h.hero.lvl + 1)) {
     h.hero.lvl++; computeStats(h);
     const H = HEROES[h.type], ab = H.abil.filter(a => a.lvl === h.hero.lvl)[0];
@@ -960,7 +1032,8 @@ function heroXP(n) {
   }
 }
 function updatePlane(t, dt) {
-  const s = t.s, n = s.planes || 1;
+  const s = t.s; if (t.wingT > 0) t.wingT -= dt;
+  const n = (s.planes || 1) + (t.wingT > 0 ? (t.wingN || 3) : 0);
   t.pa = (t.pa || 0) + s.flySpeed * dt; t.pos = []; t.cds = t.cds || [];
   for (let j = 0; j < n; j++) {
     const a = t.pa + j * 6.283 / n;
@@ -1032,7 +1105,7 @@ function placeTower(type, x, y) {
   if (S.money < def.cost || !canPlace(x, y, type)) return false;
   S.money -= def.cost;
   const t = {type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0,detect:false}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
-  if (def.hero) { t.hero = {lvl:1, xp:0, cds:[0,0]}; S.hero = t; }
+  if (def.hero) { t.hero = {lvl:1, xp:0, cds:[0,0,0]}; S.hero = t; }
   computeStats(t); if (t.s.kind === 'plane') updatePlane(t, 0); S.towers.push(t); S.sel = t; S.place = null;
   refreshAll(true); return true;
 }
@@ -1100,7 +1173,7 @@ function fire(t, e) {
       }
       break; }
     case 'bite': {
-      const list = S.enemies.filter(en => !en.dead && (!en.camo || canSee(t)) && Math.hypot(en.x-t.x, en.y-t.y) <= s.range + eRad(en)).sort((a,b) => b.d - a.d).slice(0, s.targets);
+      const list = S.enemies.filter(en => !en.dead && (!en.camo || canSee(t)) && Math.hypot(en.x-t.x, en.y-t.y) <= s.range + eRad(en)).sort((a,b) => b.d - a.d).slice(0, s.targets + (t.buffT > 0 ? 8 : 0));
       if (list.length) t.ang = Math.atan2(list[0].y - t.y, list[0].x - t.x);
       for (const en of list) { S.fx.push({type:'bite', x:en.x, y:en.y, life:.25, max:.25});
         if (en.lead && !s.pierceLead) S.fx.push({type:'ping', x:en.x, y:en.y, life:.25, max:.25}); else hit(en, s.dmg); }
@@ -1223,7 +1296,7 @@ function update(dt) {
   for (const t of S.towers) { t.bf = {rate:1, range:0, dmg:0, detect:false}; S.popBonus += t.s.popBonus || 0; }
   if (S.goldT > 0) { S.goldT -= dt; S.popBonus += 5; }
   if (S.rally > 0) S.rally -= dt;
-  for (const t of S.towers) { if (t.buffT > 0) t.buffT -= dt; if (t.hero) for (let i = 0; i < 2; i++) if (t.hero.cds[i] > 0) t.hero.cds[i] -= dt; }
+  for (const t of S.towers) { if (t.buffT > 0) t.buffT -= dt; if (t.hero) for (let i = 0; i < 3; i++) if (t.hero.cds[i] > 0) t.hero.cds[i] -= dt; }
   for (const a of S.towers) if (a.s.aDist > 0) for (const t of S.towers) {
     if (t === a || Math.hypot(t.x-a.x, t.y-a.y) > a.s.aDist) continue;
     t.bf.rate = Math.max(t.bf.rate, a.s.aRate); t.bf.range = Math.max(t.bf.range, a.s.aRange); t.bf.dmg = Math.max(t.bf.dmg, a.s.aDmg); if (a.s.aDetect) t.bf.detect = true;
@@ -1570,7 +1643,7 @@ function updateAbil() {
   H.abil.forEach((a, i) => {
     const b = document.createElement('button'); b.className = 'act'; const locked = h.hero.lvl < a.lvl, cd = Math.ceil(Math.max(0, h.hero.cds[i]));
     b.disabled = locked || cd > 0; b.title = a.d;
-    b.textContent = `${'QW'[i]}: ${a.n} ` + (locked ? `(Stufe ${a.lvl})` : cd > 0 ? `(${cd}s)` : '✔');
+    b.textContent = `${'QWE'[i]}: ${a.n} ` + (locked ? `(Stufe ${a.lvl})` : cd > 0 ? `(${cd}s)` : '✔');
     b.onclick = () => useAbility(i); el.appendChild(b);
   });
 }
@@ -1580,7 +1653,7 @@ function heroInfo(t) {
   let h = `<h3>⭐ ${H.name} <span style="opacity:.7;font-weight:400">Stufe ${L}/20</span></h3><div class="desc">${H.desc}</div>`;
   h += `<div style="background:#1d2b1f;border-radius:6px;height:10px;margin:4px 0"><div style="background:#ffd54a;height:10px;border-radius:6px;width:${L >= 20 ? 100 : Math.round(100*(t.hero.xp - xpFor(L))/(xpFor(L+1) - xpFor(L)))}%"></div></div>`;
   h += `<div style="font-size:12px;opacity:.85;margin-bottom:6px">${L >= 20 ? 'Maximale Stufe erreicht!' : `Noch ${need} XP bis Stufe ${L+1} – Stufenaufstiege (automatische Upgrades) durch geplatzte Ballons, Bosse & Rundenende.`}</div>`;
-  H.abil.forEach((a, i) => { h += `<div style="font-size:12px;margin:3px 0;${L < a.lvl ? 'opacity:.5' : ''}"><b>${'QW'[i]}: ${a.n}</b> (Stufe ${a.lvl}, ${a.cd}s) – ${a.d}</div>`; });
+  H.abil.forEach((a, i) => { h += `<div style="font-size:12px;margin:3px 0;${L < a.lvl ? 'opacity:.5' : ''}"><b>${'QWE'[i]}: ${a.n}</b> (Stufe ${a.lvl}, ${a.cd}s) – ${a.d}</div>`; });
   h += `<div class="row" style="margin-top:6px"><button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button></div>`;
   infoEl.innerHTML = h;
   $('bMode').onclick = () => { t.mode = (t.mode+1)%4; refreshAll(true); };
@@ -1662,6 +1735,7 @@ window.addEventListener('keydown', ev => {
   else if (ev.key.length === 1 && HOTK.includes(ev.key.toLowerCase())) { S.place = ORDER[HOTK.indexOf(ev.key.toLowerCase())]; S.sel = null; refreshAll(true); }
   else if (ev.key.toLowerCase() === 'q') useAbility(0);
   else if (ev.key.toLowerCase() === 'w') useAbility(1);
+  else if (ev.key.toLowerCase() === 'e') useAbility(2);
   else if (ev.key.toLowerCase() === 'h' && S.heroKey && !S.hero) { S.place = S.heroKey; S.sel = null; refreshAll(true); }
   else if (ev.key.toLowerCase() === 'p') { S.paused = !S.paused; refreshAll(true); }
   else if ((ev.key === 'Delete' || ev.key === 'Backspace') && S.sel) sellTower(S.sel);
