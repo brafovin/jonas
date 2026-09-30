@@ -9,15 +9,20 @@
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:system-ui,"Segoe UI",Roboto,sans-serif; user-select:none; touch-action:manipulation; }
   #app { display:flex; gap:10px; padding:10px; height:100%; max-width:1400px; margin:0 auto; }
-  #stage { position:relative; flex:1 1 auto; min-width:0; display:flex; align-items:center; justify-content:center; }
-  canvas#c { width:100%; max-height:100%; aspect-ratio:960/600; background:#3e7d3a; border-radius:12px; border:3px solid #14201a; touch-action:none; cursor:crosshair; }
+  #stage { position:relative; flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center; }
+  canvas#c { max-width:100%; max-height:calc(100vh - 150px); width:auto; height:auto; background:#3e7d3a; border-radius:12px; border:3px solid #14201a; touch-action:none; cursor:crosshair; }
   #panel { flex:0 0 300px; background:var(--panel); border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; }
   #panel > * { flex-shrink:0; }
   #hud { display:flex; justify-content:space-between; font-weight:700; font-size:17px; background:var(--panel2); border-radius:8px; padding:8px 10px; }
   #hud span b { color:var(--accent); }
-  #shop { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-  .shopbtn { background:var(--panel2); border:2px solid transparent; border-radius:8px; color:var(--ink); padding:4px; cursor:pointer; text-align:center; font-size:12px; }
-  .shopbtn canvas { width:52px; height:52px; display:block; margin:0 auto; }
+  #bar { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; width:100%; background:var(--panel); border-radius:12px; padding:6px; }
+  .maps { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:10px 0; }
+  .mapcard { border:3px solid transparent; border-radius:8px; background:#1d2b1f; cursor:pointer; padding:4px; width:150px; font-size:12px; color:var(--ink); }
+  .mapcard canvas { width:100%; border-radius:4px; display:block; }
+  .mapcard.sel { border-color:var(--accent); }
+  .mapcard small { opacity:.7; display:block; }
+  .shopbtn { width:78px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; background:var(--panel2); border:2px solid transparent; border-radius:8px; color:var(--ink); padding:3px; cursor:grab; text-align:center; font-size:10.5px; touch-action:none; }
+  .shopbtn canvas { width:44px; height:44px; pointer-events:none; display:block; margin:0 auto; }
   .shopbtn .n { font-weight:700; }
   .shopbtn .p { color:var(--accent); font-weight:700; }
   .shopbtn.sel { border-color:var(--accent); background:#3d5a43; }
@@ -37,7 +42,7 @@
   button.act.on { background:var(--accent); color:#222; }
   #overlay { position:absolute; inset:0; background:rgba(10,20,12,.86); border-radius:12px; display:flex; align-items:center; justify-content:center; text-align:center; padding:20px; z-index:5; }
   #overlay.hidden { display:none; }
-  #overlay .box { max-width:520px; }
+  #overlay .box { max-width:720px; }
   #overlay h1 { margin:0 0 6px; font-size:34px; color:var(--accent); }
   #overlay p { margin:6px 0; line-height:1.4; }
   #overlay .diff { display:flex; gap:8px; justify-content:center; margin:14px 0; }
@@ -48,8 +53,8 @@
   @media (max-width:820px) {
     #app { flex-direction:column; height:auto; min-height:100%; }
     #panel { flex:none; }
-    #shop { grid-template-columns:repeat(4,1fr); }
-    .shopbtn canvas { width:40px; height:40px; }
+    canvas#c { max-height:none; }
+    .shopbtn { width:calc(25% - 6px); }
   }
 </style>
 </head>
@@ -57,23 +62,25 @@
 <div id="app">
   <div id="stage">
     <canvas id="c" width="960" height="600"></canvas>
+    <div id="bar"></div>
     <div id="msg"></div>
     <div id="overlay">
       <div class="box">
         <h1>🦫 Capybara Tower Defence</h1>
         <p id="ovText">Die bösen Ballons wollen durch den Dschungel! Platziere Capybaras verschiedener Klassen, um sie zu stoppen. Überlebe <b>40 Runden</b>.</p>
+        <div class="maps" id="mapBtns"></div>
+        <p style="margin:0;font-weight:700">Karte wählen, dann Schwierigkeit zum Starten:</p>
         <div class="diff" id="diffBtns">
           <button data-d="0">Leicht</button>
           <button data-d="1">Normal</button>
           <button data-d="2">Schwer</button>
         </div>
-        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · 1–9, 0, - = Capybara wählen</p>
+        <p style="opacity:.7;font-size:13px">Leertaste = Runde starten · Esc = Abbrechen · Capybara aus der Leiste ziehen oder anklicken · 1–9, 0, - = Schnellwahl</p>
       </div>
     </div>
   </div>
   <aside id="panel">
     <div id="hud"><span>❤️ <b id="hLives">0</b></span><span>💰 <b id="hMoney">0</b></span><span>🌊 <b id="hRound">0</b>/40</span></div>
-    <div id="shop"></div>
     <div id="info"></div>
     <div class="row">
       <button class="act go" id="bGo">▶ Runde starten</button>
@@ -93,29 +100,39 @@ const W = 960, H = 600;
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d');
 
-/* ---------- Pfad ---------- */
-const PATH = [[-30,110],[200,110],[200,300],[80,300],[80,500],[340,500],[340,200],[520,200],[520,420],[700,420],[700,120],[860,120],[860,540],[990,540]];
+/* ---------- Karten ---------- */
 const PATH_W = 46;
-const segs = []; let TOTAL = 0;
-for (let i = 0; i < PATH.length - 1; i++) {
-  const [x1,y1] = PATH[i], [x2,y2] = PATH[i+1];
-  const len = Math.hypot(x2-x1, y2-y1);
-  segs.push({x1,y1,x2,y2,len,start:TOTAL,ang:Math.atan2(y2-y1,x2-x1)});
-  TOTAL += len;
-}
-function posAt(d) {
-  if (d < 0) d = 0;
-  for (const s of segs) {
-    if (d <= s.start + s.len) {
-      const t = (d - s.start) / s.len;
-      return {x:s.x1+(s.x2-s.x1)*t, y:s.y1+(s.y2-s.y1)*t};
+const THEMES = {
+  jungle: {grass:'#3f8a3c', specks:['#48963f','#377a34'], edge:'#2c5a2a', mid:'#8b6a3e', inner:'#c9a46a', line:'rgba(120,85,45,.45)'},
+  desert: {grass:'#e0c27a', specks:['#e8cd8c','#cfae63'], edge:'#6d4c2a', mid:'#8a6538', inner:'#a98352', line:'rgba(60,35,15,.35)'},
+  snow:   {grass:'#e6f0f6', specks:['#f8fcff','#cfe0eb'], edge:'#5f9cc4', mid:'#8cc4e6', inner:'#bfe8ff', line:'rgba(255,255,255,.55)'},
+  swamp:  {grass:'#4a5d3a', specks:['#56683f','#3c4d2f'], edge:'#22221a', mid:'#4d3f2a', inner:'#71603d', line:'rgba(20,15,5,.4)'}
+};
+const MAPS = [
+  {name:'Dschungelpfad', desc:'Klassisch, 1 Weg', theme:'jungle', lanes:[
+    [[-30,110],[200,110],[200,300],[80,300],[80,500],[340,500],[340,200],[520,200],[520,420],[700,420],[700,120],[860,120],[860,540],[990,540]]]},
+  {name:'Wüsten-Spirale', desc:'Lange Spirale zum Zentrum', theme:'desert', lanes:[
+    [[-30,80],[900,80],[900,520],[60,520],[60,170],[800,170],[800,430],[160,430],[160,260],[700,260],[700,340],[400,340]]]},
+  {name:'Eisfluss', desc:'Enge Serpentinen', theme:'snow', lanes:[
+    [[-30,520],[130,520],[130,90],[300,90],[300,520],[470,520],[470,90],[640,90],[640,520],[810,520],[810,90],[990,90]]]},
+  {name:'Doppelte Furt', desc:'Sumpf mit 2 Wegen', theme:'swamp', lanes:[
+    [[-30,110],[250,110],[250,250],[700,250],[700,110],[990,110]],
+    [[-30,500],[250,500],[250,360],[700,360],[700,500],[990,500]]]}
+];
+function buildLanes(map) {
+  return map.lanes.map(pts => {
+    const segs = []; let total = 0;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x1,y1] = pts[i], [x2,y2] = pts[i+1];
+      const len = Math.hypot(x2-x1, y2-y1);
+      segs.push({x1,y1,x2,y2,len,start:total}); total += len;
     }
-  }
-  const s = segs[segs.length-1]; return {x:s.x2, y:s.y2};
+    return {pts, segs, total};
+  });
 }
-function distToPath(x, y) {
+function distLanes(lanes, x, y) {
   let best = 1e9;
-  for (const s of segs) {
+  for (const L of lanes) for (const s of L.segs) {
     const dx = s.x2-s.x1, dy = s.y2-s.y1;
     let t = ((x-s.x1)*dx + (y-s.y1)*dy) / (s.len*s.len);
     t = Math.max(0, Math.min(1, t));
@@ -123,36 +140,48 @@ function distToPath(x, y) {
   }
   return best;
 }
-
-/* ---------- Hintergrund (einmal gerendert) ---------- */
-const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
-(function drawBg() {
-  const g = bg.getContext('2d');
-  g.fillStyle = '#3f8a3c'; g.fillRect(0,0,W,H);
-  let seed = 1234; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
-  for (let i = 0; i < 700; i++) {
-    g.fillStyle = rnd() < .5 ? '#48963f' : '#377a34';
-    g.fillRect(rnd()*W, rnd()*H, 3+rnd()*4, 2);
-  }
-  // Fluss-Ufer / Pfad
+function renderMapBg(map, lanes, mi) {
+  const cvs = document.createElement('canvas'); cvs.width = W; cvs.height = H;
+  const g = cvs.getContext('2d'), th = THEMES[map.theme];
+  g.fillStyle = th.grass; g.fillRect(0,0,W,H);
+  let seed = 1234 + mi*977; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 700; i++) { g.fillStyle = th.specks[rnd() < .5 ? 0 : 1]; g.fillRect(rnd()*W, rnd()*H, 3+rnd()*4, 2); }
   g.lineCap = 'round'; g.lineJoin = 'round';
-  const stroke = (w, c) => { g.strokeStyle = c; g.lineWidth = w; g.beginPath(); PATH.forEach((p,i)=> i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])); g.stroke(); };
-  stroke(PATH_W+10, '#2c5a2a'); stroke(PATH_W+4, '#8b6a3e'); stroke(PATH_W-4, '#c9a46a');
-  stroke(4, 'rgba(120,85,45,.45)');
-  // Deko
+  const stroke = (w, c) => { g.strokeStyle = c; g.lineWidth = w; lanes.forEach(L => { g.beginPath(); L.pts.forEach((p,i)=> i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])); g.stroke(); }); };
+  stroke(PATH_W+10, th.edge); stroke(PATH_W+4, th.mid); stroke(PATH_W-4, th.inner); stroke(4, th.line);
   for (let i = 0; i < 90; i++) {
-    const x = rnd()*W, y = rnd()*H;
-    if (distToPath(x,y) < 42) continue;
-    if (rnd() < .55) { // Baum
-      g.fillStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.ellipse(x+3,y+8,14,6,0,0,7); g.fill();
-      g.fillStyle = '#6b4a2a'; g.fillRect(x-2,y-2,4,10);
-      g.fillStyle = '#1f6a2e'; g.beginPath(); g.arc(x,y-8,13,0,7); g.fill();
-      g.fillStyle = '#2b8a3d'; g.beginPath(); g.arc(x-3,y-11,8,0,7); g.fill();
-    } else if (rnd() < .5) { // Busch/Blume
-      g.fillStyle = ['#ff8fab','#ffd166','#fff'][i%3]; g.beginPath(); g.arc(x,y,3,0,7); g.fill();
-    } else { g.fillStyle = '#7a7f86'; g.beginPath(); g.ellipse(x,y,7,5,0,0,7); g.fill(); }
+    const x = rnd()*W, y = rnd()*H, r = rnd(), r2 = rnd();
+    if (distLanes(lanes,x,y) < 44) continue;
+    const shadow = () => { g.fillStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.ellipse(x+3,y+8,14,6,0,0,7); g.fill(); };
+    const rock = c => { g.fillStyle = c; g.beginPath(); g.ellipse(x,y,7,5,0,0,7); g.fill(); };
+    if (map.theme === 'jungle') {
+      if (r < .55) { shadow(); g.fillStyle='#6b4a2a'; g.fillRect(x-2,y-2,4,10); g.fillStyle='#1f6a2e'; g.beginPath(); g.arc(x,y-8,13,0,7); g.fill(); g.fillStyle='#2b8a3d'; g.beginPath(); g.arc(x-3,y-11,8,0,7); g.fill(); }
+      else if (r2 < .5) { g.fillStyle = ['#ff8fab','#ffd166','#fff'][i%3]; g.beginPath(); g.arc(x,y,3,0,7); g.fill(); } else rock('#7a7f86');
+    } else if (map.theme === 'desert') {
+      if (r < .4) { shadow(); g.fillStyle='#3f8f4a'; g.beginPath(); g.roundRect(x-3,y-16,6,24,3); g.fill(); g.beginPath(); g.roundRect(x-10,y-8,5,3,1); g.roundRect(x-10,y-12,3,7,1); g.roundRect(x+5,y-6,5,3,1); g.roundRect(x+7,y-10,3,7,1); g.fill(); }
+      else if (r2 < .5) { g.strokeStyle='rgba(150,110,50,.5)'; g.lineWidth=3; g.beginPath(); g.arc(x,y+20,26,Math.PI*1.15,Math.PI*1.85); g.stroke(); } else rock('#b89a66');
+    } else if (map.theme === 'snow') {
+      if (r < .5) { shadow(); g.fillStyle='#5a4028'; g.fillRect(x-2,y,4,8); g.fillStyle='#1d5b45'; g.beginPath(); g.moveTo(x-13,y+2); g.lineTo(x,y-14); g.lineTo(x+13,y+2); g.fill(); g.beginPath(); g.moveTo(x-10,y-6); g.lineTo(x,y-24); g.lineTo(x+10,y-6); g.fill(); g.fillStyle='#fff'; g.beginPath(); g.moveTo(x-4,y-17); g.lineTo(x,y-24); g.lineTo(x+4,y-17); g.fill(); }
+      else if (r2 < .5) { g.fillStyle='#fff'; g.beginPath(); g.arc(x,y,7,0,7); g.arc(x,y-9,5,0,7); g.fill(); g.fillStyle='#f39c3b'; g.fillRect(x,y-10,5,2); } else rock('#b7c7d3');
+    } else {
+      if (r < .35) { g.strokeStyle='#2c2417'; g.lineWidth=3; g.beginPath(); g.moveTo(x,y+8); g.lineTo(x,y-14); g.moveTo(x,y-4); g.lineTo(x-9,y-14); g.moveTo(x,y-8); g.lineTo(x+8,y-18); g.stroke(); }
+      else if (r < .65) { g.fillStyle='#2f5a55'; g.beginPath(); g.ellipse(x,y,20,10,0,0,7); g.fill(); g.fillStyle='#4a8a4a'; g.beginPath(); g.ellipse(x-6,y-1,4,2.5,0,0,7); g.ellipse(x+7,y+2,3.5,2,0,0,7); g.fill(); }
+      else if (r2 < .5) { g.fillStyle='#e8e0c8'; g.fillRect(x-1,y,2,5); g.fillStyle='#d94a4a'; g.beginPath(); g.ellipse(x,y,5,3.5,0,Math.PI,0); g.fill(); } else rock('#6d7466');
+    }
   }
-})();
+  return cvs;
+}
+const MAP_DATA = MAPS.map((m, i) => { const lanes = buildLanes(m); return {lanes, bg:renderMapBg(m, lanes, i)}; });
+let mapIdx = 0, LANES = MAP_DATA[0].lanes, bg = MAP_DATA[0].bg;
+function setMap(i) { mapIdx = i; LANES = MAP_DATA[i].lanes; bg = MAP_DATA[i].bg; }
+function posAt(d, lane = 0) {
+  const L = LANES[lane] || LANES[0]; if (d < 0) d = 0;
+  for (const s of L.segs) {
+    if (d <= s.start + s.len) { const t = (d - s.start) / s.len; return {x:s.x1+(s.x2-s.x1)*t, y:s.y1+(s.y2-s.y1)*t}; }
+  }
+  const s = L.segs[L.segs.length-1]; return {x:s.x2, y:s.y2};
+}
+const distToPath = (x, y) => distLanes(LANES, x, y);
 
 /* ---------- Capybara Zeichnen ---------- */
 function drawCapy(c, x, y, type, ang, sz = 1) {
@@ -398,6 +427,76 @@ const TOWERS = {
       {n:'Weltreich', c:15000, d:'+$2500 pro Runde', m:s=>{s.income+=2500}}]}}
 };
 const ORDER = ['warrior','sniper','mage','ninja','bomber','ice','farmer','hai','boomer','alch','village'];
+const PATHC = {
+  warrior:{name:'Spezial', up:[
+    {n:'Bogenschütze', c:200, d:'+20 Reichweite, +1 Durchschlag', m:s=>{s.range+=20; s.pierce+=1}},
+    {n:'Schnellspanner', c:450, d:'20% schneller, +1 Schaden', m:s=>{s.rate*=.8; s.dmg+=1}},
+    {n:'Kettenpfeil', c:1400, d:'+8 Durchschlag', m:s=>{s.pierce+=8}},
+    {n:'Ballistenmeister', c:4200, d:'+4 Schaden, +30 Reichweite', m:s=>{s.dmg+=4; s.range+=30}},
+    {n:'Legendärer Held', c:16000, d:'+8 Schaden, 2 Pfeile mehr, schneller', m:s=>{s.dmg+=8; s.shots+=2; s.spread=Math.max(s.spread,.3); s.rate*=.6}}]},
+  sniper:{name:'Taktik', up:[
+    {n:'Ruhige Hand', c:300, d:'+2 Schaden', m:s=>{s.dmg+=2}},
+    {n:'Doppelschuss', c:900, d:'Schießt auf 2 Ziele', m:s=>{s.shots=2}},
+    {n:'Dreifachschuss', c:2400, d:'3 Ziele, +2 Schaden', m:s=>{s.shots=3; s.dmg+=2}},
+    {n:'Salve', c:7000, d:'5 Ziele gleichzeitig', m:s=>{s.shots=5}},
+    {n:'Feuerwalze', c:22000, d:'8 Ziele, +10 Schaden', m:s=>{s.shots=8; s.dmg+=10}}]},
+  mage:{name:'Frost', up:[
+    {n:'Frostzauber', c:400, d:'Zauber verlangsamen (1,5s)', m:s=>{s.slowHit=1.5}},
+    {n:'Eislanze', c:800, d:'+5 Durchschlag', m:s=>{s.pierce+=5}},
+    {n:'Zeitzauber', c:2200, d:'Verlangsamung 3s, 20% schneller', m:s=>{s.slowHit=3; s.rate*=.8}},
+    {n:'Kälteblitz', c:6000, d:'+3 Schaden, Verlangsamung 4s', m:s=>{s.dmg+=3; s.slowHit=4}},
+    {n:'Zeitmeister', c:20000, d:'+8 Schaden, +2 Zauber, schneller', m:s=>{s.dmg+=8; s.shots+=2; s.spread=Math.max(s.spread,.3); s.rate*=.7; s.slowHit=6}}]},
+  ninja:{name:'Gift', up:[
+    {n:'Giftshuriken', c:300, d:'Gift: 1 Schaden/Tick, 3s', m:s=>{s.hp=1; s.hpt=3}},
+    {n:'Starkes Gift', c:700, d:'Gift: 2 Schaden, 4s', m:s=>{s.hp=2; s.hpt=4}},
+    {n:'Kettengift', c:1800, d:'+3 Durchschlag, Gift: 3 Schaden, 5s', m:s=>{s.pierce+=3; s.hp=3; s.hpt=5}},
+    {n:'Pestklingen', c:5000, d:'+1 Shuriken, Gift: 6 Schaden, 6s', m:s=>{s.shots+=1; s.spread=Math.max(s.spread,.25); s.hp=6; s.hpt=6}},
+    {n:'Giftregen', c:16000, d:'+3 Shuriken, schneller, Gift: 12, 8s', m:s=>{s.shots+=3; s.spread=Math.max(s.spread,.6); s.rate*=.7; s.hp=12; s.hpt=8}}]},
+  bomber:{name:'Cluster', up:[
+    {n:'Splitter', c:500, d:'3 Mini-Explosionen', m:s=>{s.cluster=3}},
+    {n:'Streuladung', c:1000, d:'5 Mini-Explosionen', m:s=>{s.cluster=5}},
+    {n:'Splitterbombe', c:2500, d:'7 Mini-Explosionen, +1 Schaden', m:s=>{s.cluster=7; s.dmg+=1}},
+    {n:'Feuerwerk', c:6500, d:'10 Mini-Explosionen', m:s=>{s.cluster=10}},
+    {n:'Sprengfeld', c:22000, d:'16 Mini-Explosionen, +4 Schaden, größerer Radius', m:s=>{s.cluster=16; s.dmg+=4; s.splash+=20}}]},
+  ice:{name:'Kryo-Schaden', up:[
+    {n:'Kalte Berührung', c:250, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Frostbiss', c:600, d:'+2 Schaden', m:s=>{s.dmg+=2}},
+    {n:'Eisnadeln', c:1600, d:'+2 Schaden, 30% schneller', m:s=>{s.dmg+=2; s.rate*=.7}},
+    {n:'Eisdorn', c:4500, d:'+5 Schaden, +20 Reichweite', m:s=>{s.dmg+=5; s.range+=20}},
+    {n:'Frostkönig', c:16000, d:'+15 Schaden, schneller, +1s einfrieren', m:s=>{s.dmg+=15; s.rate*=.7; s.freeze+=1}}]},
+  farmer:{name:'Prämien', up:[
+    {n:'Kopfgeld', c:600, d:'+$1 pro geplatztem Ballon', m:s=>{s.popBonus=(s.popBonus||0)+1}},
+    {n:'Bonuskarte', c:1500, d:'+$1 pro Ballon', m:s=>{s.popBonus+=1}},
+    {n:'Goldrausch', c:4000, d:'+$2 pro Ballon', m:s=>{s.popBonus+=2}},
+    {n:'Kriegsgewinnler', c:9000, d:'+$2 pro Ballon', m:s=>{s.popBonus+=2}},
+    {n:'Diamantenmine', c:20000, d:'+$4 pro Ballon', m:s=>{s.popBonus+=4}}]},
+  hai:{name:'Tiefsee', up:[
+    {n:'Fangzähne', c:200, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Flinker Schwimmer', c:450, d:'+15 Reichweite, 15% schneller', m:s=>{s.range+=15; s.rate*=.85}},
+    {n:'Blutgeruch', c:1400, d:'+3 Ziele, +3 Schaden', m:s=>{s.targets+=3; s.dmg+=3}},
+    {n:'Tiefseeräuber', c:4000, d:'+8 Schaden, 30% schneller', m:s=>{s.dmg+=8; s.rate*=.7}},
+    {n:'Kraken-Hai', c:15000, d:'+12 Ziele, +25 Schaden, +30 Reichweite', m:s=>{s.targets+=12; s.dmg+=25; s.range+=30}}]},
+  boomer:{name:'Elemente', up:[
+    {n:'Eisrang', c:350, d:'Verlangsamt Ballons (1,5s)', m:s=>{s.slowHit=1.5}},
+    {n:'Scharfe Kante', c:700, d:'+5 Durchschlag, +1 Schaden', m:s=>{s.pierce+=5; s.dmg+=1}},
+    {n:'Frostglaive', c:1800, d:'Verlangsamung 3s, +20 Reichweite', m:s=>{s.slowHit=3; s.range+=20}},
+    {n:'Sturmklinge', c:5000, d:'+4 Schaden, +8 Durchschlag', m:s=>{s.dmg+=4; s.pierce+=8}},
+    {n:'Zeitschleife', c:17000, d:'+2 Bumerangs, +8 Schaden, schneller, Slow 5s', m:s=>{s.shots+=2; s.spread=Math.max(s.spread,.35); s.dmg+=8; s.rate*=.7; s.slowHit=5}}]},
+  alch:{name:'Explosive Mixturen', up:[
+    {n:'Säureblasen', c:350, d:'Tränke explodieren: 1 Schaden', m:s=>{s.dmg=1}},
+    {n:'Brodelnde Säure', c:800, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Kettenreaktion', c:2000, d:'+2 Schaden, +15 Radius', m:s=>{s.dmg+=2; s.splash+=15}},
+    {n:'Nitroglycerin', c:5500, d:'+6 Schaden, 20% schneller', m:s=>{s.dmg+=6; s.rate*=.8}},
+    {n:'Alchemie-Meister', c:18000, d:'+20 Schaden, +25 Radius, +5 Gift', m:s=>{s.dmg+=20; s.splash+=25; s.pdmg+=5}}]},
+  village:{name:'Militär', up:[
+    {n:'Wachturm', c:400, d:'+15 Reichweite für Türme', m:s=>{s.aRange+=15}},
+    {n:'Kaserne', c:900, d:'+10% Tempo für Türme', m:s=>{s.aRate+=.1}},
+    {n:'Training', c:2400, d:'+1 Schaden für Türme', m:s=>{s.aDmg+=1}},
+    {n:'Festung', c:6500, d:'+15% Tempo, +25 Reichweite, +1 Schaden', m:s=>{s.aRate+=.15; s.aRange+=25; s.aDmg+=1}},
+    {n:'Capy-Armee', c:22000, d:'+30% Tempo, +30 Reichweite, +2 Schaden, +30 Umkreis', m:s=>{s.aRate+=.3; s.aRange+=30; s.aDmg+=2; s.aDist+=30}}]}
+};
+for (const k in PATHC) TOWERS[k].C = PATHC[k];
+
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
 
 /* ---------- Ballons ---------- */
@@ -414,8 +513,8 @@ const DIFF = [
 ];
 let diffIdx = 1, nextId = 1;
 
-function newGame(d) {
-  diffIdx = d;
+function newGame(d, mi) {
+  diffIdx = d; setMap(mi == null ? mapIdx : mi);
   S = { money:DIFF[d].money, lives:DIFF[d].lives, round:0, towers:[], enemies:[], projs:[], parts:[], fx:[],
         queue:[], qi:0, qt:0, active:false, speed:1, auto:false, paused:false, sel:null, place:null,
         over:false, won:false, mx:-99, my:-99 };
@@ -438,13 +537,14 @@ function makeWave(r) {
   });
   if (r % 10 === 0) ev.push({t:2, tier:BOSS_TIER, hp:Math.round(250 * Math.pow(r/10, 1.9) * (mult>1?1.3:mult<1?.8:1))});
   ev.sort((a,b) => a.t - b.t);
+  ev.forEach((q, i) => { q.lane = q.tier === BOSS_TIER ? 0 : i % LANES.length; });
   return ev;
 }
 
-function spawn(tier, d, hp) {
-  const e = {id:nextId++, d:d||0, tier, slow:0, freeze:0, dead:false, x:0, y:0};
+function spawn(tier, d, hp, lane) {
+  const e = {id:nextId++, d:d||0, lane:lane||0, tier, slow:0, freeze:0, dead:false, x:0, y:0};
   if (tier === BOSS_TIER) { e.hp = e.maxhp = hp || 300; }
-  const p = posAt(e.d); e.x = p.x; e.y = p.y;
+  const p = posAt(e.d, e.lane); e.x = p.x; e.y = p.y;
   S.enemies.push(e); return e;
 }
 const eRad = e => e.tier === BOSS_TIER ? 32 : 10 + e.tier * .9;
@@ -461,7 +561,7 @@ function hit(e, dmg) {
     e.hp -= dmg; S.money += Math.max(1, Math.round(dmg*.25));
     if (e.hp <= 0) {
       e.dead = true; pop(e,'#89a'); S.money += 100;
-      for (let i = 0; i < 4; i++) spawn(6, e.d - i*14);
+      for (let i = 0; i < 4; i++) spawn(6, e.d - i*14, 0, e.lane);
       flash('Boss besiegt! +$100');
     }
     return 1;
@@ -469,15 +569,20 @@ function hit(e, dmg) {
   let pops = 0;
   while (dmg > 0 && !e.dead) {
     if (e.tier >= 6) { // Schwarz / Weiß platzen in zwei Rosa
-      e.dead = true; pop(e, BCOL[e.tier]); pops++; S.money += 2;
-      spawn(5, e.d); spawn(5, e.d - 10); break;
+      e.dead = true; pop(e, BCOL[e.tier]); pops++; S.money += 2 + (S.popBonus||0);
+      spawn(5, e.d, 0, e.lane); spawn(5, e.d - 10, 0, e.lane); break;
     }
-    pop(e, BCOL[e.tier]); e.tier--; pops++; dmg--; S.money++;
+    pop(e, BCOL[e.tier]); e.tier--; pops++; dmg--; S.money += 1 + (S.popBonus||0);
     if (e.tier <= 0) e.dead = true;
   }
   return pops;
 }
 
+function onHitFx(p, e) {
+  if (e.dead) return;
+  if (p.slow && e.tier !== 7) e.slow = Math.max(e.slow, p.slow);
+  if (p.hp) { e.poison = Math.max(e.poison || 0, p.hpt); e.pdmg = Math.max(e.pdmg || 0, p.hp); e.ptick = e.ptick || .5; }
+}
 function poisonSplash(p) {
   S.fx.push({type:'gas', x:p.tx, y:p.ty, r:p.splash, life:.6, max:.6});
   for (const e of S.enemies) {
@@ -496,7 +601,7 @@ function explode(x, y, r, dmg, skip) {
 /* ---------- Tower-Logik ---------- */
 function computeStats(t) {
   const def = TOWERS[t.type]; const s = Object.assign({}, def.base);
-  ['A','B'].forEach((p, i) => { for (let k = 0; k < t.up[i]; k++) def[p].up[k].m(s); });
+  ['A','B','C'].forEach((p, i) => { for (let k = 0; k < t.up[i]; k++) def[p].up[k].m(s); });
   t.s = s;
 }
 function canPlace(x, y) {
@@ -509,15 +614,22 @@ function placeTower(type, x, y) {
   const def = TOWERS[type];
   if (S.money < def.cost || !canPlace(x, y)) return false;
   S.money -= def.cost;
-  const t = {type, x, y, up:[0,0], bf:{rate:1,range:0,dmg:0}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
+  const t = {type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
   computeStats(t); S.towers.push(t); S.sel = t; S.place = null;
   refreshAll(true); return true;
 }
+const PKEY = ['A','B','C'];
+function blockReason(t, i) {
+  const tier = t.up[i]; if (tier >= 5) return 'max';
+  const others = [0,1,2].filter(j => j !== i);
+  if (tier === 0 && others.every(j => t.up[j] > 0)) return 'Nur 2 Pfade erlaubt';
+  if (tier >= 2 && others.some(j => t.up[j] > 2)) return 'Anderer Pfad zu weit ausgebaut';
+  return '';
+}
 function upgradeTower(t, path) {
-  const def = TOWERS[t.type], key = path ? 'B' : 'A', tier = t.up[path];
-  if (tier >= 5) return;
-  const u = def[key].up[tier];
-  if (tier >= 2 && t.up[1-path] > 2) return;
+  const def = TOWERS[t.type], tier = t.up[path];
+  if (blockReason(t, path)) return;
+  const u = def[PKEY[path]].up[tier];
   if (S.money < u.c) return;
   S.money -= u.c; t.spent += u.c; t.up[path]++; computeStats(t); refreshAll(true);
 }
@@ -548,7 +660,7 @@ function lead(t, e, speed) {
   let p = {x:e.x, y:e.y};
   for (let i = 0; i < 2; i++) {
     const time = dist / speed;
-    p = posAt(e.d + BSPD[Math.min(e.tier,7)] * (e.tier === BOSS_TIER ? .55 : 1) * time * (e.slow>0?.5:1));
+    p = posAt(e.d + BSPD[Math.min(e.tier,7)] * (e.tier === BOSS_TIER ? .55 : 1) * time * (e.slow>0?.5:1), e.lane);
     dist = Math.hypot(p.x - t.x, p.y - t.y);
   }
   return p;
@@ -561,7 +673,7 @@ function fire(t, e) {
       for (let i = 0; i < s.shots; i++) {
         const a = base + (s.shots > 1 ? (i/(s.shots-1) - .5) * s.spread * 2 : 0);
         S.projs.push({x:t.x+Math.cos(a)*14, y:t.y-2+Math.sin(a)*14, vx:Math.cos(a)*s.speed, vy:Math.sin(a)*s.speed,
-          dmg:s.dmg, pierce:s.pierce, splash:s.splash||0, life:(s.range*1.5)/s.speed, hit:new Set(), col:s.col, magic:s.kind==='magic', a});
+          dmg:s.dmg, pierce:s.pierce, splash:s.splash||0, life:(s.range*1.5)/s.speed, hit:new Set(), col:s.col, magic:s.kind==='magic', a, slow:s.slowHit||0, hp:s.hp||0, hpt:s.hpt||0});
       }
       break; }
     case 'boomer': {
@@ -569,7 +681,7 @@ function fire(t, e) {
       for (let i = 0; i < s.shots; i++) {
         const a = base + (s.shots > 1 ? (i/(s.shots-1) - .5) * s.spread * 2 : 0);
         S.projs.push({boom:true, phase:0, x:t.x, y:t.y-2, ox:t.x, oy:t.y-2, vx:Math.cos(a)*s.speed, vy:Math.sin(a)*s.speed, speed:s.speed,
-          maxd:s.range*1.05, trav:0, dmg:s.dmg, pierce:s.pierce, pierce0:s.pierce, splash:0, hit:new Set(), col:s.col, a:0, life:99});
+          maxd:s.range*1.05, trav:0, dmg:s.dmg, pierce:s.pierce, pierce0:s.pierce, splash:0, hit:new Set(), col:s.col, a:0, life:99, slow:s.slowHit||0, hp:0, hpt:0});
       }
       break; }
     case 'bite': {
@@ -579,15 +691,17 @@ function fire(t, e) {
       break; }
     case 'potion': {
       const p = lead(t, e, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x);
-      S.projs.push({bomb:true, potion:true, x:t.x, y:t.y-4, tx:p.x, ty:p.y, speed:s.speed, splash:s.splash, pdmg:s.pdmg, ptime:s.ptime, life:5});
+      S.projs.push({bomb:true, potion:true, x:t.x, y:t.y-4, tx:p.x, ty:p.y, speed:s.speed, splash:s.splash, dmg:s.dmg, pdmg:s.pdmg, ptime:s.ptime, life:5});
       break; }
     case 'snipe':
       t.ang = Math.atan2(e.y - t.y, e.x - t.x);
-      S.fx.push({type:'line', x1:t.x, y1:t.y, x2:e.x, y2:e.y, life:.12, max:.12});
-      hit(e, s.dmg); break;
+      { const list = [e]; const n = s.shots || 1;
+        if (n > 1) list.push(...S.enemies.filter(x => !x.dead && x !== e).sort((a, b) => b.d - a.d).slice(0, n - 1));
+        for (const en of list) { S.fx.push({type:'line', x1:t.x, y1:t.y, x2:en.x, y2:en.y, life:.12, max:.12}); hit(en, s.dmg); } }
+      break;
     case 'bomb': {
       const p = lead(t, e, s.speed); t.ang = Math.atan2(p.y - t.y, p.x - t.x);
-      S.projs.push({bomb:true, x:t.x, y:t.y-4, tx:p.x, ty:p.y, speed:s.speed, dmg:s.dmg, splash:s.splash, life:5});
+      S.projs.push({bomb:true, x:t.x, y:t.y-4, tx:p.x, ty:p.y, speed:s.speed, dmg:s.dmg, splash:s.splash, cluster:s.cluster||0, life:5});
       break; }
     case 'pulse': {
       S.fx.push({type:'ring', x:t.x, y:t.y, r:s.range, life:.4, max:.4});
@@ -609,7 +723,7 @@ function update(dt) {
   if (S.active) {
     S.qt += dt;
     while (S.qi < S.queue.length && S.queue[S.qi].t <= S.qt) {
-      const q = S.queue[S.qi++]; spawn(q.tier, 0, q.hp);
+      const q = S.queue[S.qi++]; spawn(q.tier, 0, q.hp, q.lane);
     }
   }
   // Ballons
@@ -624,16 +738,17 @@ function update(dt) {
     if (e.freeze > 0) { e.freeze -= dt; sp = 0; }
     else if (e.slow > 0) { e.slow -= dt; sp *= .5; }
     e.d += sp * dt;
-    if (e.d >= TOTAL) {
+    if (e.d >= LANES[e.lane].total) {
       e.dead = true; S.lives -= eVal(e);
       S.fx.push({type:'leak', life:.3, max:.3});
       if (S.lives <= 0) { S.lives = 0; endGame(false); }
       continue;
     }
-    const p = posAt(e.d); e.x = p.x; e.y = p.y;
+    const p = posAt(e.d, e.lane); e.x = p.x; e.y = p.y;
   }
   // Tower
-  for (const t of S.towers) t.bf = {rate:1, range:0, dmg:0};
+  S.popBonus = 0;
+  for (const t of S.towers) { t.bf = {rate:1, range:0, dmg:0}; S.popBonus += t.s.popBonus || 0; }
   for (const a of S.towers) if (a.s.aDist > 0) for (const t of S.towers) {
     if (t === a || Math.hypot(t.x-a.x, t.y-a.y) > a.s.aDist) continue;
     t.bf.rate = Math.max(t.bf.rate, a.s.aRate); t.bf.range = Math.max(t.bf.range, a.s.aRange); t.bf.dmg = Math.max(t.bf.dmg, a.s.aDmg);
@@ -651,7 +766,12 @@ function update(dt) {
   for (const p of S.projs) {
     if (p.bomb) {
       const dx = p.tx - p.x, dy = p.ty - p.y, dist = Math.hypot(dx, dy), step = p.speed * dt;
-      if (dist <= step) { if (p.potion) poisonSplash(p); else explode(p.tx, p.ty, p.splash, p.dmg); p.dead = true; }
+      if (dist <= step) { if (p.potion) { poisonSplash(p); if (p.dmg > 0) explode(p.tx, p.ty, p.splash, p.dmg); }
+        else {
+          explode(p.tx, p.ty, p.splash, p.dmg);
+          for (let i = 0; i < p.cluster; i++) { const a = i / p.cluster * 6.283 + .4, rr = p.splash * (.6 + .4 * (i % 2)); explode(p.tx + Math.cos(a) * rr, p.ty + Math.sin(a) * rr, p.splash * .55, Math.max(1, Math.ceil(p.dmg / 2))); }
+        }
+        p.dead = true; }
       else { p.x += dx/dist*step; p.y += dy/dist*step; }
       continue;
     }
@@ -670,7 +790,7 @@ function update(dt) {
         }
         for (const e of S.enemies) {
           if (e.dead || p.hit.has(e.id) || p.pierce <= 0) continue;
-          if (Math.hypot(e.x - p.x, e.y - p.y) < eRad(e) + 6) { p.hit.add(e.id); hit(e, p.dmg); p.pierce--; }
+          if (Math.hypot(e.x - p.x, e.y - p.y) < eRad(e) + 6) { p.hit.add(e.id); hit(e, p.dmg); onHitFx(p, e); p.pierce--; }
         }
         if (p.pierce <= 0 && p.phase === 0) { p.phase = 1; p.hit.clear(); p.pierce = p.pierce0; }
       }
@@ -682,7 +802,7 @@ function update(dt) {
       for (const e of S.enemies) {
         if (e.dead || p.hit.has(e.id)) continue;
         if (Math.hypot(e.x - p.x, e.y - p.y) < eRad(e) + 4) {
-          p.hit.add(e.id); hit(e, p.dmg);
+          p.hit.add(e.id); hit(e, p.dmg); onHitFx(p, e);
           if (p.splash) explode(p.x, p.y, p.splash, Math.max(1, Math.ceil(p.dmg/2)), e);
           if (--p.pierce <= 0) { p.dead = true; break; }
         }
@@ -769,9 +889,9 @@ function render(time) {
     drawCapy(ctx, t.x, t.y, t.type, t.ang);
     drawWeapon(ctx, t);
     // Upgrade-Punkte
-    for (let p = 0; p < 2; p++) for (let k = 0; k < 5; k++) {
-      ctx.fillStyle = k < t.up[p] ? (p ? '#6cf' : '#fc5') : 'rgba(0,0,0,.35)';
-      ctx.beginPath(); ctx.arc(t.x - 10 + k*5, t.y + 22 + p*5, 1.9, 0, 7); ctx.fill();
+    for (let p = 0; p < 3; p++) for (let k = 0; k < 5; k++) {
+      ctx.fillStyle = k < t.up[p] ? ['#fc5','#6cf','#f8a'][p] : 'rgba(0,0,0,.35)';
+      ctx.beginPath(); ctx.arc(t.x - 10 + k*5, t.y + 21 + p*4.5, 1.7, 0, 7); ctx.fill();
     }
   }
   // Ballons (hinterste zuerst)
@@ -811,16 +931,35 @@ function render(time) {
 
 /* ---------- UI ---------- */
 const $ = id => document.getElementById(id);
-const shopEl = $('shop'), infoEl = $('info');
+const barEl = $('bar'), infoEl = $('info');
 const shopBtns = {};
+let drag = null;
 ORDER.forEach((k, i) => {
-  const b = document.createElement('div'); b.className = 'shopbtn';
-  const c = document.createElement('canvas'); c.width = c.height = 104;
-  const g = c.getContext('2d'); g.scale(2,2); drawCapy(g, 26, 30, k, 0, k === 'village' ? .8 : 1.3);
+  const b = document.createElement('div'); b.className = 'shopbtn'; b.title = TOWERS[k].desc;
+  const c = document.createElement('canvas'); c.width = c.height = 88;
+  const g = c.getContext('2d'); g.scale(2,2); drawCapy(g, 22, 26, k, 0, k === 'village' ? .65 : 1.1);
   b.appendChild(c);
-  b.insertAdjacentHTML('beforeend', `<div class="n">${i+1}. ${TOWERS[k].name}</div><div class="p">$${TOWERS[k].cost}</div>`);
-  b.onclick = () => { S.place = S.place === k ? null : k; S.sel = null; refreshAll(true); };
-  shopEl.appendChild(b); shopBtns[k] = b;
+  b.insertAdjacentHTML('beforeend', `<div class="n">${'1234567890-'[i]}. ${TOWERS[k].name.replace('-Capybara','')}</div><div class="p">$${TOWERS[k].cost}</div>`);
+  b.addEventListener('pointerdown', ev => {
+    if (S.over) return; ev.preventDefault();
+    drag = {k, wasSel:S.place === k, moved:false, sx:ev.clientX, sy:ev.clientY};
+    S.place = k; S.sel = null; refreshAll(true);
+  });
+  barEl.appendChild(b); shopBtns[k] = b;
+});
+window.addEventListener('pointermove', ev => {
+  if (!drag) return;
+  if (Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy) > 8) drag.moved = true;
+  if (drag.moved) { const p = toGame(ev); S.mx = p.x; S.my = p.y; }
+});
+window.addEventListener('pointerup', ev => {
+  if (!drag) return; const d = drag; drag = null;
+  if (d.moved) {
+    const r = cv.getBoundingClientRect();
+    if (ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom) { const p = toGame(ev); tryPlace(p.x, p.y); }
+    else { S.place = null; S.mx = S.my = -99; }
+  } else if (d.wasSel) S.place = null;
+  refreshAll(true);
 });
 
 let lastSig = '';
@@ -835,19 +974,19 @@ function refreshAll(force) {
   $('bSpeed').textContent = `Tempo ×${S.speed}`;
   $('bAuto').textContent = `Auto: ${S.auto?'An':'Aus'}`; $('bAuto').classList.toggle('on', S.auto);
   $('bPause').classList.toggle('on', S.paused);
-  // Info-Panel
   const t = S.sel;
-  const sig = t ? [S.towers.indexOf(t), t.up, t.mode, S.money >= 0 ? TOWERS[t.type][ 'A'].up.map((u,i)=>S.money>=u.c).join() + TOWERS[t.type]['B'].up.map(u=>S.money>=u.c).join() : ''].join('|') : (S.place ? 'p'+S.place : 'none');
+  const sig = t ? [S.towers.indexOf(t), t.up, t.mode, PKEY.map(k => TOWERS[t.type][k].up.map(u => S.money >= u.c ? 1 : 0).join('')).join('.')].join('|') : (S.place ? 'p'+S.place : 'none');
   if (!force && sig === lastSig) return;
   lastSig = sig;
   if (t) {
     const def = TOWERS[t.type];
-    let h = `<h3>${def.name} <span style="opacity:.6;font-weight:400">(${t.up[0]}/${t.up[1]})</span></h3><div class="desc">${def.desc}</div>`;
-    [['A',0],['B',1]].forEach(([key, i]) => {
+    let h = `<h3>${def.name} <span style="opacity:.6;font-weight:400">(${t.up.join('-')})</span></h3><div class="desc">${def.desc}</div>`;
+    PKEY.forEach((key, i) => {
       const tier = t.up[i], path = def[key];
-      if (tier >= 5) { h += `<button class="upg" disabled><b>${path.name}: ${path.up[4].n}</b>Maximal ausgebaut</button>`; return; }
-      const u = path.up[tier], blocked = tier >= 2 && t.up[1-i] > 2;
-      h += `<button class="upg" data-p="${i}" ${(S.money < u.c || blocked) ? 'disabled' : ''}><span class="c">$${u.c}</span><b>${path.name} ${tier+1}: ${u.n}</b>${blocked ? 'Anderer Pfad zu weit ausgebaut' : u.d}</button>`;
+      const why = blockReason(t, i);
+      if (why === 'max') { h += `<button class="upg" disabled><b>${path.name}: ${path.up[4].n}</b>Maximal ausgebaut</button>`; return; }
+      const u = path.up[tier];
+      h += `<button class="upg" data-p="${i}" ${(S.money < u.c || why) ? 'disabled' : ''}><span class="c">$${u.c}</span><b>${path.name} ${tier+1}: ${u.n}</b>${why || u.d}</button>`;
     });
     h += `<div class="row" style="margin-top:6px">`;
     if (t.s.kind !== 'bank' && t.s.kind !== 'village') h += `<button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button>`;
@@ -858,10 +997,10 @@ function refreshAll(force) {
     $('bSell').onclick = () => sellTower(t);
   } else if (S.place) {
     const def = TOWERS[S.place];
-    infoEl.innerHTML = `<h3>${def.name}</h3><div class="desc">${def.desc}</div>Klicke auf die Karte, um zu platzieren. (Esc = abbrechen)`;
+    infoEl.innerHTML = `<h3>${def.name}</h3><div class="desc">${def.desc}</div>Klicke auf die Karte oder ziehe das Capybara aus der Leiste dorthin. (Esc = abbrechen)`;
   } else {
-    infoEl.innerHTML = `<h3>Bereit?</h3><div class="desc">Wähle links ein Capybara und platziere es neben dem Weg. Klicke platzierte Capybaras an, um sie zu verbessern.</div>
-      <div style="font-size:12px;opacity:.75">Achtung: <b>Schwarze</b> Ballons sind explosionsimmun, <b>weiße</b> immun gegen Eis. Alle 10 Runden kommt ein Boss.</div>`;
+    infoEl.innerHTML = `<h3>Bereit?</h3><div class="desc">Wähle unten in der Leiste ein Capybara (anklicken oder auf die Karte ziehen) und platziere es neben dem Weg. Klicke platzierte Capybaras an, um sie zu verbessern.</div>
+      <div style="font-size:12px;opacity:.75">Pro Capybara gibt es 3 Pfade – aber nur 2 davon nutzbar, einer bis Stufe 5, der andere bis Stufe 2. <b>Schwarze</b> Ballons sind explosionsimmun, <b>weiße</b> immun gegen Eis. Alle 10 Runden kommt ein Boss.</div>`;
   }
 }
 
@@ -873,18 +1012,18 @@ function toGame(ev) {
   const r = cv.getBoundingClientRect();
   return { x:(ev.clientX - r.left) * W / r.width, y:(ev.clientY - r.top) * H / r.height };
 }
+function tryPlace(x, y, keep) {
+  const type = S.place; if (!type) return;
+  if (S.money < TOWERS[type].cost) { flash('Nicht genug Geld!'); return; }
+  if (!canPlace(x, y)) { flash('Hier kann man nicht bauen'); return; }
+  placeTower(type, x, y);
+  if (keep && S.money >= TOWERS[type].cost) { S.place = type; S.sel = null; refreshAll(true); }
+}
 cv.addEventListener('pointermove', ev => { const p = toGame(ev); S.mx = p.x; S.my = p.y; });
 cv.addEventListener('pointerdown', ev => {
   if (S.over) return;
   const p = toGame(ev); S.mx = p.x; S.my = p.y;
-  if (S.place) {
-    if (S.money < TOWERS[S.place].cost) { flash('Nicht genug Geld!'); return; }
-    if (!canPlace(p.x, p.y)) { flash('Hier kann man nicht bauen'); return; }
-    const type = S.place;
-    placeTower(type, p.x, p.y);
-    if (ev.shiftKey && S.money >= TOWERS[type].cost) { S.place = type; S.sel = null; refreshAll(true); }
-    return;
-  }
+  if (S.place) { tryPlace(p.x, p.y, ev.shiftKey); return; }
   let found = null, bd = 26;
   for (const t of S.towers) { const d = Math.hypot(t.x-p.x, t.y-p.y); if (d < bd) { bd = d; found = t; } }
   S.sel = found; refreshAll(true);
@@ -901,7 +1040,15 @@ $('bGo').onclick = startRound;
 $('bSpeed').onclick = () => { S.speed = S.speed % 3 + 1; refreshAll(true); };
 $('bAuto').onclick = () => { S.auto = !S.auto; if (S.auto) startRound(); refreshAll(true); };
 $('bPause').onclick = () => { S.paused = !S.paused; refreshAll(true); };
-$('diffBtns').querySelectorAll('button').forEach(b => b.onclick = () => newGame(+b.dataset.d));
+let pickMap = 0;
+MAPS.forEach((m, i) => {
+  const d = document.createElement('div'); d.className = 'mapcard' + (i === 0 ? ' sel' : '');
+  const c = document.createElement('canvas'); c.width = 240; c.height = 150; c.getContext('2d').drawImage(MAP_DATA[i].bg, 0, 0, 240, 150);
+  d.appendChild(c); d.insertAdjacentHTML('beforeend', `<b>${m.name}</b><small>${m.desc}</small>`);
+  d.onclick = () => { pickMap = i; document.querySelectorAll('.mapcard').forEach((x, j) => x.classList.toggle('sel', j === i)); };
+  $('mapBtns').appendChild(d);
+});
+$('diffBtns').querySelectorAll('button').forEach(b => b.onclick = () => newGame(+b.dataset.d, pickMap));
 
 /* ---------- Hauptschleife ---------- */
 S = { money:0, lives:0, round:0, towers:[], enemies:[], projs:[], parts:[], fx:[], queue:[], qi:0, qt:0, active:false, speed:1, auto:false, paused:false, sel:null, place:null, over:true, mx:-99, my:-99 };
@@ -917,7 +1064,7 @@ function loop(now) {
 requestAnimationFrame(loop);
 
 // Zum Testen erreichbar
-window.__td = { get S() { return S; }, newGame, placeTower, startRound, upgradeTower };
+window.__td = { get S() { return S; }, MAPS, newGame, placeTower, startRound, upgradeTower };
 })();
 </script>
 </body>
