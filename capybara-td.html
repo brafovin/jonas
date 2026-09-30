@@ -664,6 +664,21 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
     case 'juggle':
       c.fillStyle='#e53935'; c.beginPath(); c.moveTo(3,-12); c.lineTo(-3,-24); c.lineTo(8,-15); c.closePath(); c.fill(); c.fillStyle='#1e88e5'; c.beginPath(); c.moveTo(21,-12); c.lineTo(27,-24); c.lineTo(16,-15); c.closePath(); c.fill(); c.fillStyle='#fdd835'; c.beginPath(); c.moveTo(3,-12); c.lineTo(12,-25); c.lineTo(21,-12); c.closePath(); c.fill(); c.fillRect(2,-13,20,3);
       c.fillStyle='#fff'; c.beginPath(); c.arc(-3,-24,1.8,0,7); c.arc(27,-24,1.8,0,7); c.arc(12,-25,1.8,0,7); c.fill(); break;
+    case 'falcon':
+      c.fillStyle='#4a7c3a'; c.strokeStyle='#1c3a14'; c.lineWidth=1; c.beginPath(); c.ellipse(hx+2,hy+3,12,3,0,0,7); c.fill(); c.stroke(); c.beginPath(); c.ellipse(hx+2,hy,7,5.5,0,Math.PI,0); c.fill(); c.stroke();
+      c.strokeStyle='#e53935'; c.lineWidth=2; c.beginPath(); c.moveTo(hx+7,hy-2); c.quadraticCurveTo(hx+16,hy-10,hx+8,hy-16); c.stroke(); break;
+    case 'rocket':
+      c.fillStyle='#e53935'; c.strokeStyle='#1a1420'; c.lineWidth=1.2; c.beginPath(); c.moveTo(3,-12); c.lineTo(hx+3,-30); c.lineTo(22,-12); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle='#ffd23f'; for (let i=0;i<3;i++){ c.beginPath(); c.arc(8+i*4,-17-i*2.2+(i===1?-3:0),1.5,0,7); c.fill(); } c.fillStyle='#5fd0ff'; c.beginPath(); c.arc(hx+3,-31,2,0,7); c.fill(); break;
+    case 'portal':
+      c.fillStyle='#4527a0'; c.beginPath(); c.ellipse(hx+1,hy+2,10,6.5,0,Math.PI,0); c.fill(); c.fillRect(1,-12.5,21,2.5);
+      c.strokeStyle='#b06bff'; c.lineWidth=1.6; c.beginPath(); c.arc(hx+1,hy-4,3.4,TIME*3,TIME*3+4.5); c.stroke(); c.fillStyle='#5fb8ff'; c.beginPath(); c.arc(hx+1,hy-4,1.2,0,7); c.fill(); break;
+    case 'sonic':
+      c.fillStyle='#37474f'; c.strokeStyle='#1a1420'; c.lineWidth=1.2; c.beginPath(); c.arc(3,-8,4.6,0,7); c.fill(); c.stroke(); c.beginPath(); c.arc(21,-8,4.6,0,7); c.fill(); c.stroke();
+      c.strokeStyle='#37474f'; c.lineWidth=2.2; c.beginPath(); c.arc(12,-9,9.6,Math.PI,0); c.stroke(); c.fillStyle='#111'; c.beginPath(); c.roundRect(9,-12,9,4,1.5); c.fill(); c.fillStyle='#ff4fd8'; c.fillRect(10,-11,7,1.4); break;
+    case 'hook':
+      c.fillStyle='#fdd835'; c.strokeStyle='#8a6d00'; c.lineWidth=1.2; c.beginPath(); c.ellipse(hx+1,hy+3,12,4.2,0,0,7); c.fill(); c.stroke(); c.beginPath(); c.ellipse(hx+1,hy,7,5.5,0,Math.PI,0); c.fill(); c.stroke();
+      c.fillStyle='#fdd835'; c.beginPath(); c.moveTo(-3,-6); c.lineTo(-6,4); c.lineTo(2,-2); c.closePath(); c.fill(); c.stroke(); break;
     case 'farmer':
       c.fillStyle = '#e6c25a'; c.beginPath(); c.ellipse(hx+1,hy+2,14,3.6,0,0,7); c.fill();
       c.beginPath(); c.ellipse(hx+1,hy-1,7,5,0,Math.PI,0); c.fill(); c.fillStyle='#b8452e'; c.fillRect(hx-6,hy-2,14,1.6);
@@ -686,6 +701,12 @@ function drawWeapon(c, t) {
       const gl=c.createRadialGradient(24,0,0,24,0,7); gl.addColorStop(0,'#fff'); gl.addColorStop(.5,'#4fc3f7'); gl.addColorStop(1,'rgba(79,195,247,0)'); c.fillStyle=gl; c.beginPath(); c.arc(24,0,6+Math.sin(TIME*20),0,7); c.fill(); break; }
     case 'shaman': c.strokeStyle='#6d4c41'; c.lineWidth=3; c.beginPath(); c.moveTo(6,0); c.lineTo(26,0); c.stroke(); c.fillStyle='#69f0ae'; c.beginPath(); c.arc(28,0,4.5,0,7); c.fill(); c.fillStyle='#fff'; c.beginPath(); c.arc(27,-1,1.5,0,7); c.fill(); break;
     case 'hydro': c.fillStyle='#1e88e5'; c.fillRect(8,-3,20,6); c.fillStyle='#cfd8dc'; c.fillRect(26,-4,4,8); break;
+    case 'falcon': c.fillStyle='#8d5a2b'; c.strokeStyle='#3a2010'; c.lineWidth=1.4; c.beginPath(); c.roundRect(6,-3,14,6,3); c.fill(); c.stroke();
+      c.fillStyle='#b5773a'; c.beginPath(); c.ellipse(24,-6,5,3.4,-.4,0,7); c.fill(); c.stroke(); c.fillStyle='#f5f0e0'; c.beginPath(); c.arc(28,-9,2.6,0,7); c.fill(); c.stroke(); c.fillStyle='#ffb300'; c.beginPath(); c.moveTo(30,-9.6); c.lineTo(33,-8.6); c.lineTo(30,-7.6); c.closePath(); c.fill(); break;
+    case 'rocket': c.fillStyle='#fff'; c.strokeStyle='#1a1420'; c.lineWidth=1.2; c.beginPath(); c.roundRect(6,-4,20,8,3); c.fill(); c.stroke(); c.fillStyle='#e53935'; for (let i=0;i<3;i++) c.fillRect(9+i*6,-4,3,8); c.fillStyle='#ffb300'; c.beginPath(); c.arc(27,0,2.6+Math.sin(TIME*20),0,7); c.fill(); break;
+    case 'portal': c.strokeStyle='#8d6e63'; c.lineWidth=2.5; c.beginPath(); c.moveTo(6,0); c.lineTo(22,0); c.stroke(); c.strokeStyle='#b06bff'; c.lineWidth=2.2; c.beginPath(); c.ellipse(26,0,4,7,0,0,7); c.stroke(); c.fillStyle='rgba(95,184,255,.6)'; c.beginPath(); c.ellipse(26,0,2.4,5,0,0,7); c.fill(); break;
+    case 'sonic': c.fillStyle='#455a64'; c.strokeStyle='#1a1420'; c.lineWidth=1.4; c.beginPath(); c.moveTo(6,-2); c.lineTo(16,-8); c.lineTo(16,8); c.lineTo(6,2); c.closePath(); c.fill(); c.stroke(); c.strokeStyle='#ff4fd8'; c.lineWidth=1.6; for (let i=0;i<3;i++){ c.beginPath(); c.arc(18,0,4+i*3+(TIME*10%3),-.7,.7); c.stroke(); } break;
+    case 'hook': c.strokeStyle='#8d6e63'; c.lineWidth=3; c.beginPath(); c.moveTo(4,3); c.lineTo(24,-3); c.stroke(); c.fillStyle='#cfd8dc'; c.strokeStyle='#1a1420'; c.lineWidth=1.3; c.beginPath(); c.moveTo(30,-4); c.lineTo(23,-8); c.lineTo(24,-3); c.lineTo(23,2); c.closePath(); c.fill(); c.stroke(); break;
     case 'pirate': c.fillStyle='#37474f'; c.fillRect(8,-3,17,6); c.fillStyle='#263238'; c.beginPath(); c.arc(26,0,4,0,7); c.fill(); c.fillStyle='#795548'; c.fillRect(6,-4,5,8); break;
     case 'spirit': c.strokeStyle='#8d6e63'; c.lineWidth=2.5; c.beginPath(); c.moveTo(6,0); c.lineTo(22,0); c.stroke(); c.fillStyle='rgba(140,255,230,.95)'; c.beginPath(); c.arc(25,0,4.5,0,7); c.fill(); break;
     case 'cloud': c.fillStyle='#78909c'; c.fillRect(8,-3,14,6); c.fillStyle='rgba(150,255,120,.8)'; c.beginPath(); c.arc(25,0,5+Math.sin(TIME*6),0,7); c.fill(); break;
@@ -1501,11 +1522,113 @@ TOWERS.juggle = { name:'Jongleur-Capy', cost:550, desc:'Wirft Bälle, die von Ba
     {n:'Glücksbälle', c:16000, d:'+$2 pro Ballon, Gift 8', m:s=>{s.popBonus=(s.popBonus||0)+2; s.hp=8}}]}};
 ORDER.push('pirate','spirit','cloud','strike','juggle');
 
+TOWERS.falcon = { name:'Falken-Capy', cost:750, desc:'Schickt Falken, die sich auf Ballons stürzen und von Ziel zu Ziel jagen. Krallen sind spitz (Blei-Upgrade vorhanden).',
+  base:{range:150, rate:2.2, dmg:3, pierce:3, falcons:1, fSpeed:380, kind:'falcon'},
+  A:{name:'Krallen', up:[
+    {n:'Scharfe Krallen', c:250, d:'+2 Schaden', m:s=>{s.dmg+=2}},
+    {n:'Stahlkrallen', c:600, d:'+3 Schaden, durchdringt Blei', m:s=>{s.dmg+=3; s.pierceLead=true}},
+    {n:'Zweiter Falke', c:1600, d:'+1 Falke', m:s=>{s.falcons+=1}},
+    {n:'Adlerschwarm', c:5000, d:'+2 Falken, +6 Schaden', m:s=>{s.falcons+=2; s.dmg+=6}},
+    {n:'Phönixfalke', c:18000, d:'+3 Falken, +20 Schaden, +5 Ziele', m:s=>{s.falcons+=3; s.dmg+=20; s.pierce+=5}}]},
+  B:{name:'Flug', up:[
+    {n:'Schneller Flug', c:250, d:'Falken schneller, 15% schnellere Salven', m:s=>{s.fSpeed*=1.3; s.rate*=.85}},
+    {n:'Weitsicht', c:450, d:'+30 Reichweite', m:s=>{s.range+=30}},
+    {n:'Turbo', c:1500, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Sturzflug', c:4200, d:'Falken viel schneller, schneller', m:s=>{s.fSpeed*=1.4; s.rate*=.65}},
+    {n:'Überschall', c:14000, d:'Doppelt so schnell, +40 Reichweite', m:s=>{s.rate*=.5; s.range+=40}}]},
+  C:{name:'Jagd', up:[
+    {n:'Adlerauge', c:300, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Beutezug', c:700, d:'+3 Ziele pro Falke', m:s=>{s.pierce+=3}},
+    {n:'Giftfedern', c:1800, d:'Gift: 3 Schaden/Tick', m:s=>{s.hp=3}},
+    {n:'Kopfgeld', c:5000, d:'+$2 pro geplatztem Ballon', m:s=>{s.popBonus=(s.popBonus||0)+2}},
+    {n:'Jagdgott', c:16000, d:'+10 Schaden, +$3 pro Ballon, +1 Falke', m:s=>{s.dmg+=10; s.popBonus=(s.popBonus||0)+3; s.falcons+=1}}]}};
+TOWERS.rocket = { name:'Feuerwerks-Capy', cost:700, desc:'Feuert Raketen auf Ballons, die in bunten Feuerwerken explodieren.',
+  base:{range:170, rate:1.8, dmg:2, splash:38, rockets:2, burst:0, stun:0, kind:'rocket'},
+  A:{name:'Sprengsatz', up:[
+    {n:'Größere Raketen', c:250, d:'+15 Radius', m:s=>{s.splash+=15}},
+    {n:'Mehr Schießpulver', c:550, d:'+2 Schaden', m:s=>{s.dmg+=2}},
+    {n:'Doppelsalve', c:1500, d:'+2 Raketen', m:s=>{s.rockets+=2}},
+    {n:'Großes Feuerwerk', c:4800, d:'+3 Raketen, +4 Schaden, +15 Radius', m:s=>{s.rockets+=3; s.dmg+=4; s.splash+=15}},
+    {n:'Silvester', c:17000, d:'+6 Raketen, +12 Schaden, +25 Radius', m:s=>{s.rockets+=6; s.dmg+=12; s.splash+=25}}]},
+  B:{name:'Zündung', up:[
+    {n:'Schnelle Lunte', c:200, d:'25% schneller', m:s=>{s.rate*=.75}},
+    {n:'Weitere Bahn', c:400, d:'+30 Reichweite', m:s=>{s.range+=30}},
+    {n:'Salvenfeuer', c:1400, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Raketenwerfer', c:3800, d:'40% schneller, +20 Reichweite', m:s=>{s.rate*=.6; s.range+=20}},
+    {n:'Feuerwerksfabrik', c:13000, d:'Doppelt so schnell, +40 Reichweite', m:s=>{s.rate*=.5; s.range+=40}}]},
+  C:{name:'Effekte', up:[
+    {n:'Funkenregen', c:400, d:'3 Nachexplosionen', m:s=>{s.burst=3}},
+    {n:'Sternenregen', c:900, d:'5 Nachexplosionen', m:s=>{s.burst=5}},
+    {n:'Leuchtspur', c:2000, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Betäubungsknall', c:5200, d:'Betäubt 0,6s', m:s=>{s.stun=.6}},
+    {n:'Großes Finale', c:17000, d:'10 Nachexplosionen, betäubt 1,2s, +8 Schaden', m:s=>{s.burst=10; s.stun=1.2; s.dmg+=8}}]}};
+TOWERS.portal = { name:'Portal-Capy', cost:900, desc:'Öffnet Portale auf dem Weg, die Ballons zurück zum Anfang schleudern. Bosse sind immun (bis zum Boss-Upgrade).',
+  base:{range:130, rate:3.5, uses:6, back:260, life:14, count:1, dmg:0, stun:0, bossOk:false, kind:'portal'},
+  A:{name:'Sog', up:[
+    {n:'Weiter zurück', c:300, d:'+120 zurückgeschleudert', m:s=>{s.back+=120}},
+    {n:'Starker Sog', c:700, d:'+200', m:s=>{s.back+=200}},
+    {n:'Zeitsprung', c:2000, d:'+350', m:s=>{s.back+=350}},
+    {n:'Wurmloch', c:5500, d:'+600', m:s=>{s.back+=600}},
+    {n:'Ereignishorizont', c:18000, d:'+1200', m:s=>{s.back+=1200}}]},
+  B:{name:'Tore', up:[
+    {n:'Mehr Nutzungen', c:250, d:'+4 Nutzungen pro Portal', m:s=>{s.uses+=4}},
+    {n:'Schnelleres Öffnen', c:500, d:'30% schneller', m:s=>{s.rate*=.7}},
+    {n:'Doppeltore', c:1500, d:'+1 Portal', m:s=>{s.count+=1}},
+    {n:'Torkette', c:4200, d:'+2 Portale, schneller', m:s=>{s.count+=2; s.rate*=.7}},
+    {n:'Portalnetz', c:14000, d:'+3 Portale, doppelt so schnell, +10 Nutzungen', m:s=>{s.count+=3; s.rate*=.5; s.uses+=10}}]},
+  C:{name:'Dimension', up:[
+    {n:'Dimensionsschaden', c:400, d:'1 Schaden pro Durchgang', m:s=>{s.dmg=1}},
+    {n:'Dimensionsriss', c:900, d:'+2 Schaden, erkennt Tarnung', m:s=>{s.dmg+=2; s.detect=true}},
+    {n:'Bossportal', c:2500, d:'Bosse werden 25% so weit zurückgezogen', m:s=>{s.bossOk=true}},
+    {n:'Schockstrudel', c:5500, d:'Betäubt 0,8s, +4 Schaden', m:s=>{s.stun=.8; s.dmg+=4}},
+    {n:'Schwarzes Portal', c:18000, d:'+15 Schaden, betäubt 2s', m:s=>{s.dmg+=15; s.stun=2}}]}};
+TOWERS.sonic = { name:'Bass-Capy', cost:650, desc:'Schallwellen breiten sich ringförmig aus und treffen alle Ballons, auch Blei und Tarnung (Radar).',
+  base:{range:110, rate:1.6, dmg:1, waves:1, waveSpeed:260, thick:16, stun:0, slow:0, kind:'sonic'},
+  A:{name:'Lautstärke', up:[
+    {n:'Mehr Bass', c:250, d:'+1 Schaden', m:s=>{s.dmg+=1}},
+    {n:'Doppelwelle', c:600, d:'2 Wellen pro Schuss', m:s=>{s.waves=2}},
+    {n:'Subwoofer', c:1600, d:'+3 Schaden, dickere Welle', m:s=>{s.dmg+=3; s.thick+=8}},
+    {n:'Stadion-Anlage', c:5000, d:'3 Wellen, +4 Schaden', m:s=>{s.waves=3; s.dmg+=4}},
+    {n:'Konzert des Jahres', c:17000, d:'5 Wellen, +12 Schaden', m:s=>{s.waves=5; s.dmg+=12}}]},
+  B:{name:'Frequenz', up:[
+    {n:'Schneller Beat', c:200, d:'20% schneller', m:s=>{s.rate*=.8}},
+    {n:'Große Boxen', c:450, d:'+25 Reichweite', m:s=>{s.range+=25}},
+    {n:'Hohes Tempo', c:1400, d:'40% schneller', m:s=>{s.rate*=.6}},
+    {n:'Basskanone', c:4000, d:'+30 Reichweite, schneller', m:s=>{s.range+=30; s.rate*=.7}},
+    {n:'Dauerbeschallung', c:14000, d:'Doppelt so schnell, +40 Reichweite', m:s=>{s.rate*=.5; s.range+=40}}]},
+  C:{name:'Effekt', up:[
+    {n:'Dröhnen', c:300, d:'Verlangsamt (2s)', m:s=>{s.slow=2}},
+    {n:'Tinnitus', c:700, d:'Betäubt 0,4s', m:s=>{s.stun=.4}},
+    {n:'Ultraschall', c:1800, d:'Betäubt 0,8s, erkennt Tarnung', m:s=>{s.stun=.8; s.detect=true}},
+    {n:'Infraschall', c:5200, d:'Betäubt 1,4s', m:s=>{s.stun=1.4}},
+    {n:'Weltuntergangs-Bass', c:17000, d:'Betäubt 2,5s, +15 Schaden', m:s=>{s.stun=2.5; s.dmg+=15}}]}};
+TOWERS.hook = { name:'Harpunen-Capy', cost:600, desc:'Harpune trifft Ballons und zieht sie auf dem Weg zurück. Bosse lassen sich erst mit dem Boss-Upgrade ziehen.',
+  base:{range:180, rate:1.6, dmg:3, pull:70, targets:1, kind:'hook'},
+  A:{name:'Widerhaken', up:[
+    {n:'Scharfe Spitze', c:250, d:'+3 Schaden', m:s=>{s.dmg+=3}},
+    {n:'Stahlharpune', c:600, d:'+5 Schaden, durchdringt Blei', m:s=>{s.dmg+=5; s.pierceLead=true}},
+    {n:'Doppelharpune', c:1500, d:'+1 Ziel', m:s=>{s.targets+=1}},
+    {n:'Harpunenwerfer', c:5000, d:'+2 Ziele, +10 Schaden', m:s=>{s.targets+=2; s.dmg+=10}},
+    {n:'Walfang', c:17000, d:'+4 Ziele, +40 Schaden', m:s=>{s.targets+=4; s.dmg+=40}}]},
+  B:{name:'Winde', up:[
+    {n:'Starkes Seil', c:250, d:'+50 Zugkraft', m:s=>{s.pull+=50}},
+    {n:'Ankerwinde', c:500, d:'+90 Zugkraft', m:s=>{s.pull+=90}},
+    {n:'Schnelle Winde', c:1400, d:'30% schneller', m:s=>{s.rate*=.7}},
+    {n:'Dampfwinde', c:4000, d:'+200 Zugkraft, schneller', m:s=>{s.pull+=200; s.rate*=.7}},
+    {n:'Riesenwinde', c:14000, d:'+500 Zugkraft, doppelt so schnell, +40 Reichweite', m:s=>{s.pull+=500; s.rate*=.5; s.range+=40}}]},
+  C:{name:'Fang', up:[
+    {n:'Fernglas', c:300, d:'Erkennt Tarnung', m:s=>{s.detect=true}},
+    {n:'Giftharpune', c:700, d:'Gift: 3 Schaden/Tick', m:s=>{s.hp=3}},
+    {n:'Netzharpune', c:1800, d:'Betäubt 0,8s', m:s=>{s.stun=.8}},
+    {n:'Bossharpune', c:5000, d:'Bosse werden 25% so weit gezogen', m:s=>{s.bossPull=true}},
+    {n:'Leviathan', c:16000, d:'+30 Schaden, betäubt 2s', m:s=>{s.dmg+=30; s.stun=2}}]}};
+ORDER.push('falcon','rocket','portal','sonic','hook');
+
 /* ---- Stufen 6 und 7 automatisch aus der Wirkung von Stufe 5 ableiten ---- */
 const MAXT = 7;
 (function extendTiers() {
-  const INTK = new Set(['shots','pierce','chain','targets','bees','blades','beams','planes','traps','cluster','rings','spirits','count']);
-  const MULT = new Set(['rate','hitCd','flySpeed','spiritSpeed','beeSpeed']);
+  const INTK = new Set(['shots','pierce','chain','targets','bees','blades','beams','planes','traps','cluster','rings','spirits','count','falcons','rockets','waves','uses','burst']);
+  const MULT = new Set(['rate','hitCd','flySpeed','spiritSpeed','beeSpeed','fSpeed','waveSpeed']);
   const LBL = {dmg:'Schaden', range:'Reichweite', rate:'Tempo', pierce:'Durchschlag', shots:'Geschosse', chain:'Sprünge', targets:'Ziele', bees:'Projektile', blades:'Klingen', beams:'Strahlen', planes:'Flugzeuge', traps:'Fallen', cluster:'Nachbeben', splash:'Radius', freeze:'Einfrieren', stun:'Betäubung', hp:'Gift', slowHit:'Verlangsamung', income:'Einkommen', popBonus:'Beute', curseAmt:'Fluch', knock:'Rückstoß', rewind:'Rückspulen', width:'Breite', radius:'Radius', spirits:'Geister', r:'Radius', burn:'Brand', trapPoison:'Gift', zPoison:'Gift', orbR:'Radius', aRate:'Aura-Tempo', aDist:'Aura-Radius', bombDmg:'Bombenschaden', pdmg:'Gift', life:'Dauer'};
   for (const k in TOWERS) for (const p of ['A','B','C']) {
     const arr = TOWERS[k][p] && TOWERS[k][p].up; if (!arr || arr.length !== 5) continue;
@@ -1543,12 +1666,12 @@ const LOOK = {};
 (function buildLookTables() {
   const G = {
     power:['dmg','bombDmg','pdmg'], reach:['range','orbit','orbR','radius','r','width','aDist','aRange'],
-    multi:['shots','bees','blades','beams','planes','traps','cluster','chain','targets','spirits','count','rings','pierce','spread'],
+    multi:['shots','bees','blades','beams','planes','traps','cluster','chain','targets','spirits','count','rings','pierce','spread','falcons','rockets','waves','uses'],
     frost:['freeze','slowHit','slow','zSlow','trapSlow','trapFreeze','zFreeze'], shock:['stun','nova','chainR'],
-    poison:['hp','trapPoison','zPoison'], fire:['burn'], blast:['splash','trapBoom','boom'], gold:['income','popBonus','interest'],
-    aura:['aRate','aDmg'], curse:['curseAmt','curseT'], time:['rewind'], knock:['knock']
+    poison:['hp','trapPoison','zPoison'], fire:['burn'], blast:['splash','trapBoom','boom','burst'], gold:['income','popBonus','interest'],
+    aura:['aRate','aDmg'], curse:['curseAmt','curseT'], time:['rewind','back'], knock:['knock','pull']
   };
-  const FASTER = new Set(['rate','hitCd']), FASTUP = new Set(['flySpeed','spiritSpeed','beeSpeed','spin']);
+  const FASTER = new Set(['rate','hitCd']), FASTUP = new Set(['flySpeed','spiritSpeed','beeSpeed','spin','fSpeed','waveSpeed']);
   for (const k in TOWERS) {
     LOOK[k] = [[], [], []];
     for (let p = 0; p < 3; p++) {
@@ -1625,7 +1748,7 @@ function drawLook(t) {
   ctx.restore();
 }
 
-const HOTK = '1234567890-asdfgjzxcvbnikolm';
+const HOTK = '1234567890-asdfgjzxcvbnikolmuytr,';
 
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
 
@@ -1749,6 +1872,13 @@ function pop(e, col) {
 }
 
 // Schaden an Ballon; gibt Anzahl geplatzter Schichten zurück
+function portalTouch(tr, e) {
+  const boss = isBoss(e), ox = e.x, oy = e.y;
+  e.d = Math.max(0, e.d - tr.back * (boss ? .25 : 1)); const pp = posAt(e.d, e.lane); e.x = pp.x; e.y = pp.y;
+  S.fx.push({type:'ring', x:ox, y:oy, r:34, col:'rgb(190,110,255)', life:.35, max:.35}); S.fx.push({type:'ring', x:pp.x, y:pp.y, r:34, col:'rgb(120,200,255)', life:.35, max:.35});
+  if (tr.dmg) hit(e, tr.dmg);
+  if (!e.dead && tr.stun && !boss && !immIce(e)) e.freeze = Math.max(e.freeze, tr.stun);
+}
 function applyPoison(e, d, t) { e.poison = Math.max(e.poison || 0, t); e.pdmg = Math.max(e.pdmg || 0, d); e.ptick = e.ptick || .5; }
 function jag(x1, y1, x2, y2) {
   const n = 6, pts = [{x:x1, y:y1}], dx = x2-x1, dy = y2-y1, L = Math.hypot(dx, dy) || 1;
@@ -1795,9 +1925,9 @@ function heroXP(n) {
 }
 function steer(p, dt) {
   let tg = p.target;
-  if (!tg || tg.dead || p.hit.has(tg.id)) { tg = null; let bd = 220; for (const en of S.enemies) { if (en.dead || p.hit.has(en.id)) continue; const d = Math.hypot(en.x - p.x, en.y - p.y); if (d < bd) { bd = d; tg = en; } } p.target = tg; }
+  if (!tg || tg.dead || p.hit.has(tg.id)) { tg = null; let bd = p.falcon ? 320 : 220; for (const en of S.enemies) { if (en.dead || p.hit.has(en.id)) continue; const d = Math.hypot(en.x - p.x, en.y - p.y); if (d < bd) { bd = d; tg = en; } } p.target = tg; }
   if (!tg) return;
-  const dx = tg.x - p.x, dy = tg.y - p.y, d = Math.hypot(dx, dy) || 1, k = Math.min(1, dt * 7);
+  const dx = tg.x - p.x, dy = tg.y - p.y, d = Math.hypot(dx, dy) || 1, k = Math.min(1, dt * (p.falcon ? 10 : 7));
   p.vx += (dx / d * p.speed - p.vx) * k; p.vy += (dy / d * p.speed - p.vy) * k; p.a = Math.atan2(p.vy, p.vx);
 }
 function updateBlades(t, dt) {
@@ -2185,6 +2315,34 @@ function fire(t, e) {
       (S.strikes || (S.strikes = []));
       for (const en of list) { const pp = posAt(en.d + baseSpd(en) * (en.slow > 0 ? .5 : 1) * s.delay, en.lane); S.strikes.push({x:pp.x, y:pp.y, t:s.delay, max:s.delay, dmg:s.dmg, r:s.r, stun:s.stun, burn:s.burn}); }
       break; }
+    case 'falcon': {
+      t.ang = Math.atan2(e.y - t.y, e.x - t.x);
+      for (let i = 0; i < s.falcons; i++) { const a = t.ang + (i - (s.falcons - 1)/2)*.5;
+        S.projs.push({homing:true, falcon:true, target:e, x:t.x, y:t.y-12, vx:Math.cos(a)*s.fSpeed, vy:Math.sin(a)*s.fSpeed, speed:s.fSpeed, dmg:s.dmg, pierce:s.pierce, splash:0, life:4, hit:new Set(), col:'#c98a4a', magic:false, ball:false, sharp:!s.pierceLead, a, slow:0, hp:s.hp||0, hpt:4, knock:0}); }
+      break; }
+    case 'rocket': {
+      const cand = S.enemies.filter(x => !x.dead && (!x.camo || canSee(t)) && Math.hypot(x.x - t.x, x.y - t.y) <= s.range + eRad(x)); t.ang = Math.atan2(e.y - t.y, e.x - t.x);
+      for (let i = 0; i < s.rockets; i++) { const en = i === 0 ? e : (cand[(Math.random()*cand.length)|0] || e), pp = posAt(en.d + baseSpd(en)*(en.slow > 0 ? .5 : 1)*.9 + (Math.random() - .5)*30, en.lane);
+        S.projs.push({bomb:true, firework:true, hue:(Math.random()*360)|0, x:t.x, y:t.y-8, tx:pp.x, ty:pp.y, speed:280 + Math.random()*60, dmg:s.dmg, splash:s.splash, cluster:s.burst||0, stun:s.stun||0, boulder:false, life:5}); }
+      break; }
+    case 'portal': {
+      t.ang = Math.atan2(e.y - t.y, e.x - t.x); const L = LANES[e.lane];
+      for (let i = 0; i < (s.count || 1); i++) { const d = Math.min(L.total - 5, e.d + 25 + i*40 + Math.random()*80), pp = posAt(d, e.lane);
+        if (S.traps.length < 250) S.traps.push({x:pp.x, y:pp.y, d, lane:e.lane, life:s.life, pierce:s.uses, portal:true, back:s.back, dmg:s.dmg||0, stun:s.stun||0, bossOk:!!s.bossOk, hit:new Set(), rot:0}); }
+      break; }
+    case 'sonic': {
+      t.ang = Math.atan2(e.y - t.y, e.x - t.x); (S.waves || (S.waves = []));
+      for (let i = 0; i < s.waves; i++) S.waves.push({x:t.x, y:t.y, r:-i*24, max:s.range, speed:s.waveSpeed, dmg:s.dmg, stun:s.stun||0, slow:s.slow||0, det:!!(s.detect || t.bf.detect), thick:s.thick, hit:new Set()});
+      break; }
+    case 'hook': {
+      t.ang = Math.atan2(e.y - t.y, e.x - t.x); const list = [e];
+      if (s.targets > 1) list.push(...S.enemies.filter(x => !x.dead && x !== e && (!x.camo || canSee(t)) && Math.hypot(x.x - t.x, x.y - t.y) <= s.range + eRad(x)).sort((a, b) => b.d - a.d).slice(0, s.targets - 1));
+      for (const en of list) {
+        S.fx.push({type:'hook', x1:t.x, y1:t.y-6, x2:en.x, y2:en.y, life:.35, max:.35});
+        if (en.lead && !s.pierceLead) S.fx.push({type:'ping', x:en.x, y:en.y, life:.25, max:.25}); else hit(en, s.dmg);
+        if (!en.dead) { const boss = isBoss(en); if (!boss || s.bossPull) en.d = Math.max(0, en.d - s.pull*(boss ? .25 : 1)); if (s.hp) applyPoison(en, s.hp, 4); if (s.stun && !boss && !immIce(en)) en.freeze = Math.max(en.freeze, s.stun); }
+      }
+      break; }
     case 'snipe':
       t.ang = Math.atan2(e.y - t.y, e.x - t.x);
       { const list = [e]; const n = s.shots || 1;
@@ -2207,7 +2365,7 @@ function fire(t, e) {
       }
       break; }
   }
-  if (!['pulse','curse','trap','flame','chain','beam','spirit','cloud','strike'].includes(s.kind)) { t.recoil = 1; S.fx.push({type:'flash', x:t.x + Math.cos(t.ang)*17, y:t.y - 2 + Math.sin(t.ang)*17, life:.09, max:.09}); }
+  if (!['pulse','curse','trap','flame','chain','beam','spirit','cloud','strike','portal','sonic','hook','rocket'].includes(s.kind)) { t.recoil = 1; S.fx.push({type:'flash', x:t.x + Math.cos(t.ang)*17, y:t.y - 2 + Math.sin(t.ang)*17, life:.09, max:.09}); }
 }
 
 /* ---------- Update ---------- */
@@ -2282,6 +2440,7 @@ function update(dt) {
     }
     for (const e of S.enemies) {
       if (e.dead || tr.life <= 0 || e.lane !== tr.lane || tr.hit.has(e.id) || Math.abs(e.d - tr.d) > 14 + eRad(e)*.5) continue;
+      if (tr.portal) { if (isBoss(e) && !tr.bossOk) continue; tr.hit.add(e.id); portalTouch(tr, e); if (--tr.pierce <= 0) tr.life = 0; continue; }
       tr.hit.add(e.id);
       if (e.lead && tr.sharp) S.fx.push({type:'ping', x:e.x, y:e.y, life:.25, max:.25}); else hit(e, tr.dmg);
       if (!e.dead) {
@@ -2294,6 +2453,14 @@ function update(dt) {
     }
   }
   S.traps = S.traps.filter(tr => tr.life > 0);
+  if (S.waves) {
+    for (const w of S.waves) { w.r += w.speed * dt; if (w.r < 0) continue;
+      for (const e of S.enemies) { if (e.dead || w.hit.has(e.id) || (e.camo && !w.det)) continue;
+        if (Math.abs(Math.hypot(e.x - w.x, e.y - w.y) - w.r) > w.thick/2 + eRad(e)*.6) continue;
+        w.hit.add(e.id); hit(e, w.dmg);
+        if (!e.dead) { if (w.stun) { if (isBoss(e)) e.slow = Math.max(e.slow, w.stun*2); else if (!immIce(e)) e.freeze = Math.max(e.freeze, w.stun); } if (w.slow && !immIce(e)) e.slow = Math.max(e.slow, w.slow); } } }
+    S.waves = S.waves.filter(w => w.r < w.max);
+  }
   if (S.strikes) {
     for (const st of S.strikes) { st.t -= dt; if (st.t <= 0) { explode(st.x, st.y, st.r, st.dmg); S.shake = Math.max(S.shake || 0, 3);
       if (st.stun || st.burn) for (const en of S.enemies) if (!en.dead && Math.hypot(en.x - st.x, en.y - st.y) <= st.r + eRad(en)) { if (st.stun) { if (isBoss(en)) en.slow = Math.max(en.slow, st.stun*2); else if (!immIce(en)) en.freeze = Math.max(en.freeze, st.stun); } if (st.burn) applyPoison(en, st.burn, 4); } } }
@@ -2306,6 +2473,7 @@ function update(dt) {
       if (dist <= step) { if (p.potion) { poisonSplash(p); if (p.dmg > 0) explode(p.tx, p.ty, p.splash, p.dmg); }
         else {
           explode(p.tx, p.ty, p.splash, p.dmg);
+          if (p.firework) S.fx.push({type:'fw', x:p.tx, y:p.ty, r:p.splash + 22, hue:p.hue, life:.55, max:.55});
           if (p.stun) for (const en of S.enemies) if (!en.dead && Math.hypot(en.x - p.tx, en.y - p.ty) <= p.splash + eRad(en)) { if (isBoss(en)) en.slow = Math.max(en.slow, p.stun*2); else if (!immIce(en)) en.freeze = Math.max(en.freeze, p.stun); }
           for (let i = 0; i < p.cluster; i++) { const a = i / p.cluster * 6.283 + .4, rr = p.splash * (.6 + .4 * (i % 2)); explode(p.tx + Math.cos(a) * rr, p.ty + Math.sin(a) * rr, p.splash * .55, Math.max(1, Math.ceil(p.dmg / 2))); }
         }
@@ -2592,6 +2760,8 @@ function render(time) {
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(tr.x, tr.y, tr.r, 0, 7); ctx.fill();
       ctx.strokeStyle = `rgba(190,255,150,${.5*a})`; ctx.lineWidth = 1.2; for (let i = 0; i < 5; i++) { const ph = (TIME*.8 + i*.37 + tr.x*.01) % 1; ctx.beginPath(); ctx.arc(tr.x + Math.sin(i*2.1 + tr.y)*tr.r*.5, tr.y + tr.r*.4 - ph*tr.r*.9, 2 + i%3, 0, 7); ctx.stroke(); }
       continue; }
+    if (tr.portal) { const a = Math.min(1, tr.life/1.5); ctx.save(); ctx.translate(tr.x, tr.y - 6); ctx.globalAlpha = a; for (let i = 0; i < 3; i++) { ctx.strokeStyle = ['#b06bff','#5fb8ff','#fff'][i]; ctx.lineWidth = 3 - i*.7; ctx.beginPath(); ctx.ellipse(0, 0, 13 - i*3.5, 18 - i*4.5, Math.sin(TIME*2 + i)*.15, TIME*(2 + i) % 6.283, TIME*(2 + i) % 6.283 + 4.6); ctx.stroke(); }
+      const pg = ctx.createRadialGradient(0, 0, 1, 0, 0, 13); pg.addColorStop(0, 'rgba(20,0,50,.9)'); pg.addColorStop(1, 'rgba(120,60,255,0)'); ctx.fillStyle = pg; ctx.beginPath(); ctx.ellipse(0, 0, 11, 16, 0, 0, 7); ctx.fill(); ctx.restore(); continue; }
     if (tr.ghost) { ctx.save(); ctx.translate(tr.x, tr.y - 8 + Math.sin(TIME*4 + tr.d)*3); ctx.globalAlpha = Math.min(.8, tr.life/1.5);
       ctx.fillStyle = 'rgba(210,225,255,.85)'; ctx.beginPath(); ctx.arc(0, 0, 8, Math.PI, 0); ctx.lineTo(8, 9); for (let i = 0; i < 3; i++) { ctx.quadraticCurveTo(8 - i*5.33 - 2.67, 5, 8 - (i+1)*5.33, 9); } ctx.closePath(); ctx.fill();
       ctx.fillStyle = '#334'; ctx.beginPath(); ctx.arc(-3, -1, 1.7, 0, 7); ctx.arc(3, -1, 1.7, 0, 7); ctx.fill(); ctx.beginPath(); ctx.ellipse(0, 4, 1.6, 2.2, 0, 0, 7); ctx.fill(); ctx.restore(); continue; }
@@ -2623,6 +2793,9 @@ function render(time) {
       ctx.beginPath(); ctx.arc(t.x - 13 + k*4.4, t.y + 21 + p*4.5, 1.6, 0, 7); ctx.fill();
     }
   }
+  for (const w of (S.waves || [])) { if (w.r <= 0) continue; const a = Math.max(0, 1 - w.r / w.max); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    ctx.strokeStyle = `rgba(255,120,220,${a*.55})`; ctx.lineWidth = w.thick; ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, 7); ctx.stroke();
+    ctx.strokeStyle = `rgba(200,240,255,${a})`; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, 7); ctx.stroke(); ctx.globalCompositeOperation = 'source-over'; }
   for (const st of (S.strikes || [])) {
     const k = 1 - st.t / st.max;
     ctx.strokeStyle = `rgba(255,90,60,${.45 + .4*Math.sin(TIME*14)})`; ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.arc(st.x, st.y, st.r*(.5 + .5*k), 0, 7); ctx.stroke(); ctx.setLineDash([]);
@@ -2634,6 +2807,11 @@ function render(time) {
   for (const e of S.enemies.slice().sort((a,b)=>a.d-b.d)) drawBalloon(e);
   // Projektile
   for (const p of S.projs) {
+    if (p.homing && p.falcon) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); const fl = Math.sin(TIME*30 + p.x)*4;
+      ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(-6, 0); ctx.stroke();
+      ctx.fillStyle = '#b5773a'; ctx.strokeStyle = '#3a2010'; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(-3, 0); ctx.lineTo(-11, -9 - fl); ctx.lineTo(3, -2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-3, 0); ctx.lineTo(-11, 9 + fl); ctx.lineTo(3, 2); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(0, 0, 8, 3.8, 0, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#f5f0e0'; ctx.beginPath(); ctx.arc(7, 0, 3.2, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#ffb300'; ctx.beginPath(); ctx.moveTo(9.5, -.8); ctx.lineTo(13, .4); ctx.lineTo(9.5, 1.6); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(7.6, -.9, .8, 0, 7); ctx.fill(); ctx.restore(); continue; }
     if (p.homing && p.ball) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(TIME*10); const g = ctx.createRadialGradient(-1.5,-1.5,.5,0,0,5.5); g.addColorStop(0,'#fff'); g.addColorStop(.35,['#e53935','#1e88e5','#fdd835','#43a047'][(p.x|0)%4]); g.addColorStop(1,'#333'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0,0,5.5,0,7); ctx.fill(); ctx.restore(); continue; }
     if (p.homing) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
       ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-1, -3, 3, 1.6 + Math.sin(TIME*60 + p.x)*.8, .5, 0, 7); ctx.ellipse(-1, 3, 3, 1.6 + Math.cos(TIME*60 + p.y)*.8, -.5, 0, 7); ctx.fill();
@@ -2645,6 +2823,8 @@ function render(time) {
     if (p.bomb) {
       const dist = Math.hypot(p.tx - p.x, p.ty - p.y), h = Math.sin(Math.PI * Math.max(0, Math.min(1, 1 - dist / (p.d0 || 1)))) * 26;
       ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(p.x, p.y+3, 6, 2.6, 0, 0, 7); ctx.fill();
+      if (p.firework) { ctx.save(); ctx.translate(p.x, p.y - h); ctx.rotate(Math.atan2(p.ty - p.y, p.tx - p.x)); ctx.fillStyle = `hsl(${p.hue},85%,55%)`; ctx.strokeStyle = '#1a1420'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(-8, -2.6, 12, 5.2, 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(4, -2.6); ctx.lineTo(9, 0); ctx.lineTo(4, 2.6); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,190,60,.9)'; ctx.beginPath(); ctx.moveTo(-8, -2); ctx.lineTo(-15 - Math.random()*5, 0); ctx.lineTo(-8, 2); ctx.closePath(); ctx.fill(); ctx.globalCompositeOperation = 'source-over'; ctx.restore(); continue; }
       ctx.save(); ctx.translate(p.x, p.y - h); ctx.rotate(TIME*8);
       if (p.potion) { ctx.fillStyle = '#7CFC00'; ctx.strokeStyle = '#2a5a10'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(0,0,6,0,7); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fillRect(-1.5,-10,3,5); ctx.beginPath(); ctx.arc(-2,-2,1.8,0,7); ctx.fill(); }
       else { const g = ctx.createRadialGradient(-2,-2,1,0,0,7); g.addColorStop(0,p.boulder ? '#c2bbb0' : '#666'); g.addColorStop(1,p.boulder ? '#5d5750' : '#111'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0,0,p.boulder ? 8.5 : 6.5,0,7); ctx.fill(); ctx.fillStyle = '#ff9a2a'; ctx.beginPath(); ctx.arc(3,-6,2.2+Math.sin(TIME*40),0,7); ctx.fill(); }
@@ -2669,7 +2849,7 @@ function render(time) {
   ctx.globalAlpha = 1;
   for (const f of S.fx) {
     const k = f.life / f.max;
-    ctx.globalCompositeOperation = (f.type === 'boom' || f.type === 'flash' || f.type === 'beam' || f.type === 'bolt' || f.type === 'cone' || f.type === 'spark') ? 'lighter' : 'source-over';
+    ctx.globalCompositeOperation = (f.type === 'boom' || f.type === 'flash' || f.type === 'beam' || f.type === 'bolt' || f.type === 'cone' || f.type === 'spark' || f.type === 'fw') ? 'lighter' : 'source-over';
     if (f.type === 'boom') {
       const R2 = f.r*(1.15-k*.3), g = ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,R2);
       g.addColorStop(0,`rgba(255,252,210,${k})`); g.addColorStop(.4,`rgba(255,170,50,${k*.85})`); g.addColorStop(1,'rgba(200,60,20,0)');
@@ -2689,6 +2869,11 @@ function render(time) {
     else if (f.type === 'gas') { ctx.fillStyle = `rgba(120,230,60,${k*.5})`; ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1.15-k*.25),0,7); ctx.fill(); }
     else if (f.type === 'bite') { ctx.fillStyle = `rgba(255,255,255,${k})`; ctx.beginPath(); ctx.moveTo(f.x-10,f.y-6); ctx.lineTo(f.x-5,f.y+4); ctx.lineTo(f.x,f.y-6); ctx.lineTo(f.x+5,f.y+4); ctx.lineTo(f.x+10,f.y-6); ctx.fill(); }
     else if (f.type === 'spark') { ctx.strokeStyle = f.col; ctx.globalAlpha = k; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; for (let i = 0; i < 5; i++) { const a = i*1.257 + f.x*.7, r0 = 2 + (1-k)*3, r1 = 5 + (1-k)*9; ctx.beginPath(); ctx.moveTo(f.x + Math.cos(a)*r0, f.y + Math.sin(a)*r0); ctx.lineTo(f.x + Math.cos(a)*r1, f.y + Math.sin(a)*r1); ctx.stroke(); } ctx.globalAlpha = 1; }
+    else if (f.type === 'fw') { const a = 1 - k; ctx.strokeStyle = `hsla(${f.hue},100%,65%,${k})`; ctx.fillStyle = `hsla(${(f.hue + 40) % 360},100%,75%,${k})`; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+      for (let i = 0; i < 14; i++) { const an = i/14*6.283, r0 = f.r*.25*a + 4, r1 = f.r*(.35 + .65*a); ctx.beginPath(); ctx.moveTo(f.x + Math.cos(an)*r0, f.y + Math.sin(an)*r0); ctx.lineTo(f.x + Math.cos(an)*r1, f.y + Math.sin(an)*r1); ctx.stroke(); ctx.beginPath(); ctx.arc(f.x + Math.cos(an)*r1*1.08, f.y + Math.sin(an)*r1*1.08, 2, 0, 7); ctx.fill(); } }
+    else if (f.type === 'hook') { const pr = 1 - k, out = pr < .5 ? pr*2 : 1 - (pr - .5)*2, hx = f.x1 + (f.x2 - f.x1)*out, hy = f.y1 + (f.y2 - f.y1)*out;
+      ctx.strokeStyle = '#d8c8a0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(f.x1, f.y1); ctx.lineTo(hx, hy); ctx.stroke(); const an = Math.atan2(f.y2 - f.y1, f.x2 - f.x1);
+      ctx.save(); ctx.translate(hx, hy); ctx.rotate(an); ctx.fillStyle = '#cfd8dc'; ctx.strokeStyle = '#1a1420'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(-2, -5); ctx.lineTo(0, 0); ctx.lineTo(-2, 5); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
     else if (f.type === 'comic') {
       const a = 1 - k, sc = a < .25 ? .3 + a*2.8 : 1 + Math.sin(a*9)*.04; ctx.save(); ctx.translate(f.x, f.y - a*10); ctx.rotate(f.rot); ctx.scale(sc, sc); ctx.globalAlpha = Math.min(1, k*3);
       ctx.beginPath(); for (let i = 0; i < 16; i++) { const rr = i % 2 ? 19 : 32, an = i/16*6.283; ctx.lineTo(Math.cos(an)*rr*1.25, Math.sin(an)*rr*.9); } ctx.closePath();
@@ -2990,7 +3175,7 @@ function renderWiki() {
   const el = $('tab-wiki'); if (el.dataset.done) return; el.dataset.done = 1;
   const dots = [['#e53935','Rot'],['#1e88e5','Blau'],['#43a047','Grün'],['#fdd835','Gelb'],['#ec407a','Rosa'],['#23232b','Schwarz – explosionsimmun'],['#f2f2f2','Weiß – eisimmun'],['#888','Zebra – immun gegen Explosionen UND Eis'],['#ff66cc','Regenbogen – schnell, zerfällt in Zebras'],['#d9b48a','Keramik – hat Lebenspunkte']];
   let h = `<div class="wiki"><h3>🎮 Steuerung</h3><ul><li><b>Leertaste</b> Runde starten · <b>Esc</b> Auswahl abbrechen bzw. Pausemenü · <b>P</b> Pause</li>
-  <li>Capybaras unten aus der Leiste anklicken <i>oder auf die Karte ziehen</i>. Kurztasten: 1–9, 0, −, A–G, J, Z–B, N, I K O L M · <b>H</b> = Held</li>
+  <li>Capybaras unten aus der Leiste anklicken <i>oder auf die Karte ziehen</i>. Kurztasten: 1–9, 0, −, A–G, J, Z–B, N, I K O L M, U Y T R , · <b>H</b> = Held</li>
   <li>Held-Fähigkeiten: <b>Q / W / E</b></li><li>Türme anklicken zum Verbessern, Ziel wechseln, Haustier wählen oder verkaufen.</li></ul>
   <h3>🎈 Ballons</h3><ul>${dots.map(d => `<li><span class="dot" style="background:${d[0]}"></span>${d[1]}</li>`).join('')}
   <li><b>Blei</b> prallt spitze Waffen ab · <b>Tarn</b>-Ballons brauchen Tarnungserkennung</li></ul>
