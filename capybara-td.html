@@ -221,10 +221,10 @@ window.addEventListener('resize', fitCanvas); setTimeout(fitCanvas, 0); requestA
 /* ---------- Karten ---------- */
 const PATH_W = 46;
 const THEMES = {
-  jungle: {grass:'#3f8a3c', specks:['#48963f','#377a34'], edge:'#2c5a2a', mid:'#8b6a3e', inner:'#c9a46a', line:'rgba(120,85,45,.45)'},
-  desert: {grass:'#e0c27a', specks:['#e8cd8c','#cfae63'], edge:'#6d4c2a', mid:'#8a6538', inner:'#a98352', line:'rgba(60,35,15,.35)'},
-  snow:   {grass:'#e6f0f6', specks:['#f8fcff','#cfe0eb'], edge:'#5f9cc4', mid:'#8cc4e6', inner:'#bfe8ff', line:'rgba(255,255,255,.55)'},
-  swamp:  {grass:'#4a5d3a', specks:['#56683f','#3c4d2f'], edge:'#22221a', mid:'#4d3f2a', inner:'#71603d', line:'rgba(20,15,5,.4)'}
+  jungle: {stone:'#8a7a5c', grass:'#3f8a3c', specks:['#48963f','#377a34'], edge:'#2c5a2a', mid:'#8b6a3e', inner:'#c9a46a', line:'rgba(120,85,45,.45)'},
+  desert: {stone:'#b8965f', grass:'#e0c27a', specks:['#e8cd8c','#cfae63'], edge:'#6d4c2a', mid:'#8a6538', inner:'#a98352', line:'rgba(60,35,15,.35)'},
+  snow:   {stone:'#a9cbe0', grass:'#e6f0f6', specks:['#f8fcff','#cfe0eb'], edge:'#5f9cc4', mid:'#8cc4e6', inner:'#bfe8ff', line:'rgba(255,255,255,.55)'},
+  swamp:  {stone:'#5a5238', grass:'#4a5d3a', specks:['#56683f','#3c4d2f'], edge:'#22221a', mid:'#4d3f2a', inner:'#71603d', line:'rgba(20,15,5,.4)'}
 };
 const MAPS = [
   {name:'Dschungelpfad', desc:'Klassisch, 1 Weg', theme:'jungle', lanes:[
@@ -287,6 +287,43 @@ function renderMapBg(map, lanes, mi) {
       else if (r2 < .5) { g.fillStyle='#e8e0c8'; g.fillRect(x-1,y,2,5); g.fillStyle='#d94a4a'; g.beginPath(); g.ellipse(x,y,5,3.5,0,Math.PI,0); g.fill(); } else rock('#6d7466');
     }
   }
+  // Randsteine entlang des Weges
+  for (const L of lanes) for (const sg of L.segs) {
+    const nx = -(sg.y2-sg.y1)/sg.len, ny = (sg.x2-sg.x1)/sg.len;
+    for (let d = 0; d < sg.len; d += 11 + rnd()*5) for (const side of [-1, 1]) {
+      const off = side * (PATH_W/2 + 4 + rnd()*3), x = sg.x1 + (sg.x2-sg.x1)*d/sg.len + nx*off, y = sg.y1 + (sg.y2-sg.y1)*d/sg.len + ny*off, r = 2 + rnd()*2.4;
+      g.fillStyle = 'rgba(0,0,0,.28)'; g.beginPath(); g.ellipse(x+1, y+1.4, r+.6, r*.75, 0, 0, 7); g.fill();
+      g.fillStyle = th.stone; g.beginPath(); g.ellipse(x, y, r, r*.8, rnd()*3, 0, 7); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.28)'; g.beginPath(); g.ellipse(x-.6, y-.7, r*.5, r*.32, 0, 0, 7); g.fill();
+    }
+  }
+  // Teiche / Oasen / gefrorene Seen
+  const ponds = [];
+  for (let tries = 0; tries < 60 && ponds.length < 2; tries++) {
+    const x = 70 + rnd()*(W-140), y = 60 + rnd()*(H-120), rx = 30 + rnd()*22, ry = rx*.62;
+    if (distLanes(lanes, x, y) < rx + 46 || ponds.some(q => Math.hypot(q.x-x, q.y-y) < 170)) continue;
+    ponds.push({x, y, rx, ry});
+    const cols = {jungle:['#2f7fa8','#7fd0ee','#1d5d7e'], desert:['#1f8aa8','#8fe3f0','#136a80'], snow:['#8fc4e6','#e6f6ff','#5f9cc4'], swamp:['#2f5a55','#5f9a8a','#1f3f3c']}[map.theme];
+    g.fillStyle = 'rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(x+2, y+4, rx+3, ry+3, 0, 0, 7); g.fill();
+    g.fillStyle = cols[2]; g.beginPath(); g.ellipse(x, y, rx+2, ry+2, 0, 0, 7); g.fill();
+    const wg = g.createRadialGradient(x-rx*.25, y-ry*.3, 2, x, y, rx); wg.addColorStop(0, cols[1]); wg.addColorStop(1, cols[0]); g.fillStyle = wg; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 7); g.fill();
+    if (map.theme === 'snow') { g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 1.2; for (let i = 0; i < 5; i++) { g.beginPath(); g.moveTo(x - rx*.6 + rnd()*rx*1.2, y - ry*.5 + rnd()*ry); g.lineTo(x + (rnd()-.5)*rx, y + (rnd()-.5)*ry); g.lineTo(x + (rnd()-.5)*rx*1.2, y + (rnd()-.5)*ry*1.2); g.stroke(); } }
+    else { for (let i = 0; i < 3; i++) { const lx = x + (rnd()-.5)*rx*1.1, ly = y + (rnd()-.5)*ry*1.0; g.fillStyle = '#3f9a4a'; g.beginPath(); g.ellipse(lx, ly, 5, 3, 0, 0, 7); g.fill(); if (i === 0) { g.fillStyle = '#ffb3c8'; g.beginPath(); g.arc(lx, ly - 1, 1.8, 0, 7); g.fill(); } }
+      g.strokeStyle = '#4a7a3a'; g.lineWidth = 1.2; for (let i = 0; i < 6; i++) { const a = rnd()*6.283, ex = x + Math.cos(a)*(rx+1), ey = y + Math.sin(a)*(ry+1); g.beginPath(); g.moveTo(ex, ey); g.lineTo(ex + (rnd()-.5)*3, ey - 7 - rnd()*4); g.stroke(); } }
+    if (map.theme === 'desert') { for (const dx of [-rx*.7, rx*.8]) { g.strokeStyle = '#6d4c2a'; g.lineWidth = 3; g.beginPath(); g.moveTo(x+dx, y); g.quadraticCurveTo(x+dx+5, y-14, x+dx+2, y-26); g.stroke(); g.fillStyle = '#2e8b3e'; for (let i = 0; i < 6; i++) { const a = i*1.05; g.beginPath(); g.ellipse(x+dx+2+Math.cos(a)*6, y-26+Math.sin(a)*3, 8, 2.2, a, 0, 7); g.fill(); } } }
+  }
+  cvs.ponds = ponds;
+  // Wahrzeichen am Kartenrand
+  { let best = null, bd = 0;
+    for (let x = 46; x <= W-46; x += 22) for (let y = 40; y <= H-30; y += 22) { if (x > 90 && x < W-90 && y > 90 && y < H-70) continue; const d = distLanes(lanes, x, y); if (d > bd && ponds.every(q => Math.hypot(q.x-x, q.y-y) > 90)) { bd = d; best = [x, y]; } }
+    if (best && bd > 70) { const [x, y] = best; g.save(); g.translate(x, y);
+      g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(6, 24, 40, 12, 0, 0, 7); g.fill();
+      if (map.theme === 'jungle') { for (let i = 0; i < 4; i++) { const w = 64 - i*13, hh = 11; g.fillStyle = ['#8d9a86','#7c8a76','#6c7a67','#5d6a59'][i]; g.fillRect(-w/2, 14 - (i+1)*hh, w, hh); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(-w/2, 14 - i*hh - 2, w, 2); g.fillStyle = 'rgba(255,255,255,.14)'; g.fillRect(-w/2, 14 - (i+1)*hh, w, 2); }
+        g.fillStyle = '#20281f'; g.fillRect(-5, 14-16, 10, 16); g.strokeStyle = '#3f8a3c'; g.lineWidth = 2; for (let i = 0; i < 5; i++) { g.beginPath(); g.moveTo(-30 + i*13, -28); g.quadraticCurveTo(-28 + i*13, -10, -32 + i*13, 8); g.stroke(); } }
+      else if (map.theme === 'desert') { g.fillStyle = '#d9b46a'; g.beginPath(); g.moveTo(-38, 18); g.lineTo(0, -34); g.lineTo(38, 18); g.closePath(); g.fill(); g.fillStyle = '#b68e4e'; g.beginPath(); g.moveTo(0, -34); g.lineTo(38, 18); g.lineTo(6, 18); g.closePath(); g.fill(); g.strokeStyle = 'rgba(0,0,0,.15)'; g.lineWidth = 1; for (let i = 1; i < 5; i++) { g.beginPath(); g.moveTo(-38 + i*7, 18 - i*10.4); g.lineTo(38 - i*7, 18 - i*10.4); g.stroke(); } g.fillStyle = '#3b2a15'; g.fillRect(-4, 6, 8, 12); }
+      else if (map.theme === 'snow') { g.fillStyle = '#eef6fb'; g.strokeStyle = '#a9c4d6'; g.lineWidth = 1.5; g.beginPath(); g.arc(0, 12, 34, Math.PI, 0); g.closePath(); g.fill(); g.stroke(); for (let i = 1; i < 4; i++) { g.beginPath(); g.arc(0, 12, 34 - i*8, Math.PI, 0); g.stroke(); } for (let i = -3; i <= 3; i++) { g.beginPath(); g.moveTo(i*9, 12); g.lineTo(i*9*.7, 12 - 24); g.stroke(); } g.fillStyle = '#3a4a5a'; g.beginPath(); g.arc(0, 12, 9, Math.PI, 0); g.closePath(); g.fill(); }
+      else { g.fillStyle = '#5d4632'; for (const dx of [-24, -8, 8, 24]) g.fillRect(dx-2, 2, 4, 20); g.fillStyle = '#7a5c3c'; g.fillRect(-30, -2, 60, 7); g.fillStyle = '#8b6a44'; g.fillRect(-24, -22, 48, 20); g.fillStyle = '#c9a24a'; g.beginPath(); g.moveTo(-32, -22); g.lineTo(0, -42); g.lineTo(32, -22); g.closePath(); g.fill(); g.fillStyle = '#2a1e12'; g.fillRect(-5, -14, 10, 12); g.fillStyle = 'rgba(255,200,90,.85)'; g.beginPath(); g.arc(16, -14, 3, 0, 7); g.fill(); }
+      g.restore(); } }
   // Kieselsteine auf dem Weg
   for (let i = 0; i < 520; i++) {
     const L = lanes[(rnd()*lanes.length)|0], sg = L.segs[(rnd()*L.segs.length)|0], t = rnd(), off = (rnd()-.5)*(PATH_W-8);
@@ -357,6 +394,7 @@ function drawPlanes(t) {
 }
 function drawCapy(c, x, y, type, ang, sz = 1) {
   c.save(); c.translate(x, y); c.scale(sz, sz);
+  if (type !== 'plane' && type !== 'h_pilot') { c.translate(0, 14); c.scale(1, 1 + Math.sin(TIME*2.4 + x*.13)*.014); c.translate(0, -14); }
   if (type === 'plane' || type === 'h_pilot') { drawPlaneSprite(c, -.5, .78, type === 'h_pilot' ? ['#6f9bff','#243c8c'] : null); c.restore(); return; }
   if (type === 'village') { // Teich + Hütte
     c.fillStyle = '#2b7fb8'; c.beginPath(); c.ellipse(0,10,30,16,0,0,7); c.fill();
@@ -372,7 +410,7 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
   // Beine
   [-11,-5,7,12].forEach(lx => { c.fillStyle = '#6e4522'; c.beginPath(); c.roundRect(lx-2.2,5,4.4,9,2); c.fill(); c.fillStyle = '#2f1c0d'; c.beginPath(); c.roundRect(lx-2.2,12,4.4,2.4,1); c.fill(); });
   // Schwänzchen
-  c.fillStyle = '#7d5228'; c.beginPath(); c.arc(-17.5,1.5,2.6,0,7); c.fill();
+  c.fillStyle = '#7d5228'; c.beginPath(); c.ellipse(-17.5 + Math.sin(TIME*5 + x)*.9, 1.5 + Math.cos(TIME*5 + x)*.5, 2.7, 2.3, .3, 0, 7); c.fill();
   // Körper
   const bgr = c.createLinearGradient(0,-11,0,11); bgr.addColorStop(0,'#cf9556'); bgr.addColorStop(.55,'#a8743f'); bgr.addColorStop(1,'#76491f');
   c.fillStyle = bgr; c.strokeStyle = '#4a2c12'; c.lineWidth = 1.2; c.beginPath(); c.ellipse(-1,0,17,10.5,0,0,7); c.fill(); c.stroke();
@@ -2221,6 +2259,32 @@ function drawAmbient() {
   }
   ctx.restore();
 }
+function drawPondFx() {
+  for (const q of (bg.ponds || [])) {
+    for (let i = 0; i < 2; i++) { const ph = (TIME*.35 + i*.5 + q.x*.003) % 1; ctx.strokeStyle = `rgba(255,255,255,${.35*(1-ph)})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(q.x + Math.sin(q.y)*q.rx*.3, q.y, q.rx*.75*ph, q.ry*.75*ph, 0, 0, 7); ctx.stroke(); }
+    for (let i = 0; i < 4; i++) { const a = .5 + .5*Math.sin(TIME*2.4 + i*1.9 + q.x); ctx.fillStyle = `rgba(255,255,255,${a*.7})`; const x = q.x + Math.cos(i*2.3 + q.y)*q.rx*.6, y = q.y + Math.sin(i*2.3 + q.x)*q.ry*.55; ctx.fillRect(x - 1, y - 1, 2.2, 2.2); }
+  }
+}
+const dayPhase = () => (((S.round || 0) + (S.active ? Math.min(1, (S.qt || 0) / 60) : 0)) / 16) % 1;
+const darkness = () => .5 - .5 * Math.cos(6.283 * dayPhase());
+function drawDayNight() {
+  const d = darkness(); if (d < .04) return;
+  ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = `rgba(105,125,205,${d*.8})`; ctx.fillRect(0, 0, W, H);
+  const warm = Math.max(0, 1 - Math.abs(d - .5) * 2.4); if (warm > .05) { ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = `rgba(255,120,50,${warm*.10})`; ctx.fillRect(0, 0, W, H); }
+  ctx.globalCompositeOperation = 'source-over';
+}
+function drawNightGlows() {
+  const d = darkness(); if (d < .2) return; ctx.globalCompositeOperation = 'lighter';
+  for (const t of S.towers) { const g = ctx.createRadialGradient(t.x, t.y, 4, t.x, t.y, 62); g.addColorStop(0, `rgba(255,205,130,${.24*d})`); g.addColorStop(1, 'rgba(255,205,130,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(t.x, t.y, 62, 0, 7); ctx.fill(); }
+  ctx.globalCompositeOperation = 'source-over';
+}
+const bloomCv = document.createElement('canvas'); bloomCv.width = 320; bloomCv.height = 200;
+const bctx = bloomCv.getContext('2d'); bctx.imageSmoothingQuality = 'high';
+function drawBloom() {
+  bctx.clearRect(0, 0, 320, 200); bctx.drawImage(cv, 0, 0, cv.width, cv.height, 0, 0, 320, 200);
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = .08 + .10*darkness(); ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(bloomCv, 0, 0, 320, 200, 0, 0, cv.width, cv.height); ctx.restore();
+}
 function drawPathFx() {
   const th = MAPS[mapIdx].theme; if (th === 'jungle' || th === 'desert') return;
   LANES.forEach((L, li) => { for (let i = 0; i < 26; i++) {
@@ -2267,7 +2331,7 @@ function render(time) {
   ctx.drawImage(bg, 0, 0, W, H);
   ctx.fillStyle = 'rgba(0,0,0,.06)';
   for (let i = 0; i < 3; i++) { const cx = ((TIME*9 + i*430) % (W+500)) - 250, cy = 110 + i*210 + Math.sin(TIME*.2+i)*30; ctx.beginPath(); ctx.ellipse(cx, cy, 170, 60, 0, 0, 7); ctx.ellipse(cx+90, cy+25, 110, 45, 0, 0, 7); ctx.fill(); }
-  drawPathFx();
+  drawDayNight(); drawPondFx(); drawPathFx();
   // Reichweiten
   const showRange = (x, y, r, ok) => {
     const g = ctx.createRadialGradient(x, y, r*.55, x, y, r);
@@ -2396,7 +2460,7 @@ function render(time) {
     ctx.globalAlpha = .8; drawCapy(ctx, S.mx, S.my, S.place, 0); ctx.globalAlpha = 1;
   }
   ctx.globalCompositeOperation = 'source-over';
-  drawAmbient(); drawBanner();
+  drawNightGlows(); drawAmbient(); drawBloom(); drawBanner();
   if (S.paused) { ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(0,0,W,H); ctx.fillStyle='#fff'; ctx.font='bold 40px sans-serif'; ctx.textAlign='center'; ctx.fillText('Pause', W/2, H/2); }
 }
 
