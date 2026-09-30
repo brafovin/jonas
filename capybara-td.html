@@ -102,7 +102,7 @@
     </div>
   </div>
   <aside id="panel">
-    <div id="hud"><span>❤️ <b id="hLives">0</b></span><span>💰 <b id="hMoney">0</b></span><span>🌊 <b id="hRound">0</b>/80</span></div>
+    <div id="hud"><span>❤️ <b id="hLives">0</b></span><span>💰 <b id="hMoney">0</b></span><span>🌊 <b id="hRound">0</b><span id="hMax">/80</span></span></div>
     <div class="row" id="abil"></div>
     <div id="info"></div>
     <div class="row">
@@ -1660,7 +1660,7 @@ function heroInfo(t) {
 }
 let lastSig = '';
 function refreshAll(force) {
-  $('hLives').textContent = S.lives; $('hMoney').textContent = Math.floor(S.money); $('hRound').textContent = S.round;
+  $('hLives').textContent = S.lives; $('hMoney').textContent = Math.floor(S.money); $('hRound').textContent = S.round; $('hMax').textContent = S.endless ? ' ♾' : '/' + MAXR;
   for (const k of ORDER) {
     shopBtns[k].classList.toggle('sel', S.place === k);
     shopBtns[k].classList.toggle('dis', S.money < TOWERS[k].cost);
@@ -1776,7 +1776,7 @@ function loop(now) {
 requestAnimationFrame(loop);
 
 // Zum Testen erreichbar
-window.__td = { get S() { return S; }, MAPS, spawn, useAbility, newGame, placeTower, startRound, upgradeTower };
+window.__td = { get S() { return S; }, get LANES() { return LANES; }, TOWERS, HEROES, ORDER, xpFor, canPlace, update, render, MAPS, spawn, useAbility, newGame, placeTower, startRound, upgradeTower };
 })();
 </script>
 </body>
