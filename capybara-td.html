@@ -1126,7 +1126,7 @@ function newGame(d, mi, hk) {
 
 const BOSS_WAVES = {10:[20], 15:[22], 20:[21], 25:[22,22], 30:[21,20], 35:[22,22,22], 40:[21,21], 60:[23], 70:[23,21], 80:[23,23]};
 // Bosse werden mit der Rundenzahl immer zäher
-const bossScale = r => 1 + Math.pow(Math.max(0, r - 30) / 10, 4.3) * Math.pow(1 + Math.max(0, r - 60) / 10, 2);
+const bossScale = r => 1 + Math.pow(Math.max(0, r - 35) / 10, 4) * Math.pow(1 + Math.max(0, r - 65) / 20, 2);
 function bossList(r) {
   if (BOSS_WAVES[r]) return BOSS_WAVES[r];
   if (r <= 40 || r % 5) return [];
@@ -1171,7 +1171,7 @@ function makeWave(r) {
 
 function spawn(tier, d, hp, lane, camo, lead) {
   const e = {id:nextId++, d:d||0, lane:lane||0, tier, slow:0, freeze:0, dead:false, x:0, y:0, camo:!!camo || !!(BOSS[tier] && BOSS[tier].camo), lead:!!lead};
-  if (tier >= 20) e.spdMul = 1 + Math.max(0, S.round - 40) / 120;   // späte Bosse sind auch schneller
+  if (tier >= 20) e.spdMul = 1 + Math.max(0, S.round - 40) / 200;   // späte Bosse sind auch schneller
   if (tier >= 10) { e.hp = e.maxhp = hp || (tier === 10 ? 10 : BOSS[tier].hp); }
   const p = posAt(e.d, e.lane); e.x = p.x; e.y = p.y;
   S.enemies.push(e); return e;
