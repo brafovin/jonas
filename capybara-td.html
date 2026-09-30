@@ -927,7 +927,7 @@ function newGame(d, mi, hk) {
 
 const BOSS_WAVES = {10:[20], 15:[22], 20:[21], 25:[22,22], 30:[21,20], 35:[22,22,22], 40:[21,21], 60:[23], 70:[23,21], 80:[23,23]};
 // Bosse werden mit der Rundenzahl immer zäher
-const bossScale = r => 1 + Math.pow(Math.max(0, r - 20) / 10, 4.3);
+const bossScale = r => 1 + Math.pow(Math.max(0, r - 30) / 10, 4.3);
 function bossList(r) {
   if (BOSS_WAVES[r]) return BOSS_WAVES[r];
   if (r <= 40 || r % 5) return [];
