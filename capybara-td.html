@@ -100,6 +100,17 @@
   #overlay .diff button { display:block; min-width:210px; text-align:center; line-height:1.3; }
   #overlay .diff button small { display:block; font-weight:400; font-size:11px; opacity:.85; }
   #overlay .diff button.sel { background:var(--accent); color:#222; }
+  .mulbox { display:flex; flex-wrap:wrap; align-items:center; gap:10px; background:#ffffff10; border-radius:10px; padding:10px 12px; }
+  .mulbox input[type=range] { flex:1; min-width:180px; accent-color:var(--accent); }
+  .mulbox input[type=number] { width:86px; padding:6px 8px; border-radius:6px; border:1px solid #4b6d54; background:#1a2a1f; color:var(--ink); font-size:14px; }
+  .mulbox .chips { display:flex; gap:6px; flex-wrap:wrap; width:100%; } .mulbox .chips button { padding:5px 10px; border-radius:16px; border:1px solid var(--accent); background:transparent; color:var(--ink); cursor:pointer; font-size:12px; font-weight:700; }
+  .mulbox .chips button.sel { background:var(--accent); color:#222; } .mulbox small { width:100%; opacity:.75; font-size:11px; }
+  .ostat { font-size:12px; background:#1d2b1f; border-radius:6px; padding:6px 8px; margin:4px 0; }
+  .osec { font-size:12px; font-weight:700; color:var(--accent); margin:8px 0 2px; }
+  .upg.omni i { opacity:.7; font-weight:400; font-style:normal; }
+  details.omod { background:#243a2b; border-radius:6px; padding:4px 6px; margin:4px 0; font-size:12px; } details.omod summary { cursor:pointer; font-weight:700; padding:3px 0; }
+  .dotm { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; border:1px solid #fff8; }
+  #info select { flex:1; min-width:0; padding:6px; border-radius:6px; border:1px solid #4b6d54; background:#1a2a1f; color:var(--ink); font-size:12px; }
   .startbar { position:sticky; bottom:0; z-index:2; box-shadow:0 -10px 14px #0f2416; background:#1d3a26 !important; }
   #panel .row .act { font-size:12px; padding:8px 4px; }
   .startbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0 4px; padding:12px; border-radius:12px; background:#ffffff12; }
@@ -158,6 +169,9 @@
             <button data-d="1"><b>Normal</b><small>150 Leben · $700 Start · normale Wellen</small></button>
             <button data-d="2"><b>Schwer</b><small>80 Leben · $550 Start · 30 % mehr Ballons & Boss-HP</small></button>
           </div>
+          <h2>4 · Geld-Multiplikator</h2>
+          <div class="mulbox"><input type="range" id="mulRange" min="0" max="4" step="0.01" value="0"><label>× <input type="number" id="mulNum" min="1" max="10000" step="1" value="1"></label><div class="chips" id="mulChips"></div>
+            <small>Alle Einnahmen (Ballons, Rundenbonus, Einkommen) werden mit diesem Faktor multipliziert (1–10.000). Rekorde zählen nur bei ×1.</small></div>
           <div class="startbar"><span id="sumLine"></span><button id="startBtn">▶ Spiel starten</button></div>
         </section>
         <section class="tab" id="tab-pets"></section>
@@ -352,7 +366,7 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
   const flip = Math.cos(ang) < 0 ? -1 : 1;
   c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0,14,17,5,0,0,7); c.fill();
   c.save(); c.scale(flip, 1);
-  if (type.startsWith('h_')) { c.fillStyle = {h_cap:'#c62828', h_frost:'#4fb0e8', h_bomb:'#ef6c00', h_eagle:'#2e7d32', h_gold:'#6a1b9a', h_ninja:'#b71c1c', h_mage:'#4a148c', h_volt:'#eceff1', h_shaman:'#1b5e20'}[type]; c.beginPath(); c.moveTo(-5,-8); c.quadraticCurveTo(-24,-4,-20,14); c.lineTo(-8,10); c.closePath(); c.fill(); }
+  if (type.startsWith('h_') || type === 'omni') { c.fillStyle = {omni:'#7e57c2', h_cap:'#c62828', h_frost:'#4fb0e8', h_bomb:'#ef6c00', h_eagle:'#2e7d32', h_gold:'#6a1b9a', h_ninja:'#b71c1c', h_mage:'#4a148c', h_volt:'#eceff1', h_shaman:'#1b5e20'}[type]; c.beginPath(); c.moveTo(-5,-8); c.quadraticCurveTo(-24,-4,-20,14); c.lineTo(-8,10); c.closePath(); c.fill(); }
   // Beine
   [-11,-5,7,12].forEach(lx => { c.fillStyle = '#6e4522'; c.beginPath(); c.roundRect(lx-2.2,5,4.4,9,2); c.fill(); c.fillStyle = '#2f1c0d'; c.beginPath(); c.roundRect(lx-2.2,12,4.4,2.4,1); c.fill(); });
   // Schwänzchen
@@ -414,6 +428,9 @@ function drawCapy(c, x, y, type, ang, sz = 1) {
     case 'village':
       c.fillStyle = '#2fa84f'; c.beginPath(); c.ellipse(hx+2,hy+3,9,3,-.3,0,7); c.fill();
       c.fillStyle = '#e63946'; c.fillRect(hx+4,hy-6,2,8); c.fillStyle = '#ffd166'; c.fillRect(hx+6,hy-6,4,3); break;
+    case 'omni':
+      c.fillStyle='#ffd54a'; c.strokeStyle='#8a6d00'; c.lineWidth=1; c.beginPath(); c.moveTo(3,-12); c.lineTo(3,-21); c.lineTo(8,-16); c.lineTo(13,-24); c.lineTo(18,-16); c.lineTo(23,-21); c.lineTo(23,-12); c.closePath(); c.fill(); c.stroke();
+      ['#e53935','#42a5f5','#66bb6a'].forEach((col,i)=>{ c.fillStyle=col; c.beginPath(); c.arc(8+i*5,-14.5,1.5,0,7); c.fill(); }); break;
     case 'h_ninja':
       c.fillStyle='#111'; c.fillRect(3,-14,19,7.5); c.fillStyle='#ffd54a'; c.fillRect(3,-14,19,1.5); c.beginPath(); c.arc(12.5,-10.5,2,0,7); c.fill();
       c.fillStyle='#c62828'; c.beginPath(); c.moveTo(3,-11); c.lineTo(-11,-6+Math.sin(TIME*8)*2.5); c.lineTo(-9,-13+Math.sin(TIME*8+1)*2); c.closePath(); c.fill();
@@ -735,7 +752,7 @@ const PATHC = {
 for (const k in PATHC) TOWERS[k].C = PATHC[k];
 
 /* ---------- Helden ---------- */
-const HW = {h_cap:'warrior', h_bomb:'bomber', h_eagle:'sniper', h_gold:'ninja', h_ninja:'ninja', h_mage:'mage', h_volt:'tesla', h_shaman:'shaman'};
+const HW = {omni:'warrior', h_cap:'warrior', h_bomb:'bomber', h_eagle:'sniper', h_gold:'ninja', h_ninja:'ninja', h_mage:'mage', h_volt:'tesla', h_shaman:'shaman'};
 const xpFor = L => 35 * (L - 1) * (L - 1);
 const HEROES = {
   h_cap:{name:"Käpt'n Capy", cost:650, desc:'Kommandant: schnelle Pfeile, stärkt Türme in der Nähe. Ruft zum Angriff.',
@@ -1072,7 +1089,140 @@ TOWERS.blades = { name:'Klingen-Capy', cost:550, desc:'Klingen kreisen um den Tu
     {n:'Sturmklingen', c:17000, d:'Trifft doppelt so oft, +6 Schaden', m:s=>{s.hitCd*=.5; s.dmg+=6}}]}};
 ORDER.push('swarm','catapult','timewarp','laser','blades');
 
-const HOTK = '1234567890-asdfgjzxcvb';
+/* ---------- Meister-Capy (unendliche Upgrades + Module aus allen Klassen) ---------- */
+TOWERS.omni = { name:'Meister-Capy', cost:1500, omni:true,
+  desc:'Unendlich ausbaubar: Schaden, Reichweite, Tempo & mehr – und Module aller anderen Klassen freischalten und dort deren Upgrades kaufen!',
+  base:{range:125, rate:.6, dmg:1, pierce:2, speed:480, shots:1, spread:0, kind:'dart', col:'#ffe08a'},
+  A:{name:'',up:[]}, B:{name:'',up:[]}, C:{name:'',up:[]} };
+ORDER.push('omni');
+const OMNI_UP = {
+  dmg:{n:'Schaden', ico:'💥', b:120, g:1.20, d:'Mehr Schaden pro Treffer'},
+  range:{n:'Reichweite', ico:'🎯', b:100, g:1.16, d:'+4 Reichweite'},
+  rate:{n:'Feuerrate', ico:'⚡', b:140, g:1.20, d:'4% kürzere Abklingzeit'},
+  pierce:{n:'Durchschlag', ico:'➡️', b:100, g:1.15, d:'+2 Durchschlag'},
+  shots:{n:'Geschosse', ico:'🎆', b:400, g:1.35, d:'+1 Geschoss alle 2 Stufen', cap:78},
+  gdmg:{n:'Meisterschaft: Schaden', ico:'🔥', b:600, g:1.25, d:'+15% Schaden für Kern UND alle Module'},
+  grange:{n:'Meisterschaft: Reichweite', ico:'🔭', b:500, g:1.22, d:'+3% Reichweite für Kern UND Module'},
+  grate:{n:'Meisterschaft: Tempo', ico:'⏩', b:700, g:1.25, d:'3% kürzere Abklingzeit für alle'},
+  splash:{n:'Explosive Schüsse', ico:'💣', b:300, g:1.22, d:'Explosion beim Treffer, Radius +8'},
+  poison:{n:'Giftschüsse', ico:'☠️', b:350, g:1.22, d:'Gift: +2 Schaden pro Tick'},
+  slow:{n:'Frostschüsse', ico:'❄️', b:250, g:1.20, d:'Verlangsamt Treffer, +0,25s'},
+  lead:{n:'Bleibrecher', ico:'🛡️', b:800, g:1, d:'Durchdringt Blei (Kern + Module)', once:true},
+  detect:{n:'Tarnungsradar', ico:'📡', b:600, g:1, d:'Erkennt Tarnung (Kern + Module)', once:true}
+};
+const OMNI_SECTIONS = [['Kern-Upgrades (unendlich)', ['dmg','range','rate','pierce','shots']], ['Meisterschaft – wirkt auf Kern und alle Module', ['gdmg','grange','grate']], ['Extras', ['splash','poison','slow','lead','detect']]];
+const omniCost = (k, L) => Math.round(OMNI_UP[k].b * Math.pow(OMNI_UP[k].g, L));
+const omniMaxed = (o, k) => (OMNI_UP[k].once && o.lv[k] > 0) || (OMNI_UP[k].cap && o.lv[k] >= OMNI_UP[k].cap);
+const modTypes = () => ORDER.filter(k => !TOWERS[k].omni && !TOWERS[k].hero);
+const modUnlockCost = k => TOWERS[k].cost * 2;
+const modUpCost = (k, p, tier) => Math.round(TOWERS[k]['ABC'[p]].up[tier].c * 1.25);
+function fm(n) { n = Math.round(n); if (n < 10000) return String(n); const u = ['K','M','B','T','Q']; let i = -1; while (n >= 1000 && i < u.length - 1) { n /= 1000; i++; } return (n < 100 ? n.toFixed(1) : Math.round(n)) + u[i]; }
+function omniCompute(t) {
+  const o = t.omni, lv = o.lv, s = Object.assign({}, TOWERS.omni.base);
+  const gd = 1 + .15 * lv.gdmg, gr = 1 + .03 * lv.grange, gt = Math.pow(.97, lv.grate);
+  s.dmg = Math.round((1 + lv.dmg + Math.floor(lv.dmg * lv.dmg / 20)) * gd);
+  s.range = Math.min(650, 125 + lv.range * 4) * gr;
+  s.rate = Math.max(.04, .6 * Math.pow(.96, lv.rate) * gt);
+  s.pierce = 2 + lv.pierce * 2;
+  s.shots = Math.min(40, 1 + Math.floor(lv.shots / 2)); s.spread = s.shots > 1 ? Math.min(1.4, .12 * s.shots) : 0;
+  if (lv.splash) s.splash = 30 + lv.splash * 8;
+  if (lv.poison) { s.hp = lv.poison * 2; s.hpt = 4; }
+  if (lv.slow) s.slowHit = 1 + lv.slow * .25;
+  if (lv.lead) s.pierceLead = true;
+  if (lv.detect) s.detect = true;
+  s.income = 0;
+  for (const m of o.mods) {
+    const md = TOWERS[m.type], ms = Object.assign({}, md.base);
+    ['A','B','C'].forEach((p, i) => { for (let k = 0; k < m.up[i]; k++) md[p].up[k].m(ms); });
+    if (ms.dmg > 0) ms.dmg = Math.round(ms.dmg * gd);
+    if (ms.range > 0 && ms.range < 5000) ms.range *= gr;
+    if (ms.rate) ms.rate = Math.max(.04, ms.rate * gt);
+    if (lv.detect) ms.detect = true;
+    if (lv.lead) ms.pierceLead = true;
+    m.s = ms;
+    if (ms.income) s.income += ms.income;
+    if (ms.interest) { s.interest = Math.max(s.interest || 0, ms.interest); s.cap = Math.max(s.cap || 0, ms.cap); }
+    if (ms.aDist > 0) { s.aDist = Math.max(s.aDist || 0, ms.aDist); s.aRate = Math.max(s.aRate || 1, ms.aRate); s.aRange = Math.max(s.aRange || 0, ms.aRange); s.aDmg = Math.max(s.aDmg || 0, ms.aDmg); s.aDetect = s.aDetect || ms.aDetect; }
+  }
+  return s;
+}
+function omniBuy(t, what, a, b) {
+  const o = t.omni; let cost;
+  if (what === 'up') { if (omniMaxed(o, a)) return; cost = omniCost(a, o.lv[a]); if (S.money < cost) return; o.lv[a]++; }
+  else if (what === 'mod') { if (!a || o.mods.some(m => m.type === a)) return; cost = modUnlockCost(a); if (S.money < cost) return; o.mods.push({type:a, up:[0,0,0], pt:null, s:null}); o.open[a] = true; o.pick = ''; }
+  else if (what === 'mup') { const m = o.mods.find(m => m.type === a); if (!m || m.up[b] >= 5) return; cost = modUpCost(a, b, m.up[b]); if (S.money < cost) return; m.up[b]++; }
+  else return;
+  S.money -= cost; t.spent += cost; computeStats(t); refreshAll(true);
+}
+function omniCosts(t) {
+  const o = t.omni, c = [];
+  for (const k in OMNI_UP) c.push(omniMaxed(o, k) ? 0 : omniCost(k, o.lv[k]));
+  for (const m of o.mods) for (let p = 0; p < 3; p++) c.push(m.up[p] >= 5 ? 0 : modUpCost(m.type, p, m.up[p]));
+  for (const k of modTypes()) if (!o.mods.some(m => m.type === k)) c.push(modUnlockCost(k));
+  return c;
+}
+function updateModules(t, dt) {
+  for (const m of t.omni.mods) {
+    if (!m.s) continue;
+    if (!m.pt) m.pt = {uid:++towerUid, type:m.type, x:t.x, y:t.y, s:m.s, bf:t.bf, cd:.3, ang:0, mode:t.mode, up:[0,0,0]};
+    const pt = m.pt; pt.s = m.s; pt.x = t.x; pt.y = t.y; pt.bf = t.bf; pt.mode = t.mode;
+    const k = pt.s.kind;
+    if (k === 'bank' || k === 'village') continue;
+    if (k === 'plane') { updatePlane(pt, dt); continue; }
+    if (k === 'orbit') { updateBlades(pt, dt); continue; }
+    pt.cd -= dt; pt.recoil = Math.max(0, (pt.recoil || 0) - dt*7);
+    const e = pickTarget(pt);
+    if (e) {
+      if (k !== 'pulse') pt.ang = Math.atan2(e.y - pt.y, e.x - pt.x);
+      if (pt.cd <= 0) { fire(pt, e); pt.cd = pt.s.rate / (pt.bf.rate * (S.rally > 0 ? 1.5 : 1) * (t.buffT > 0 ? t.buffMul : 1)); }
+    } else if (pt.cd < 0) pt.cd = 0;
+  }
+}
+const MOD_COL = k => `hsl(${(ORDER.indexOf(k) * 47) % 360},80%,60%)`;
+function drawOmniMark(t) {
+  const n = t.omni.mods.length;
+  ctx.strokeStyle = 'rgba(190,140,255,.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(t.x, t.y + 13, 27, 10, 0, 0, 7); ctx.stroke();
+  for (let i = 0; i < n; i++) { const a = TIME*1.2 + i * 6.283 / n; ctx.fillStyle = MOD_COL(t.omni.mods[i].type); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(t.x + Math.cos(a)*30, t.y + 13 + Math.sin(a)*11, 3.2, 0, 7); ctx.fill(); ctx.stroke(); }
+}
+function drawBladeSet(list) {
+  for (const b of list) { ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.a * 3 + TIME * 10);
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, 8, 0, 1.6); ctx.stroke();
+    ctx.fillStyle = '#e8eef4'; ctx.strokeStyle = '#5a6570'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, 0); ctx.quadraticCurveTo(0, -11, 9, 0); ctx.quadraticCurveTo(0, -4, -9, 0); ctx.fill(); ctx.stroke(); ctx.restore(); }
+}
+function omniInfo(t) {
+  const o = t.omni, total = Object.values(o.lv).reduce((a, b) => a + b, 0) + o.mods.reduce((a, m) => a + m.up.reduce((x, y) => x + y, 0) + 1, 0);
+  let h = `<h3>🌟 ${TOWERS.omni.name} <span style="opacity:.7;font-weight:400">${total} Upgrades</span></h3><div class="desc">${TOWERS.omni.desc}</div>`;
+  h += `<div class="ostat">💥 <b>${fm(t.s.dmg)}</b> · 🎯 <b>${Math.round(t.s.range)}</b> · ⚡ <b>${(1 / t.s.rate).toFixed(1)}/s</b> · 🎆 <b>${t.s.shots}</b> · 🧩 <b>${o.mods.length}</b> Module</div>`;
+  for (const [title, keys] of OMNI_SECTIONS) {
+    h += `<div class="osec">${title}</div>`;
+    for (const k of keys) { const U = OMNI_UP[k], lv = o.lv[k], mx = omniMaxed(o, k), cost = omniCost(k, lv);
+      h += `<button class="upg omni" data-ou="${k}" ${(mx || S.money < cost) ? 'disabled' : ''}><span class="c">${mx ? '✔' : '$' + fm(cost)}</span><b>${U.ico} ${U.n} <i>${U.once ? (lv ? 'aktiv' : '') : 'Lv ' + lv}</i></b>${U.d}</button>`; }
+  }
+  h += `<div class="osec">Module – Fähigkeiten & Upgrades anderer Klassen</div>`;
+  for (const m of o.mods) {
+    const md = TOWERS[m.type];
+    h += `<details class="omod" data-mod="${m.type}" ${o.open[m.type] ? 'open' : ''}><summary><span class="dotm" style="background:${MOD_COL(m.type)}"></span>${md.name} <i>(${m.up.join('/')})</i></summary>`;
+    for (let p = 0; p < 3; p++) { const path = md['ABC'[p]];
+      if (m.up[p] >= 5) { h += `<button class="upg" disabled><b>${path.name}: ${path.up[4].n}</b>Maximal</button>`; continue; }
+      const u = path.up[m.up[p]], cost = modUpCost(m.type, p, m.up[p]);
+      h += `<button class="upg" data-omod="${m.type}:${p}" ${S.money < cost ? 'disabled' : ''}><span class="c">$${fm(cost)}</span><b>${path.name} ${m.up[p] + 1}: ${u.n}</b>${u.d}</button>`; }
+    h += `</details>`;
+  }
+  const locked = modTypes().filter(k => !o.mods.some(m => m.type === k));
+  if (locked.length) h += `<div class="row" style="margin:6px 0"><select id="omniPick">${locked.map(k => `<option value="${k}" ${o.pick === k ? 'selected' : ''}>${TOWERS[k].name} – $${fm(modUnlockCost(k))}</option>`).join('')}</select><button class="act" id="omniAdd" style="flex:none;padding:6px 10px">🧩 Freischalten</button></div>`;
+  h += petHtml(t.pet);
+  h += `<div class="row" style="margin-top:6px"><button class="act" id="bMode">Ziel: ${MODES[t.mode]}</button><button class="act sell" id="bSell">Verkaufen $${fm(t.spent * .7)}</button></div>`;
+  infoEl.innerHTML = h;
+  infoEl.querySelectorAll('[data-ou]').forEach(b => b.onclick = () => omniBuy(t, 'up', b.dataset.ou));
+  infoEl.querySelectorAll('[data-omod]').forEach(b => b.onclick = () => { const [ty, p] = b.dataset.omod.split(':'); omniBuy(t, 'mup', ty, +p); });
+  infoEl.querySelectorAll('details.omod').forEach(d => d.ontoggle = () => { o.open[d.dataset.mod] = d.open; });
+  const sel = $('omniPick'); if (sel) { o.pick = o.pick && locked.includes(o.pick) ? o.pick : sel.value; sel.value = o.pick; sel.onchange = () => { o.pick = sel.value; }; $('omniAdd').onclick = () => omniBuy(t, 'mod', sel.value); }
+  bindPet(infoEl, () => t.pet, np => { t.pet = np; computeStats(t); refreshAll(true); });
+  $('bMode').onclick = () => { t.mode = (t.mode + 1) % 4; refreshAll(true); };
+  $('bSell').onclick = () => sellTower(t);
+}
+
+const HOTK = '1234567890-asdfgjzxcvbn';
 
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
 
@@ -1113,11 +1263,16 @@ const store = {
 const SAVE = Object.assign({best:{}, plays:0, pops:0, pet:{type:'', color:'', name:''}, sel:{map:0, hero:0, diff:1}}, store.get());
 const persist = () => store.set(SAVE);
 
-function newGame(d, mi, hk) {
+function newGame(d, mi, hk, mul) {
   diffIdx = d; setMap(mi == null ? mapIdx : mi);
   S = { money:DIFF[d].money, lives:DIFF[d].lives, round:0, towers:[], enemies:[], projs:[], parts:[], fx:[],
         queue:[], qi:0, qt:0, active:false, speed:1, auto:false, paused:false, sel:null, place:null,
         over:false, won:false, mapKey:0, mx:-99, my:-99, heroKey:hk || null, hero:null, traps:[], endless:false, rally:0, goldT:0 };
+  S.moneyMul = Math.max(1, Math.min(10000, Math.round(mul || 1))); S._m = DIFF[d].money * S.moneyMul;
+  Object.defineProperty(S, 'money', {configurable:true, enumerable:true,
+    get() { return this._m; },
+    set(v) { let dl = v - this._m; if (dl > 0) dl *= this.moneyMul; this._m += dl; } });
+  S.addRaw = function (n) { this._m += n; };
   $('endless').style.display = 'none'; buildHeroBtn();
   SAVE.plays++; persist(); setTitle();
   document.getElementById('overlay').classList.add('hidden'); $('pauseMenu').classList.add('hidden');
@@ -1428,6 +1583,7 @@ function drawParagonMark(t) {
 }
 function computeStats(t) {
   const def = TOWERS[t.type]; const s = Object.assign({}, def.base);
+  if (def.omni) { const so = omniCompute(t); applyPet(so, t.pet); t.s = so; return; }
   if (def.hero) { for (let l = 2; l <= t.hero.lvl; l++) HEROES[t.type].lv(s, l); applyPet(s, t.pet); t.s = s; return; }
   ['A','B','C'].forEach((p, i) => { for (let k = 0; k < t.up[i]; k++) def[p].up[k].m(s); });
   if (t.paragon) applyParagon(s);
@@ -1450,6 +1606,7 @@ function placeTower(type, x, y) {
   const t = {uid:++towerUid, type, x, y, up:[0,0,0], bf:{rate:1,range:0,dmg:0,detect:false}, cd:.3, ang:0, mode:0, spent:def.cost, bob:Math.random()*6};
   if (def.hero) { t.hero = {lvl:1, xp:0, cds:[0,0,0]}; S.hero = t; }
   if (SAVE.pet && SAVE.pet.type) t.pet = Object.assign({}, SAVE.pet);
+  if (def.omni) t.omni = {lv:{dmg:0,range:0,rate:0,pierce:0,shots:0,gdmg:0,grange:0,grate:0,splash:0,poison:0,slow:0,lead:0,detect:0}, mods:[], pick:'', open:{}};
   computeStats(t); if (t.s.kind === 'plane') updatePlane(t, 0); if (t.s.kind === 'orbit') updateBlades(t, 0); S.towers.push(t); S.sel = t; S.place = null;
   refreshAll(true); return true;
 }
@@ -1464,7 +1621,7 @@ function upgradeTower(t, path) {
 }
 function sellTower(t) {
   if (t.hero) { flash('Helden können nicht verkauft werden'); return; }
-  S.money += Math.round(t.spent * .7);
+  if (S.addRaw) S.addRaw(Math.round(t.spent * .7)); else S.money += Math.round(t.spent * .7);
   S.towers.splice(S.towers.indexOf(t), 1); S.sel = null; refreshAll(true);
 }
 const canSee = t => t.s.detect || t.bf.detect;
@@ -1667,6 +1824,7 @@ function update(dt) {
     t.bf.rate = Math.max(t.bf.rate, a.s.aRate); t.bf.range = Math.max(t.bf.range, a.s.aRange); t.bf.dmg = Math.max(t.bf.dmg, a.s.aDmg); if (a.s.aDetect) t.bf.detect = true;
   }
   for (const t of S.towers) {
+    if (t.omni) updateModules(t, dt);
     if (t.s.kind === 'bank' || t.s.kind === 'village') continue;
     if (t.s.kind === 'plane') { updatePlane(t, dt); continue; }
     if (t.s.kind === 'orbit') { updateBlades(t, dt); continue; }
@@ -1780,7 +1938,7 @@ function setTitle(head, text) {
 function flushStats() {
   if (!S || S.mapKey === undefined) return;
   const key = mapIdx + '-' + diffIdx;
-  SAVE.best[key] = Math.max(SAVE.best[key] || 0, S.round);
+  if (S.moneyMul === 1) SAVE.best[key] = Math.max(SAVE.best[key] || 0, S.round);
   SAVE.pops += (S.pops || 0) - (S.popsSaved || 0); S.popsSaved = S.pops || 0;
   persist();
 }
@@ -1880,16 +2038,18 @@ function render(time) {
   for (const t of sorted) {
     if (t === S.sel) { ctx.strokeStyle = '#ffc857'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(t.x,t.y+13,22+Math.sin(TIME*4)*1.5,9,0,0,7); ctx.stroke(); }
     if (t.paragon) drawParagonMark(t);
+    if (t.omni) { ctx.fillStyle = 'rgba(190,140,255,.22)'; ctx.beginPath(); ctx.ellipse(t.x, t.y + 12, 26, 10, 0, 0, 7); ctx.fill(); }
     if (t.hero) { ctx.fillStyle = 'rgba(255,215,80,.28)'; ctx.beginPath(); ctx.ellipse(t.x, t.y+12, 27, 11, 0, 0, 7); ctx.fill(); }
     if (t.s.kind === 'plane') drawAirfield(t); else { const rc = t.recoil || 0, bob = t.s.kind === 'village' ? 0 : Math.sin(TIME*2.2 + t.bob) * .9;
       ctx.save(); ctx.translate(-Math.cos(t.ang)*3*rc, bob); drawCapy(ctx, t.x, t.y, t.type, t.ang); drawWeapon(ctx, t); ctx.restore(); }
     if (t.hero) drawHeroBadge(t);
+    if (t.omni) { drawOmniMark(t); for (const m of t.omni.mods) if (m.pt && m.pt.blades) drawBladeSet(m.pt.blades); }
     if (t.pet && t.pet.type) { drawPet(ctx, t.x + 25, t.y + 9, t.pet, TIME + t.bob); if (t === S.sel && t.pet.name) { ctx.fillStyle = '#fff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.strokeText(t.pet.name, t.x + 25, t.y + 26); ctx.fillText(t.pet.name, t.x + 25, t.y + 26); } }
     if (t.blades) for (const b of t.blades) { ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.a * 3 + TIME * 10);
       ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, 8, 0, 1.6); ctx.stroke();
       ctx.fillStyle = '#e8eef4'; ctx.strokeStyle = '#5a6570'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-9, 0); ctx.quadraticCurveTo(0, -11, 9, 0); ctx.quadraticCurveTo(0, -4, -9, 0); ctx.fill(); ctx.stroke(); ctx.restore(); }
     // Upgrade-Punkte
-    if (!t.hero && !t.paragon) for (let p = 0; p < 3; p++) for (let k = 0; k < 5; k++) {
+    if (!t.hero && !t.paragon && !t.omni) for (let p = 0; p < 3; p++) for (let k = 0; k < 5; k++) {
       ctx.fillStyle = k < t.up[p] ? ['#fc5','#6cf','#f8a'][p] : 'rgba(0,0,0,.35)';
       ctx.beginPath(); ctx.arc(t.x - 10 + k*5, t.y + 21 + p*4.5, 1.7, 0, 7); ctx.fill();
     }
@@ -1922,7 +2082,7 @@ function render(time) {
       ctx.fillStyle = '#e63946'; ctx.beginPath(); ctx.moveTo(-7,0); ctx.lineTo(-10,-3); ctx.lineTo(-5,0); ctx.lineTo(-10,3); ctx.closePath(); ctx.fill(); }
     ctx.restore();
   }
-  for (const t of S.towers) if (t.s.kind === 'plane' && t.pos) drawPlanes(t);
+  for (const t of S.towers) { if (t.s.kind === 'plane' && t.pos) drawPlanes(t); if (t.omni) for (const m of t.omni.mods) if (m.pt && m.pt.s && m.pt.s.kind === 'plane' && m.pt.pos) drawPlanes(m.pt); }
   for (const q of S.parts) {
     const k = Math.max(0, q.life/(q.max||.35));
     if (q.smoke) { ctx.globalAlpha = .32*k; ctx.fillStyle = '#5a5048'; ctx.beginPath(); ctx.arc(q.x, q.y, 5 + (1-k)*13, 0, 7); ctx.fill(); }
@@ -2076,7 +2236,7 @@ function bindPet(root, getPet, setPet) {
 }
 let lastSig = '';
 function refreshAll(force) {
-  $('hLives').textContent = S.lives; $('hMoney').textContent = Math.floor(S.money); $('hRound').textContent = S.round; $('hMax').textContent = S.endless ? ' ♾' : '/' + MAXR;
+  $('hLives').textContent = S.lives; $('hMoney').textContent = fm(Math.floor(S.money)); $('hRound').textContent = S.round; $('hMax').textContent = S.endless ? ' ♾' : '/' + MAXR;
   for (const k of ORDER) {
     shopBtns[k].classList.toggle('sel', S.place === k);
     shopBtns[k].classList.toggle('dis', S.money < TOWERS[k].cost);
@@ -2090,11 +2250,12 @@ function refreshAll(force) {
   $('bPause').classList.toggle('on', S.paused);
   updateAbil();
   const t = S.sel;
-  const sig = t ? [S.towers.indexOf(t), t.up, t.mode, t.hero ? t.hero.lvl + ':' + Math.floor(t.hero.xp / 15) : '', t.paragon ? 'P' : (t.up.every(u => u >= 5) ? paragonReq(t).subs.length + (S.money >= PARAGON_COST ? '$' : '') : ''), JSON.stringify(t.pet || 0), PKEY.map(k => TOWERS[t.type][k].up.map(u => S.money >= u.c ? 1 : 0).join('')).join('.')].join('|') : (S.place ? 'p'+S.place : 'none');
+  const sig = t ? [S.towers.indexOf(t), t.up, t.mode, t.hero ? t.hero.lvl + ':' + Math.floor(t.hero.xp / 15) : '', t.paragon ? 'P' : (t.up.every(u => u >= 5) ? paragonReq(t).subs.length + (S.money >= PARAGON_COST ? '$' : '') : ''), JSON.stringify(t.pet || 0), t.omni ? JSON.stringify(t.omni.lv) + t.omni.mods.map(m => m.type + m.up.join('')).join() + omniCosts(t).map(c => c && S.money >= c ? 1 : 0).join('') : '', PKEY.map(k => TOWERS[t.type][k].up.map(u => S.money >= u.c ? 1 : 0).join('')).join('.')].join('|') : (S.place ? 'p'+S.place : 'none');
   if (!force && sig === lastSig) return;
   if (!force && document.activeElement && document.activeElement.id === 'petName') return;
   lastSig = sig;
   if (t && t.hero) heroInfo(t);
+  else if (t && t.omni) omniInfo(t);
   else if (t) {
     const def = TOWERS[t.type];
     let h = `<h3>${t.paragon ? '👑 Paragon ' : ''}${def.name} <span style="opacity:.6;font-weight:400">(${t.up.join('-')})</span></h3><div class="desc">${def.desc}</div>`;
@@ -2164,8 +2325,15 @@ $('bGo').onclick = startRound;
 $('bSpeed').onclick = () => { S.speed = S.speed % 3 + 1; refreshAll(true); };
 $('bAuto').onclick = () => { S.auto = !S.auto; if (S.auto) startRound(); refreshAll(true); };
 $('bPause').onclick = () => { S.paused = !S.paused; refreshAll(true); };
-let pickMap = Math.min(SAVE.sel.map, MAPS.length - 1), pickHero = HERO_KEYS[SAVE.sel.hero] || HERO_KEYS[0], pickDiff = SAVE.sel.diff;
-const updSum = () => { $('sumLine').innerHTML = `<b>${MAPS[pickMap].name}</b> · ${HEROES[pickHero].name} · ${DIFF[pickDiff].name}`; };
+let pickMap = Math.min(SAVE.sel.map, MAPS.length - 1), pickHero = HERO_KEYS[SAVE.sel.hero] || HERO_KEYS[0], pickDiff = SAVE.sel.diff, pickMul = Math.max(1, Math.min(10000, SAVE.sel.mul || 1));
+const updSum = () => { $('sumLine').innerHTML = `<b>${MAPS[pickMap].name}</b> · ${HEROES[pickHero].name} · ${DIFF[pickDiff].name}` + (pickMul > 1 ? ` · 💰 ×${pickMul}` : ''); };
+(() => { // Geld-Multiplikator
+  const rg = $('mulRange'), nm = $('mulNum'), chips = $('mulChips');
+  const setMul = (v, from) => { pickMul = Math.max(1, Math.min(10000, Math.round(v) || 1)); if (from !== 'r') rg.value = Math.log10(pickMul); if (from !== 'n') nm.value = pickMul; chips.querySelectorAll('button').forEach(b => b.classList.toggle('sel', +b.dataset.m === pickMul)); updSum(); };
+  [1, 2, 5, 10, 100, 1000, 10000].forEach(m => { const b = document.createElement('button'); b.dataset.m = m; b.textContent = '×' + m.toLocaleString('de-DE'); b.onclick = () => setMul(m); chips.appendChild(b); });
+  rg.oninput = () => setMul(Math.pow(10, +rg.value), 'r'); nm.oninput = () => setMul(+nm.value, 'n'); nm.onchange = () => setMul(+nm.value);
+  setMul(pickMul);
+})();
 HERO_KEYS.forEach((k, i) => {
   const d = document.createElement('div'); d.className = 'mapcard herocard' + (k === pickHero ? ' sel' : '');
   const c = document.createElement('canvas'); c.width = c.height = 112; const g = c.getContext('2d'); g.scale(2,2); drawCapy(g, 28, 34, k, 0, 1.3);
@@ -2185,7 +2353,7 @@ $('diffBtns').querySelectorAll('button').forEach(b => {
   b.onclick = () => { pickDiff = +b.dataset.d; $('diffBtns').querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b)); updSum(); };
 });
 updSum();
-$('startBtn').onclick = () => { SAVE.sel = {map:pickMap, hero:HERO_KEYS.indexOf(pickHero), diff:pickDiff}; persist(); newGame(pickDiff, pickMap, pickHero); };
+$('startBtn').onclick = () => { SAVE.sel = {map:pickMap, hero:HERO_KEYS.indexOf(pickHero), diff:pickDiff, mul:pickMul}; persist(); newGame(pickDiff, pickMap, pickHero, pickMul); };
 $('endless').onclick = () => { S.over = false; S.won = false; S.endless = true; $('overlay').classList.add('hidden'); refreshAll(true); };
 
 // Schwebende Ballons im Menü
@@ -2260,7 +2428,7 @@ function openMainMenu() {
 }
 $('bMenu').onclick = () => togglePauseMenu();
 $('pmResume').onclick = () => togglePauseMenu(false);
-$('pmRestart').onclick = () => { flushStats(); newGame(diffIdx, mapIdx, S.heroKey); };
+$('pmRestart').onclick = () => { flushStats(); newGame(diffIdx, mapIdx, S.heroKey, S.moneyMul); };
 $('pmMenu').onclick = openMainMenu;
 
 /* ---------- Hauptschleife ---------- */
