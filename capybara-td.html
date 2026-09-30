@@ -1425,6 +1425,96 @@ const MAXT = 7;
   }
 })();
 
+/* ---------- Upgrade-Looks: jede Stufe verändert das Aussehen passend zur Wirkung ---------- */
+const PCOL = ['#ffb74d','#4fc3f7','#f48fb1'];
+const TAG_ICON = {power:'💥', reach:'🔭', speed:'💨', multi:'🎆', frost:'❄️', shock:'⚡', poison:'☠️', fire:'🔥', blast:'💣', gold:'💰', sight:'👁️', shield:'🛡️', aura:'✨', curse:'🔮', time:'⏳', knock:'🌊'};
+const TAG_PRIO = ['multi','power','speed','reach','blast','fire','frost','shock','poison','curse','time','knock','gold','aura','shield','sight'];
+const LOOK = {};
+(function buildLookTables() {
+  const G = {
+    power:['dmg','bombDmg','pdmg'], reach:['range','orbit','orbR','radius','r','width','aDist','aRange'],
+    multi:['shots','bees','blades','beams','planes','traps','cluster','chain','targets','spirits','count','rings','pierce','spread'],
+    frost:['freeze','slowHit','slow','zSlow','trapSlow','trapFreeze','zFreeze'], shock:['stun','nova','chainR'],
+    poison:['hp','trapPoison','zPoison'], fire:['burn'], blast:['splash','trapBoom','boom'], gold:['income','popBonus','interest'],
+    aura:['aRate','aDmg'], curse:['curseAmt','curseT'], time:['rewind'], knock:['knock']
+  };
+  const FASTER = new Set(['rate','hitCd']), FASTUP = new Set(['flySpeed','spiritSpeed','beeSpeed','spin']);
+  for (const k in TOWERS) {
+    LOOK[k] = [[], [], []];
+    for (let p = 0; p < 3; p++) {
+      const arr = TOWERS[k]['ABC'[p]] && TOWERS[k]['ABC'[p]].up; if (!arr || arr.length < 7) continue;
+      const s = Object.assign({}, TOWERS[k].base);
+      for (let i = 0; i < 7; i++) {
+        const a = Object.assign({}, s); arr[i].m(s); const tags = new Set();
+        for (const key in s) {
+          const va = a[key], vb = s[key]; if (vb === va) continue;
+          if (vb === true && !va) { if (key === 'detect') tags.add('sight'); else if (key === 'pierceLead') tags.add('shield'); continue; }
+          if (typeof vb !== 'number') continue;
+          if (FASTER.has(key)) { if (vb < (va || 1e9)) tags.add('speed'); continue; }
+          if (FASTUP.has(key)) { tags.add('speed'); continue; }
+          for (const tg in G) if (G[tg].includes(key)) tags.add(tg);
+        }
+        if (!tags.size) tags.add('power');
+        LOOK[k][p].push(TAG_PRIO.filter(x => tags.has(x)).slice(0, 2));
+      }
+    }
+  }
+})();
+const lookIcon = (type, path, tier) => { const L = LOOK[type] && LOOK[type][path] && LOOK[type][path][tier]; return L && L.length ? TAG_ICON[L[0]] + ' ' : ''; };
+function buildLook(t) {
+  const cnt = {}; for (let p = 0; p < 3; p++) for (let i = 0; i < t.up[p]; i++) for (const tg of ((LOOK[t.type] && LOOK[t.type][p][i]) || [])) { const key = p + '|' + tg; cnt[key] = (cnt[key] || 0) + 1; }
+  return Object.keys(cnt).map(key => { const [p, tag] = key.split('|'); return {path:+p, tag, n:cnt[key]}; });
+}
+function omniLook(t) {
+  const lv = t.omni.lv, L = [], add = (path, tag, v) => { if (v > 0) L.push({path, tag, n:Math.max(1, Math.min(7, Math.ceil(v / 4)))}); };
+  add(0, 'power', lv.dmg + lv.gdmg); add(1, 'reach', lv.range + lv.grange); add(1, 'speed', lv.rate + lv.grate); add(0, 'multi', lv.shots + t.omni.mods.length * 3);
+  add(2, 'frost', lv.slow); add(2, 'poison', lv.poison); add(0, 'blast', lv.splash); add(2, 'sight', lv.detect ? 4 : 0); add(2, 'shield', lv.lead ? 4 : 0);
+  return L;
+}
+function drawMotif(tag, n, col, path) {
+  const c = ctx, T = TIME, po = path * 2, k = Math.min(n, 7);
+  switch (tag) {
+    case 'power':
+      for (let i = 0; i < k; i++) { const x = -14 + i*3.6, y = -9.5; c.fillStyle = col; c.strokeStyle = 'rgba(0,0,0,.45)'; c.lineWidth = .6; c.beginPath(); c.moveTo(x-1.7, y+1.2); c.lineTo(x, y - 2.6 - k*.4); c.lineTo(x+1.7, y+1.2); c.closePath(); c.fill(); c.stroke(); } break;
+    case 'reach': { const h = 5 + k*1.7; c.strokeStyle = '#9aa7ad'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(4, -12); c.lineTo(3, -12 - h); c.stroke();
+      c.fillStyle = col; c.beginPath(); c.arc(3, -12 - h, 1.6 + k*.25, 0, 7); c.fill();
+      if (k >= 3) { c.strokeStyle = col; c.globalAlpha = .55; c.beginPath(); c.arc(3, -12 - h, 3.2 + k*.6 + Math.sin(T*4)*.8, 0, 7); c.stroke(); c.globalAlpha = 1; } break; }
+    case 'speed':
+      for (let i = 0; i < Math.min(k + 1, 6); i++) { const y = -5 + i*2.8 + po*.3, l = 5 + k*1.4 + (i%2)*3; c.strokeStyle = col; c.globalAlpha = .55; c.lineWidth = 1.3; c.beginPath(); c.moveTo(-17, y); c.lineTo(-17 - l, y + Math.sin(T*9 + i)*.7); c.stroke(); c.globalAlpha = 1; }
+      for (let i = 0; i < Math.min(k, 4); i++) { c.fillStyle = col; c.beginPath(); c.ellipse(-11 - i*2.3, 12.5 - i*1.7, 3.3, 1.2, -.5 - i*.15, 0, 7); c.fill(); } break;
+    case 'multi':
+      for (let i = 0; i < Math.min(k + 1, 9); i++) { const m = Math.min(k + 1, 9), a = T*1.6 + i*6.283/m + po, rr = 26 + po; c.fillStyle = col; c.strokeStyle = '#fff'; c.lineWidth = .8; c.beginPath(); c.arc(Math.cos(a)*rr, -3 + Math.sin(a)*rr*.42, 2.1, 0, 7); c.fill(); c.stroke(); } break;
+    case 'frost':
+      for (let i = 0; i < Math.min(k + 1, 6); i++) { const x = -13 + i*3.5, y = -12 - (i%2)*2.4, s = 2 + (i%3)*.6; c.fillStyle = '#c8f2ff'; c.strokeStyle = col; c.lineWidth = .7; c.beginPath(); c.moveTo(x, y - s*1.8); c.lineTo(x + s*.8, y); c.lineTo(x, y + s*.8); c.lineTo(x - s*.8, y); c.closePath(); c.fill(); c.stroke(); } break;
+    case 'shock':
+      for (let i = 0; i < Math.min(k, 4); i++) { if (Math.sin(T*18 + i*2.1) < -.3) continue; const bx = 15 + i*3.5, by = -14 + i*5; c.strokeStyle = '#fff36b'; c.lineWidth = 1.3; c.beginPath(); c.moveTo(bx, by); c.lineTo(bx + 3, by + 3); c.lineTo(bx - 1, by + 4.5); c.lineTo(bx + 3, by + 8); c.stroke(); } break;
+    case 'poison':
+      for (let i = 0; i < Math.min(k + 1, 6); i++) { const ph = (T*.6 + i*.31) % 1; c.fillStyle = `rgba(120,255,90,${.75*(1 - ph)})`; c.beginPath(); c.arc(-8 + Math.sin(i*2 + T)*6, -10 - ph*17, 1.4 + (i%2), 0, 7); c.fill(); } break;
+    case 'fire':
+      for (let i = 0; i < Math.min(k, 5); i++) { const x = -17 + i*2.4, hgt = 5 + k*.9 + Math.sin(T*11 + i*1.7)*1.8; c.fillStyle = '#ff7a1a'; c.beginPath(); c.moveTo(x - 1.6, -6); c.quadraticCurveTo(x - .6, -6 - hgt*.6, x, -6 - hgt); c.quadraticCurveTo(x + 1, -6 - hgt*.5, x + 1.6, -6); c.closePath(); c.fill(); c.fillStyle = '#ffd54a'; c.beginPath(); c.moveTo(x - .8, -6); c.quadraticCurveTo(x, -6 - hgt*.55, x + .8, -6); c.closePath(); c.fill(); } break;
+    case 'blast': { const m = Math.min(k + 1, 6); c.strokeStyle = '#5d4037'; c.lineWidth = 2.4; c.beginPath(); c.moveTo(-9, -7); c.lineTo(9, 8); c.stroke();
+      for (let i = 0; i < m; i++) { const u = m > 1 ? i/(m - 1) : .5, x = -8 + u*16, y = -6 + u*13.5; c.fillStyle = '#1b1b1b'; c.beginPath(); c.arc(x, y, 2.1, 0, 7); c.fill(); c.fillStyle = col; c.beginPath(); c.arc(x + 1, y - 2, .8, 0, 7); c.fill(); } break; }
+    case 'gold':
+      for (let i = 0; i < Math.min(k + 1, 7); i++) { const a = .1 + i/Math.min(k + 1, 7)*Math.PI*.8; c.fillStyle = '#ffd54a'; c.strokeStyle = '#a67c00'; c.lineWidth = .7; c.beginPath(); c.arc(5 + Math.cos(a)*6.5, 1 + Math.sin(a)*4.2, 1.7, 0, 7); c.fill(); c.stroke(); } break;
+    case 'sight': { const r = 2.6 + k*.35; c.fillStyle = '#fff'; c.strokeStyle = 'rgba(0,0,0,.5)'; c.lineWidth = .7; c.beginPath(); c.ellipse(-2, -3, r*1.4, r, 0, 0, 7); c.fill(); c.stroke(); c.fillStyle = col; c.beginPath(); c.arc(-2, -3, r*.6, 0, 7); c.fill(); c.fillStyle = '#111'; c.beginPath(); c.arc(-2, -3, r*.3, 0, 7); c.fill();
+      if (k >= 4) { c.strokeStyle = col; c.globalAlpha = .5; c.beginPath(); c.arc(-2, -3, r*1.9 + Math.sin(T*5), 0, 7); c.stroke(); c.globalAlpha = 1; } break; }
+    case 'shield': { const s = 3.5 + k*.6; c.fillStyle = col; c.strokeStyle = '#eef2f4'; c.lineWidth = 1; c.beginPath(); c.moveTo(-5 - s, 0); c.lineTo(-5 + s, 0); c.lineTo(-5 + s, s*.9); c.quadraticCurveTo(-5, s*2.2, -5 - s, s*.9); c.closePath(); c.fill(); c.stroke(); c.beginPath(); c.moveTo(-5, 0); c.lineTo(-5, s*1.6); c.stroke(); break; }
+    case 'aura':
+      for (let i = 0; i < Math.min(k, 4); i++) { c.strokeStyle = col; c.globalAlpha = .55 - i*.1; c.lineWidth = 1.6; c.beginPath(); c.ellipse(0, 13, 20 + i*4 + Math.sin(T*3 + i)*1.2, 7 + i*1.6, 0, 0, 7); c.stroke(); } c.globalAlpha = 1; break;
+    case 'curse':
+      for (let i = 0; i < Math.min(k + 1, 5); i++) { const a = T*1.1 + i*1.3; c.fillStyle = 'rgba(190,110,255,.8)'; c.beginPath(); c.arc(10 + Math.cos(a)*11, -16 + Math.sin(a)*6, 1.7, 0, 7); c.fill(); c.strokeStyle = 'rgba(190,110,255,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(10 + Math.cos(a)*11, -16 + Math.sin(a)*6); c.lineTo(10 + Math.cos(a - .5)*11, -16 + Math.sin(a - .5)*6); c.stroke(); } break;
+    case 'time': { c.fillStyle = 'rgba(255,255,255,.9)'; c.strokeStyle = col; c.lineWidth = 1.2; c.beginPath(); c.arc(-15, -21, 3.8, 0, 7); c.fill(); c.stroke(); c.strokeStyle = '#222'; c.lineWidth = .9; const a = T*(1 + k*.5); c.beginPath(); c.moveTo(-15, -21); c.lineTo(-15 + Math.cos(a)*3, -21 + Math.sin(a)*3); c.moveTo(-15, -21); c.lineTo(-15 + Math.cos(a/6)*2, -21 + Math.sin(a/6)*2); c.stroke(); break; }
+    case 'knock':
+      for (let i = 0; i < Math.min(k, 4); i++) { c.strokeStyle = 'rgba(120,200,255,.85)'; c.lineWidth = 1.4; c.beginPath(); c.arc(22 + i*4, -2, 3 + i*2.6, -.9, .9); c.stroke(); } break;
+  }
+}
+function drawLook(t) {
+  if (!t.look || !t.look.length || t.s.kind === 'plane') return;
+  const flip = Math.cos(t.ang) < 0 ? -1 : 1; ctx.save(); ctx.translate(t.x, t.y); ctx.scale(flip, 1);
+  for (const L of t.look) drawMotif(L.tag, L.n, PCOL[L.path], L.path);
+  ctx.restore();
+}
+
 const HOTK = '1234567890-asdfgjzxcvbnikolm';
 
 const MODES = ['Erster','Letzter','Stärkster','Nächster'];
@@ -1788,13 +1878,13 @@ function drawParagonMark(t) {
 }
 function computeStats(t) {
   const def = TOWERS[t.type]; const s = Object.assign({}, def.base);
-  if (def.omni) { const so = omniCompute(t); applyPet(so, t.pet); t.s = so; t.upT = TIME; return; }
+  if (def.omni) { const so = omniCompute(t); applyPet(so, t.pet); t.s = so; t.upT = TIME; t.look = omniLook(t); return; }
   if (def.hero) { for (let l = 2; l <= t.hero.lvl; l++) HEROES[t.type].lv(s, l); applyPet(s, t.pet); t.s = s; t.upT = TIME; return; }
   ['A','B','C'].forEach((p, i) => { for (let k = 0; k < t.up[i]; k++) def[p].up[k].m(s); });
   if (t.paragon) applyParagon(s);
   applyPet(s, t.pet);
   if (s.rate && s.kind !== 'flame') s.rate = Math.max(s.rate, .04);
-  t.s = s; t.upT = TIME;
+  t.s = s; t.upT = TIME; t.look = buildLook(t);
 }
 function canPlace(x, y, type) {
   if (x < 18 || x > W-18 || y < 18 || y > H-18) return false;
@@ -2383,7 +2473,7 @@ function render(time) {
     if (t.omni) { ctx.fillStyle = 'rgba(190,140,255,.22)'; ctx.beginPath(); ctx.ellipse(t.x, t.y + 12, 26, 10, 0, 0, 7); ctx.fill(); }
     if (t.hero) { ctx.fillStyle = 'rgba(255,215,80,.28)'; ctx.beginPath(); ctx.ellipse(t.x, t.y+12, 27, 11, 0, 0, 7); ctx.fill(); }
     if (t.s.kind === 'plane') drawAirfield(t); else { const rc = t.recoil || 0, bob = t.s.kind === 'village' ? 0 : Math.sin(TIME*2.2 + t.bob) * .9;
-      ctx.save(); ctx.translate(-Math.cos(t.ang)*3*rc, bob); { const sq = rc*.09; if (sq > .002) { ctx.translate(t.x, t.y + 14); ctx.scale(1 + sq, 1 - sq*.7); ctx.translate(-t.x, -(t.y + 14)); } } { const bs = bornScale(t); if (bs !== 1) { ctx.translate(t.x, t.y + 14); ctx.scale(bs, bs); ctx.translate(-t.x, -(t.y + 14)); } } CAPY_TIER = t.omni ? 7 : t.hero ? 0 : Math.max(...t.up); drawCapy(ctx, t.x, t.y, t.type, t.ang); CAPY_TIER = 0; drawWeapon(ctx, t); ctx.restore(); }
+      ctx.save(); ctx.translate(-Math.cos(t.ang)*3*rc, bob); { const sq = rc*.09; if (sq > .002) { ctx.translate(t.x, t.y + 14); ctx.scale(1 + sq, 1 - sq*.7); ctx.translate(-t.x, -(t.y + 14)); } } { const bs = bornScale(t); if (bs !== 1) { ctx.translate(t.x, t.y + 14); ctx.scale(bs, bs); ctx.translate(-t.x, -(t.y + 14)); } } CAPY_TIER = t.omni ? 7 : t.hero ? 0 : Math.max(...t.up); drawCapy(ctx, t.x, t.y, t.type, t.ang); CAPY_TIER = 0; drawWeapon(ctx, t); drawLook(t); ctx.restore(); }
     if (t.hero) drawHeroBadge(t);
     if (t.omni) { drawOmniMark(t); for (const m of t.omni.mods) if (m.pt && m.pt.blades) drawBladeSet(m.pt.blades); }
     if (t.pet && t.pet.type) { drawPet(ctx, t.x + 25, t.y + 9, t.pet, TIME + t.bob); if (t === S.sel && t.pet.name) { ctx.fillStyle = '#fff'; ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.strokeText(t.pet.name, t.x + 25, t.y + 26); ctx.fillText(t.pet.name, t.x + 25, t.y + 26); } }
@@ -2623,7 +2713,7 @@ function refreshAll(force) {
       const why = blockReason(t, i);
       if (why === 'max') { h += `<button class="upg" disabled><b>${path.name}: ${path.up[path.up.length - 1].n}</b>Maximal ausgebaut</button>`; return; }
       const u = path.up[tier];
-      h += `<button class="upg" data-p="${i}" ${(S.money < u.c || why) ? 'disabled' : ''}><span class="c">$${u.c}</span><b>${path.name} ${tier+1}: ${u.n}</b>${why || u.d}</button>`;
+      h += `<button class="upg" data-p="${i}" ${(S.money < u.c || why) ? 'disabled' : ''}><span class="c">$${u.c}</span><b>${lookIcon(t.type, i, tier)}${path.name} ${tier+1}: ${u.n}</b>${why || u.d}</button>`;
     });
     h += paragonHtml(t) + petHtml(t.pet);
     h += `<div class="row" style="margin-top:6px">`;
@@ -2763,6 +2853,7 @@ function renderWiki() {
   <h3>🎈 Ballons</h3><ul>${dots.map(d => `<li><span class="dot" style="background:${d[0]}"></span>${d[1]}</li>`).join('')}
   <li><b>Blei</b> prallt spitze Waffen ab · <b>Tarn</b>-Ballons brauchen Tarnungserkennung</li></ul>
   <h3>👹 Bosse</h3><p><b>MOAB</b> (Runde 10), <b>DDT</b> (schnell &amp; getarnt), <b>BFB</b> (zerfällt in 4 MOABs), <b>ZOMG</b> (Runde 60). Bosse werden mit der Rundenzahl immer zäher, sind immun gegen Einfrieren und Rückstoß.</p>
+  <h3>🎨 Upgrade-Looks</h3><p>Jedes Upgrade verändert das Aussehen deines Capybaras passend zur Wirkung – vor dem Upgrade-Namen steht ein Symbol dafür: ${Object.keys(TAG_ICON).map(k => TAG_ICON[k] + ' ' + ({power:'Stacheln (Schaden)', reach:'Antenne (Reichweite)', speed:'Speedlinien & Flügelschuhe (Tempo)', multi:'Kreisende Kugeln (mehr Geschosse)', frost:'Eiskristalle', shock:'Blitze (Betäubung)', poison:'Giftbläschen', fire:'Flammen (Brand)', blast:'Bombengurt (Explosion)', gold:'Münzkette (Geld)', sight:'Auge (Tarnungserkennung)', shield:'Schild (durchdringt Blei)', aura:'Aura-Ringe', curse:'Fluchgeister', time:'Uhr (Zeit)', knock:'Wellen (Rückstoß)'}[k])).join(' · ')}. Die Farbe zeigt den Pfad (orange = 1, blau = 2, rosa = 3), die Anzahl die Stufe.</p>
   <h3>👑 Paragons</h3><p>Baue einen Turm auf mindestens <b>5/5/5</b> aus und opfere <b>2 weitere Türme derselben Sorte</b> (mit je einem Pfad auf Stufe 5) plus <b>$${PARAGON_COST}</b>: Der Turm wird zum Paragon mit massiv gesteigertem Schaden, Tempo, Reichweite und Anzahl an Schüssen.</p>
   <h3>🐾 Haustiere</h3><p>${Object.values(PETS).map(p => `${p.e} <b>${p.name}</b>: ${p.perk}`).join(' · ')}</p>
   <h3>🦫 Alle Capybaras</h3><div class="wgrid" id="wTowers"></div>
